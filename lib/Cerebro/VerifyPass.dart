@@ -1,46 +1,21 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../util/utils.dart';
-import 'ForgotPass.dart';
 import 'Home.dart';
-import 'package:http/http.dart' as http;
+import 'Login.dart';
 
-class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+class VerifyPass extends StatefulWidget {
+  const VerifyPass({Key? key}) : super(key: key);
 
   @override
-  _LoginState createState() => _LoginState();
+  _VerifyPassState createState() => _VerifyPassState();
 }
 
-class _LoginState extends State<Login> {
-  final TextEditingController _usernameTextController = TextEditingController();
-  final TextEditingController _passwordTextController = TextEditingController();
+class _VerifyPassState extends State<VerifyPass> {
+  final TextEditingController _newPasswordTextController = TextEditingController();
+  final TextEditingController _confirmPasswordTextController = TextEditingController();
+
   bool _isObscure = true;
-  String _errorMessage = '';
-
-  Future<void> fetchData() async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://192.168.18.24:3000/auth/signin'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "username": _usernameTextController.text,
-          "password": _passwordTextController.text,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        print(data['message']); // Access data from the response
-      } else {
-        print('Error fetching data: ${response.statusCode}');
-        // Handle the error or display appropriate message to the user
-      }
-    } catch (e) {
-      print('Error: $e');
-      // Handle the error or display appropriate message to the user
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +31,7 @@ class _LoginState extends State<Login> {
             width: double.infinity,
             child: Container(
               padding:
-              EdgeInsets.fromLTRB(22 * sizeAxis, 120 * sizeAxis, 21 * sizeAxis, 50 * sizeAxis),
+              EdgeInsets.fromLTRB(22 * sizeAxis, 200 * sizeAxis, 21 * sizeAxis, 130 * sizeAxis),
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: Color(0xffffffff),
@@ -65,30 +40,29 @@ class _LoginState extends State<Login> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    margin: EdgeInsets.fromLTRB(2 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 30 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 105 * sizeAxis, 20 * sizeAxis),
                     child: Text(
-                      'CEREBRO',
-                      textAlign: TextAlign.center,
-                      style: SafeGoogleFont(
-                        'Urbanist',
+                      'Verify Password',
+                      style: GoogleFonts.urbanist(
                         fontSize: 30 * size,
                         fontWeight: FontWeight.w700,
-                        height: 1.2 * size / sizeAxis,
+                        height: 1.3 * size / sizeAxis,
+                        letterSpacing: -0.3 * sizeAxis,
                         color: const Color(0xff0272bc),
                       ),
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 23 * sizeAxis, 32 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 20 * sizeAxis, 32 * sizeAxis),
                     constraints: BoxConstraints(
                       maxWidth: 307 * sizeAxis,
                     ),
                     child: Text(
-                      'Welcome back!\nGlad to see you again!',
+                      'We will send you an email with a link to reset your password, please enter the email associated with your account below.',
                       style: SafeGoogleFont(
                         'Urbanist',
-                        fontSize: 30 * size,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 13 * size,
+                        fontWeight: FontWeight.w400,
                         height: 1.3 * size / sizeAxis,
                         letterSpacing: -0.3 * sizeAxis,
                         color: const Color(0xff1e232c),
@@ -103,17 +77,32 @@ class _LoginState extends State<Login> {
                       border: Border.all(color: const Color(0xffe8ecf4)),
                       color: const Color(0xfff7f8f9),
                     ),
-                    child: TextFormField(
-                      controller: _usernameTextController,
+                    child: TextField(
+                      controller: _newPasswordTextController,
+                      // Assign the text controller
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
-                        hintText: 'Enter Username',
+                        contentPadding: EdgeInsets.fromLTRB(
+                            18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                        hintText: 'Enter New your Password',
                         hintStyle: const TextStyle(color: Color(0xff8390a1)),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscure
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscure = !_isObscure;
+                            });
+                          },
+                        ),
                       ),
                       style: SafeGoogleFont(
                         'Urbanist',
@@ -122,13 +111,8 @@ class _LoginState extends State<Login> {
                         height: 1.25 * size / sizeAxis,
                         color: const Color(0xff0272bc),
                       ),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        return null;
-                      },
+                      keyboardType: TextInputType.text,
+                      obscureText: _isObscure, // Toggle password visibility
                     ),
                   ),
                   Container(
@@ -140,7 +124,7 @@ class _LoginState extends State<Login> {
                       color: const Color(0xfff7f8f9),
                     ),
                     child: TextField(
-                      controller: _passwordTextController,
+                      controller: _confirmPasswordTextController,
                       // Assign the text controller
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -148,8 +132,9 @@ class _LoginState extends State<Login> {
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
-                        hintText: 'Enter your Password',
+                        contentPadding: EdgeInsets.fromLTRB(
+                            18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                        hintText: 'Confirm New your Password',
                         hintStyle: const TextStyle(color: Color(0xff8390a1)),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -180,8 +165,12 @@ class _LoginState extends State<Login> {
                     margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis),
                     child: TextButton(
                       onPressed: () {
-                        // Call fetchData() function when the button is pressed
-                        fetchData();
+                        // _signIn();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const Login(),
+                          ),
+                        );
                       },
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
@@ -195,7 +184,7 @@ class _LoginState extends State<Login> {
                         ),
                         child: Center(
                           child: Text(
-                            'Login',
+                            'Verify',
                             textAlign: TextAlign.center,
                             style: SafeGoogleFont(
                               'Urbanist',
@@ -209,74 +198,6 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ),
-                  Container(
-                    margin:
-                    EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ForgotPass(),
-                          ),
-                        );
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: SafeGoogleFont(
-                            'Poppins',
-                            fontSize: 15 * size,
-                            fontWeight: FontWeight.w600,
-                            height: 1.4 * size / sizeAxis,
-                            letterSpacing: 0.15 * sizeAxis,
-                            color: const Color(0xff1e232c),
-                          ),
-                          children: [
-                            TextSpan(
-                              text: "Can't Remember? ",
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                fontWeight: FontWeight.w500,
-                                height: 1.4 * size / sizeAxis,
-                                letterSpacing: 0.15 * sizeAxis,
-                                color: const Color(0xff1e232c),
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'Rest Password',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                fontWeight: FontWeight.w700,
-                                height: 1.4 * size / sizeAxis,
-                                letterSpacing: 0.15 * sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_errorMessage.isNotEmpty)
-                    Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                      child: Text(
-                        _errorMessage,
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 15 * size,
-                          fontWeight: FontWeight.w500,
-                          height: 1.4 * size / sizeAxis,
-                          letterSpacing: 0.15 * sizeAxis,
-                          color: const Color(0xffe74c3c),
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
