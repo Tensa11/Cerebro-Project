@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:Cerebro/Cerebro/Home.dart';
+import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:Cerebro/Cerebro/get-started.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +11,10 @@ import 'Cerebro/POST.dart';
 
 Future <void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+  runApp(MyApp()); // Replace MyApp with your app's class
 }
 
 class MyApp extends StatelessWidget {
@@ -34,12 +38,11 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
-      // splash: Lottie.asset('assets/lottie/LottieAnimationIntro.json'),
-      splash: Lottie.network('https://lottie.host/21218a7c-b9b8-41b1-ae95-6e4b7a95be04/77eXIk00NF.json'),
-      // nextScreen: const LotteryHomePage(),
+      splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
+      // splash: Lottie.network('https://lottie.host/21218a7c-b9b8-41b1-ae95-6e4b7a95be04/77eXIk00NF.json'),
       nextScreen: const GetStarted(),
       splashIconSize: 900,
-      duration: 3000,
+      duration: 2000,
       splashTransition: SplashTransition.fadeTransition,
     );
   }

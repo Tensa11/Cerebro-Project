@@ -5,6 +5,8 @@ import 'ForgotPass.dart';
 import 'Home.dart';
 import 'package:http/http.dart' as http;
 
+import 'MainDash.dart';
+
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -18,10 +20,10 @@ class _LoginState extends State<Login> {
   bool _isObscure = true;
   String _errorMessage = '';
 
-  Future<void> fetchData() async {
+  Future<void> signIn() async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.18.24:3000/auth/signin'),
+        Uri.parse('http://178.128.220.232:3000/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,
@@ -31,14 +33,28 @@ class _LoginState extends State<Login> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        print(data['message']); // Access data from the response
+
+        // Check for successful login message (adjust based on your API):
+        if (data['message'] == 'Successfully logged in' ||
+            data['message'].toLowerCase().contains('success')) {
+          // User successfully logged in, proceed to the next page
+          print('Login successful!');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const MainDash(),
+            ),
+          );
+        } else {
+          // Handle invalid credentials error
+          print('Invalid username or password.');
+        }
       } else {
         print('Error fetching data: ${response.statusCode}');
-        // Handle the error or display appropriate message to the user
+        // Handle other errors
       }
     } catch (e) {
       print('Error: $e');
-      // Handle the error or display appropriate message to the user
+      // Handle other errors
     }
   }
 
@@ -46,7 +62,8 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     double baseWidth = 400;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
-    double size = sizeAxis * 0.97;// Check if the user is already authenticated and their role
+    double size = sizeAxis *
+        0.97; // Check if the user is already authenticated and their role
 
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Remove debug banner
@@ -55,8 +72,8 @@ class _LoginState extends State<Login> {
           child: SizedBox(
             width: double.infinity,
             child: Container(
-              padding:
-              EdgeInsets.fromLTRB(22 * sizeAxis, 120 * sizeAxis, 21 * sizeAxis, 50 * sizeAxis),
+              padding: EdgeInsets.fromLTRB(
+                  22 * sizeAxis, 120 * sizeAxis, 21 * sizeAxis, 50 * sizeAxis),
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: Color(0xffffffff),
@@ -65,7 +82,8 @@ class _LoginState extends State<Login> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    margin: EdgeInsets.fromLTRB(2 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 30 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(2 * sizeAxis, 0 * sizeAxis,
+                        0 * sizeAxis, 30 * sizeAxis),
                     child: Text(
                       'CEREBRO',
                       textAlign: TextAlign.center,
@@ -79,7 +97,8 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 23 * sizeAxis, 32 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                        23 * sizeAxis, 32 * sizeAxis),
                     constraints: BoxConstraints(
                       maxWidth: 307 * sizeAxis,
                     ),
@@ -96,7 +115,8 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                        0 * sizeAxis, 15 * sizeAxis),
                     width: 331 * sizeAxis,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8 * sizeAxis),
@@ -111,7 +131,8 @@ class _LoginState extends State<Login> {
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                        contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                            18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
                         hintText: 'Enter Username',
                         hintStyle: const TextStyle(color: Color(0xff8390a1)),
                       ),
@@ -132,7 +153,8 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                        0 * sizeAxis, 15 * sizeAxis),
                     width: 331 * sizeAxis,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8 * sizeAxis),
@@ -148,7 +170,8 @@ class _LoginState extends State<Login> {
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                        contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                            18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
                         hintText: 'Enter your Password',
                         hintStyle: const TextStyle(color: Color(0xff8390a1)),
                         suffixIcon: IconButton(
@@ -177,11 +200,12 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
+                        0 * sizeAxis, 150 * sizeAxis),
                     child: TextButton(
                       onPressed: () {
                         // Call fetchData() function when the button is pressed
-                        fetchData();
+                        signIn();
                       },
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
@@ -210,8 +234,8 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   Container(
-                    margin:
-                    EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(
+                        1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
                     child: TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -264,7 +288,8 @@ class _LoginState extends State<Login> {
                   ),
                   if (_errorMessage.isNotEmpty)
                     Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis,
+                          0 * sizeAxis, 0 * sizeAxis),
                       child: Text(
                         _errorMessage,
                         style: SafeGoogleFont(

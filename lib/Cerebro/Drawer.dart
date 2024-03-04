@@ -1,3 +1,4 @@
+import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:flutter/material.dart';
 
 import 'AccountManage.dart';
@@ -55,7 +56,7 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => CereDash(),
+                    builder: (context) => MainDash(),
                   ),
                 );
               },
@@ -74,7 +75,7 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => AdminManage(),
+                    builder: (context) => ManageAdmin(),
                   ),
                 );
               },
@@ -93,7 +94,7 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ManagePatients(),
+                    builder: (context) => ManagePatient(),
                   ),
                 );
               },

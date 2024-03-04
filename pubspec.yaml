@@ -48,6 +48,7 @@ dependencies:
   fluttertoast: ^8.2.4
   flutter_local_notifications: ^16.1.0
   http: ^1.1.0
+  fl_chart: ^0.40.0
 
 dev_dependencies:
   flutter_test:
@@ -99,7 +100,7 @@ flutter:
     - assets/images/userCartoon.png
     - assets/images/drawer.png
     - assets/logo/appNameLogo.png
-    - assets/lottie/LottieAnimationIntro.json
+    - assets/lottie/LottieAnimIntro.json
     - lib/icons/light-bulb.png
     - lib/icons/air-conditioner.png
     - lib/icons/smart-tv.png
