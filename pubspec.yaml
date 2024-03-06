@@ -49,6 +49,7 @@ dependencies:
   flutter_local_notifications: ^16.1.0
   http: ^1.1.0
   fl_chart: ^0.60.0
+  syncfusion_flutter_charts: ^21.2.9
 
 dev_dependencies:
   flutter_test:
@@ -108,7 +109,10 @@ flutter:
     - assets/images/bgg7.jpg
     - assets/images/bgg8.jpg
     - assets/images/bgg9.jpg
+    - assets/images/bgg10.jpg
+    - assets/images/bgg11.jpg
     - assets/logo/appNameLogo.png
+    - assets/logo/applogoNoBG.png
     - assets/lottie/LottieAnimIntro.json
     - lib/icons/light-bulb.png
     - lib/icons/air-conditioner.png

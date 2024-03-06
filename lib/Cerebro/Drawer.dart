@@ -1,6 +1,7 @@
 import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'AccountManage.dart';
 import 'Home.dart';
 import 'Login.dart';
@@ -137,6 +138,7 @@ class _CereDrawerState extends State<CereDrawer> {
                       builder: (context) => const Login(),
                     ),
                   );
+                  SystemNavigator.pop(); // Disable back button
                 } catch (e) {
                   print('Error logging out: $e');
                 }

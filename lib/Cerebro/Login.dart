@@ -87,16 +87,9 @@ class _LoginState extends State<Login> {
                   Container(
                     margin: EdgeInsets.fromLTRB(2 * sizeAxis, 0 * sizeAxis,
                         0 * sizeAxis, 30 * sizeAxis),
-                    child: Text(
-                      'CEREBRO',
-                      textAlign: TextAlign.center,
-                      style: SafeGoogleFont(
-                        'Urbanist',
-                        fontSize: 30 * size,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2 * size / sizeAxis,
-                        color: const Color(0xff0272bc),
-                      ),
+                    child: Image.asset(
+                      'assets/logo/applogoNoBG.png', // Replace with your AssetImage
+                      width: 100 * sizeAxis, // Adjust the width as needed
                     ),
                   ),
                   Container(
@@ -204,7 +197,7 @@ class _LoginState extends State<Login> {
                   ),
                   Container(
                     margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
-                        0 * sizeAxis, 150 * sizeAxis),
+                        0 * sizeAxis, 100 * sizeAxis),
                     child: TextButton(
                       onPressed: () {
                         // Call fetchData() function when the button is pressed
