@@ -18,7 +18,8 @@ class _AddPatientState extends State<AddPatient> {
   late TextEditingController dobController;
   String? selectedGender;
 
-  TextEditingController firstNameController = TextEditingController(); // Add a TextEditingController for the reference input
+  TextEditingController firstNameController =
+      TextEditingController(); // Add a TextEditingController for the reference input
   TextEditingController lastNameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController statusController = TextEditingController();
@@ -27,7 +28,6 @@ class _AddPatientState extends State<AddPatient> {
   TextEditingController emergencyController = TextEditingController();
   TextEditingController docController = TextEditingController();
   TextEditingController roomController = TextEditingController();
-
 
   String getCurrentDateTime() {
     DateTime now = DateTime.now();
@@ -70,7 +70,8 @@ class _AddPatientState extends State<AddPatient> {
         child: SizedBox(
           width: double.infinity,
           child: Container(
-            padding: EdgeInsets.fromLTRB(22 * sizeAxis, 28 * sizeAxis, 21 * sizeAxis, 180 * sizeAxis),
+            padding: EdgeInsets.fromLTRB(
+                22 * sizeAxis, 28 * sizeAxis, 21 * sizeAxis, 180 * sizeAxis),
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Color(0xffffffff),
@@ -79,13 +80,15 @@ class _AddPatientState extends State<AddPatient> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  margin: EdgeInsets.fromLTRB(10 * sizeAxis, 0 * sizeAxis, 3 * sizeAxis, 30 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      10 * sizeAxis, 0 * sizeAxis, 3 * sizeAxis, 30 * sizeAxis),
                   width: double.infinity,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 25 * sizeAxis, 200 * sizeAxis, 0 * sizeAxis),
+                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 25 * sizeAxis,
+                            200 * sizeAxis, 0 * sizeAxis),
                         child: TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -97,7 +100,8 @@ class _AddPatientState extends State<AddPatient> {
                             width: 48 * sizeAxis,
                             height: 48 * sizeAxis,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24 * sizeAxis),
+                              borderRadius:
+                                  BorderRadius.circular(24 * sizeAxis),
                               image: const DecorationImage(
                                 fit: BoxFit.cover,
                                 image: AssetImage(
@@ -112,7 +116,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis, 5 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      0 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis, 5 * sizeAxis),
                   child: Text(
                     'New Patient',
                     style: GoogleFonts.urbanist(
@@ -125,7 +130,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(5 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(5 * sizeAxis, 0 * sizeAxis,
+                      150 * sizeAxis, 15 * sizeAxis),
                   constraints: BoxConstraints(
                     maxWidth: 330 * sizeAxis,
                   ),
@@ -140,7 +146,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -156,7 +163,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'First Name',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -169,7 +177,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -185,7 +194,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Last Name',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -201,7 +211,8 @@ class _AddPatientState extends State<AddPatient> {
                 GestureDetector(
                   onTap: () => _selectDate(context),
                   child: Container(
-                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                        0 * sizeAxis, 15 * sizeAxis),
                     width: double.infinity,
                     height: 56 * sizeAxis,
                     decoration: BoxDecoration(
@@ -215,11 +226,15 @@ class _AddPatientState extends State<AddPatient> {
                         Padding(
                           padding: EdgeInsets.only(left: 18 * sizeAxis),
                           child: Text(
-                            dobController.text.isEmpty ? 'Date of Birth' : dobController.text,
+                            dobController.text.isEmpty
+                                ? 'Date of Birth'
+                                : dobController.text,
                             style: TextStyle(
                               fontSize: 15 * sizeAxis,
                               height: 1.25 * sizeAxis,
-                              color: dobController.text.isEmpty ? const Color(0xff8390a1) : const Color(0xffef3924),
+                              color: dobController.text.isEmpty
+                                  ? const Color(0xff8390a1)
+                                  : const Color(0xffef3924),
                             ),
                           ),
                         ),
@@ -229,7 +244,8 @@ class _AddPatientState extends State<AddPatient> {
                 ),
                 // Gender Field
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -240,12 +256,14 @@ class _AddPatientState extends State<AddPatient> {
                   child: DropdownButtonFormField<String>(
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Gender',
                       hintStyle: TextStyle(color: const Color(0xff8390a1)),
                     ),
                     value: selectedGender,
-                    icon: const Icon(Icons.arrow_drop_down, color: Color(0xff8390a1)),
+                    icon: const Icon(Icons.arrow_drop_down,
+                        color: Color(0xff8390a1)),
                     iconSize: 24 * sizeAxis,
                     elevation: 16,
                     style: TextStyle(
@@ -268,7 +286,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis, 150 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis,
+                      150 * sizeAxis, 15 * sizeAxis),
                   child: Text(
                     'Contact Information',
                     style: GoogleFonts.urbanist(
@@ -281,7 +300,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -297,7 +317,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Address',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -310,7 +331,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -326,7 +348,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Phone Number',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -339,7 +362,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -355,7 +379,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Email Address',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -368,7 +393,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis, 110 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis,
+                      110 * sizeAxis, 15 * sizeAxis),
                   child: Text(
                     'Health-care Information',
                     style: GoogleFonts.urbanist(
@@ -381,7 +407,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -397,7 +424,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Emergency Contact',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -411,7 +439,8 @@ class _AddPatientState extends State<AddPatient> {
                 ),
 
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -427,7 +456,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Assigned Doctor',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -441,7 +471,8 @@ class _AddPatientState extends State<AddPatient> {
                 ),
 
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -457,7 +488,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Room Assigned',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -470,7 +502,8 @@ class _AddPatientState extends State<AddPatient> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -486,7 +519,8 @@ class _AddPatientState extends State<AddPatient> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Status',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -500,10 +534,10 @@ class _AddPatientState extends State<AddPatient> {
                 ),
                 SizedBox(height: 25),
                 Container(
-                  margin: EdgeInsets.fromLTRB(39 * sizeAxis, 0 * sizeAxis, 36 * sizeAxis, 0 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      39 * sizeAxis, 0 * sizeAxis, 36 * sizeAxis, 0 * sizeAxis),
                   child: TextButton(
-                    onPressed: () async {
-                    },
+                    onPressed: () async {},
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                     ),

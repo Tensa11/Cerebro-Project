@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../util/utils.dart';
-import 'Home.dart';
 import 'VerifyPass.dart';
 
 class ForgotPass extends StatefulWidget {
@@ -21,7 +20,8 @@ class _ForgotPassState extends State<ForgotPass> {
   Widget build(BuildContext context) {
     double baseWidth = 400;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
-    double size = sizeAxis * 0.97;// Check if the user is already authenticated and their role
+    double size = sizeAxis *
+        0.97; // Check if the user is already authenticated and their role
 
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Remove debug banner
@@ -30,8 +30,8 @@ class _ForgotPassState extends State<ForgotPass> {
           child: SizedBox(
             width: double.infinity,
             child: Container(
-              padding:
-              EdgeInsets.fromLTRB(22 * sizeAxis, 230 * sizeAxis, 21 * sizeAxis, 130 * sizeAxis),
+              padding: EdgeInsets.fromLTRB(
+                  22 * sizeAxis, 230 * sizeAxis, 21 * sizeAxis, 130 * sizeAxis),
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: Color(0xffffffff),
@@ -40,7 +40,8 @@ class _ForgotPassState extends State<ForgotPass> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 70 * sizeAxis, 20 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                        70 * sizeAxis, 20 * sizeAxis),
                     child: Text(
                       'Forgot Password?!',
                       style: GoogleFonts.urbanist(
@@ -53,7 +54,8 @@ class _ForgotPassState extends State<ForgotPass> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 20 * sizeAxis, 32 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                        20 * sizeAxis, 32 * sizeAxis),
                     constraints: BoxConstraints(
                       maxWidth: 307 * sizeAxis,
                     ),
@@ -70,7 +72,8 @@ class _ForgotPassState extends State<ForgotPass> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                        0 * sizeAxis, 15 * sizeAxis),
                     width: 331 * sizeAxis,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8 * sizeAxis),
@@ -85,8 +88,8 @@ class _ForgotPassState extends State<ForgotPass> {
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.fromLTRB(
-                            18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                        contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                            18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
                         hintText: 'Enter Email',
                         hintStyle: const TextStyle(color: Color(0xff8390a1)),
                       ),
@@ -107,7 +110,8 @@ class _ForgotPassState extends State<ForgotPass> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis),
+                    margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
+                        0 * sizeAxis, 150 * sizeAxis),
                     child: TextButton(
                       onPressed: () {
                         // _signIn();

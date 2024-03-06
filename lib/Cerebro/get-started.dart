@@ -26,7 +26,7 @@ class _GetStartedState extends State<GetStarted> {
           image: DecorationImage(
             fit: BoxFit.cover,
             image: AssetImage(
-              'assets/images/get-started-bg.png',
+              'assets/images/bgg6.jpg',
             ),
           ),
         ),

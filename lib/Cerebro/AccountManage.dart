@@ -1,7 +1,4 @@
-import 'dart:math';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
 import 'appbar.dart'; // Import the custom app bar
@@ -30,7 +27,8 @@ class _ManageAdminState extends State<ManageAdmin> {
           children: [
             CustomAppBar(), // Replace the AppBar with the CustomAppBar
             Container(
-              margin: EdgeInsets.fromLTRB(0 * sizeAxis, 40 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+              margin: EdgeInsets.fromLTRB(
+                  0 * sizeAxis, 40 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
               width: double.infinity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,13 +51,14 @@ class _ManageAdminState extends State<ManageAdmin> {
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: 3,
+                itemCount: 4,
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
                     elevation: 3,
                     child: ListTile(
                       leading: const CircleAvatar(
-                        backgroundImage: AssetImage('assets/images/userCartoon.png'),
+                        backgroundImage:
+                            AssetImage('assets/images/userCartoon.png'),
                       ),
                       title: Text(
                         'Admin: Yusef',

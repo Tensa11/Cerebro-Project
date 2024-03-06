@@ -48,7 +48,7 @@ dependencies:
   fluttertoast: ^8.2.4
   flutter_local_notifications: ^16.1.0
   http: ^1.1.0
-  fl_chart: ^0.40.0
+  fl_chart: ^0.60.0
 
 dev_dependencies:
   flutter_test:
@@ -99,12 +99,22 @@ flutter:
     - assets/images/user4.png
     - assets/images/userCartoon.png
     - assets/images/drawer.png
+    - assets/images/bgg1.jpg
+    - assets/images/bgg2.jpg
+    - assets/images/bgg3.jpg
+    - assets/images/bgg4.jpg
+    - assets/images/bgg5.jpg
+    - assets/images/bgg6.jpg
+    - assets/images/bgg7.jpg
+    - assets/images/bgg8.jpg
+    - assets/images/bgg9.jpg
     - assets/logo/appNameLogo.png
     - assets/lottie/LottieAnimIntro.json
     - lib/icons/light-bulb.png
     - lib/icons/air-conditioner.png
     - lib/icons/smart-tv.png
     - lib/icons/fan.png
+    -
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

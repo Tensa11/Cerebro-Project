@@ -1,6 +1,5 @@
 import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:flutter/material.dart';
-
 import 'AccountManage.dart';
 import 'Home.dart';
 import 'Login.dart';
@@ -14,7 +13,6 @@ class CereDrawer extends StatefulWidget {
 }
 
 class _CereDrawerState extends State<CereDrawer> {
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -23,24 +21,31 @@ class _CereDrawerState extends State<CereDrawer> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text(
-                'Your Account Name',
-                style: TextStyle(color: Colors.white), // Changed text color
-              ),
-              accountEmail: Text(
-                'your_email@example.com',
-                style: TextStyle(color: Colors.white), // Changed text color
-              ),
+              accountName: Text("AppMaking.co"),
+              accountEmail: Text("sundar@appmaking.co"),
               currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/logo/applogo.png', // Replace 'your_image.png' with the path to your image asset
-                    width: 42.0, // Set the width of the image
-                    height: 42.0, // Set the height of the image
+                backgroundImage: AssetImage("assets/images/userCartoon.png"),
+              ),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                    "assets/images/bgg2.jpg",
                   ),
+                  fit: BoxFit.fill,
                 ),
               ),
+              // otherAccountsPictures: [
+              //   CircleAvatar(
+              //     backgroundColor: Colors.white,
+              //     backgroundImage:  AssetImage(
+              //         "assets/images/bgg1.jpg"),
+              //   ),
+              //   CircleAvatar(
+              //     backgroundColor: Colors.white,
+              //     backgroundImage:  AssetImage(
+              //         "assets/images/bgg4.jpg"),
+              //   ),
+              // ],
             ),
             ListTile(
               leading: const Icon(
@@ -115,7 +120,8 @@ class _CereDrawerState extends State<CereDrawer> {
                 try {
                   showDialog(
                     context: context,
-                    barrierDismissible: false, // Set to false to prevent dialog dismissal on tap outside
+                    barrierDismissible: false,
+                    // Set to false to prevent dialog dismissal on tap outside
                     builder: (context) {
                       return Center(
                         child: CircularProgressIndicator(
@@ -124,7 +130,8 @@ class _CereDrawerState extends State<CereDrawer> {
                       );
                     },
                   );
-                  Navigator.of(context).pushReplacement(  // Use pushReplacement to prevent going back to the previous screen
+                  Navigator.of(context).pushReplacement(
+                    // Use pushReplacement to prevent going back to the previous screen
                     MaterialPageRoute(
                       builder: (context) => const Login(),
                     ),

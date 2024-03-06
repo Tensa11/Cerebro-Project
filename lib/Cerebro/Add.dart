@@ -15,13 +15,19 @@ class _CereAddState extends State<CereAdd> {
   double sizeAxis = 1.0;
   double size = 1.0;
 
-  TextEditingController itemController = TextEditingController(); // Add a TextEditingController for the reference input
+  TextEditingController itemController =
+      TextEditingController(); // Add a TextEditingController for the reference input
   TextEditingController dateTimeController = TextEditingController();
   TextEditingController amountController = TextEditingController();
 
-
   String generateRandomItem() {
-    List<String> items = ['Coffee Mug', 'Notebook', 'Smartphone', 'Sunglasses', 'Water Bottle'];
+    List<String> items = [
+      'Coffee Mug',
+      'Notebook',
+      'Smartphone',
+      'Sunglasses',
+      'Water Bottle'
+    ];
     Random random = Random();
     return items[random.nextInt(items.length)];
   }
@@ -48,7 +54,8 @@ class _CereAddState extends State<CereAdd> {
         child: SizedBox(
           width: double.infinity,
           child: Container(
-            padding: EdgeInsets.fromLTRB(22 * sizeAxis, 28 * sizeAxis, 21 * sizeAxis, 180 * sizeAxis),
+            padding: EdgeInsets.fromLTRB(
+                22 * sizeAxis, 28 * sizeAxis, 21 * sizeAxis, 180 * sizeAxis),
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Color(0xffffffff),
@@ -57,16 +64,17 @@ class _CereAddState extends State<CereAdd> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  margin: EdgeInsets.fromLTRB(10 * sizeAxis, 0 * sizeAxis, 3 * sizeAxis, 70 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      10 * sizeAxis, 0 * sizeAxis, 3 * sizeAxis, 70 * sizeAxis),
                   width: double.infinity,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 200 * sizeAxis, 0 * sizeAxis),
+                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                            200 * sizeAxis, 0 * sizeAxis),
                         child: TextButton(
-                          onPressed: () {
-                          },
+                          onPressed: () {},
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
                           ),
@@ -74,7 +82,8 @@ class _CereAddState extends State<CereAdd> {
                             width: 48 * sizeAxis,
                             height: 48 * sizeAxis,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24 * sizeAxis),
+                              borderRadius:
+                                  BorderRadius.circular(24 * sizeAxis),
                               image: const DecorationImage(
                                 fit: BoxFit.cover,
                                 image: AssetImage(
@@ -89,7 +98,8 @@ class _CereAddState extends State<CereAdd> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis, 4 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      0 * sizeAxis, 0 * sizeAxis, 150 * sizeAxis, 4 * sizeAxis),
                   child: Text(
                     'Cashier Add',
                     style: GoogleFonts.urbanist(
@@ -102,13 +112,14 @@ class _CereAddState extends State<CereAdd> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 200 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                      200 * sizeAxis, 15 * sizeAxis),
                   constraints: BoxConstraints(
                     maxWidth: 330 * sizeAxis,
                   ),
                   child: Text(
                     'Add data to fill up \n'
-                        'the needed details',
+                    'the needed details',
                     style: GoogleFonts.inter(
                       fontSize: 13 * size,
                       fontWeight: FontWeight.w400,
@@ -118,7 +129,8 @@ class _CereAddState extends State<CereAdd> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: 331 * sizeAxis,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8 * sizeAxis),
@@ -126,14 +138,16 @@ class _CereAddState extends State<CereAdd> {
                     color: const Color(0xfff7f8f9),
                   ),
                   child: TextField(
-                    controller: itemController, // Use the referenceController to capture user input
+                    controller: itemController,
+                    // Use the referenceController to capture user input
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
                       hintText: 'Generate an Item',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -146,7 +160,8 @@ class _CereAddState extends State<CereAdd> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -162,7 +177,8 @@ class _CereAddState extends State<CereAdd> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Date and Time',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -175,7 +191,8 @@ class _CereAddState extends State<CereAdd> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 15 * sizeAxis),
                   width: double.infinity,
                   height: 56 * sizeAxis,
                   decoration: BoxDecoration(
@@ -191,7 +208,8 @@ class _CereAddState extends State<CereAdd> {
                       enabledBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis, 17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
+                      contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                          17 * sizeAxis, 16 * sizeAxis, 17 * sizeAxis),
                       hintText: 'Amount',
                       hintStyle: const TextStyle(color: Color(0xff8390a1)),
                     ),
@@ -205,10 +223,10 @@ class _CereAddState extends State<CereAdd> {
                 ),
                 SizedBox(height: 25),
                 Container(
-                  margin: EdgeInsets.fromLTRB(39 * sizeAxis, 0 * sizeAxis, 36 * sizeAxis, 0 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      39 * sizeAxis, 0 * sizeAxis, 36 * sizeAxis, 0 * sizeAxis),
                   child: TextButton(
-                    onPressed: () async {
-                    },
+                    onPressed: () async {},
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                     ),

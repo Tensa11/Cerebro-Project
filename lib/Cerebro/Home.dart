@@ -30,9 +30,9 @@ class _CereDashState extends State<CereDash> {
       var transactions = jsonData['total_amount'] as List<dynamic>;
       List<Map<String, dynamic>> data = transactions
           .map((transaction) => {
-        'amount': transaction['amount'] as double,
-        'trans_date': transaction['trans_date'] as String,
-      })
+                'amount': transaction['amount'] as double,
+                'trans_date': transaction['trans_date'] as String,
+              })
           .toList();
 
       // Sort the list based on the trans_date in descending order
@@ -61,7 +61,8 @@ class _CereDashState extends State<CereDash> {
         child: SizedBox(
           width: double.infinity,
           child: Container(
-            padding: EdgeInsets.fromLTRB(24 * sizeAxis, 30 * sizeAxis, 24 * sizeAxis, 0 * sizeAxis),
+            padding: EdgeInsets.fromLTRB(
+                24 * sizeAxis, 30 * sizeAxis, 24 * sizeAxis, 0 * sizeAxis),
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Color(0xffffffff),
@@ -70,13 +71,15 @@ class _CereDashState extends State<CereDash> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 20 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 20 * sizeAxis),
                   width: double.infinity,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 155 * sizeAxis, 0 * sizeAxis),
+                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                            155 * sizeAxis, 0 * sizeAxis),
                         child: TextButton(
                           onPressed: () {},
                           style: TextButton.styleFrom(
@@ -86,17 +89,20 @@ class _CereDashState extends State<CereDash> {
                             width: 115 * sizeAxis,
                             height: 105 * sizeAxis,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24 * sizeAxis),
+                              borderRadius:
+                                  BorderRadius.circular(24 * sizeAxis),
                               image: const DecorationImage(
                                 fit: BoxFit.cover,
-                                image: AssetImage('assets/logo/appNameLogo.png'),
+                                image:
+                                    AssetImage('assets/logo/appNameLogo.png'),
                               ),
                             ),
                           ),
                         ),
                       ),
                       Container(
-                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 20 * sizeAxis),
+                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis,
+                            0 * sizeAxis, 20 * sizeAxis),
                         child: Builder(
                           builder: (context) => IconButton(
                             icon: Image.asset(
@@ -115,7 +121,8 @@ class _CereDashState extends State<CereDash> {
                 ),
                 // Current Credits ListView
                 Container(
-                  margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 13 * sizeAxis),
+                  margin: EdgeInsets.fromLTRB(
+                      0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 13 * sizeAxis),
                   width: double.infinity,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +141,8 @@ class _CereDashState extends State<CereDash> {
                       FutureBuilder<List<Map<String, dynamic>>>(
                         future: fetchData(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return CircularProgressIndicator();
                           } else if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
@@ -147,12 +155,14 @@ class _CereDashState extends State<CereDash> {
                               itemBuilder: (BuildContext context, int index) {
                                 var transaction = transactions[index];
                                 var amount = transaction['amount'] as double;
-                                var transDate = transaction['trans_date'] as String;
+                                var transDate =
+                                    transaction['trans_date'] as String;
                                 return Card(
                                   elevation: 3,
                                   child: ListTile(
                                     leading: const CircleAvatar(
-                                      backgroundImage: AssetImage('assets/logo/applogo.png'),
+                                      backgroundImage:
+                                          AssetImage('assets/logo/applogo.png'),
                                     ),
                                     title: Text(
                                       'Amount: ₱$amount',
@@ -164,7 +174,8 @@ class _CereDashState extends State<CereDash> {
                                       ),
                                     ),
                                     subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: <Widget>[
                                         SizedBox(height: 5),
                                         Text(

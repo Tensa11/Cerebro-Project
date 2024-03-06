@@ -8,13 +8,15 @@ class CustomAppBar extends StatelessWidget {
     double size = sizeAxis * 0.97;
 
     return Container(
-      margin: EdgeInsets.fromLTRB(0 * sizeAxis, 30 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+      margin: EdgeInsets.fromLTRB(
+          0 * sizeAxis, 30 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
       width: double.infinity,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 155 * sizeAxis, 0 * sizeAxis),
+            margin: EdgeInsets.fromLTRB(
+                0 * sizeAxis, 0 * sizeAxis, 155 * sizeAxis, 0 * sizeAxis),
             child: TextButton(
               onPressed: () {},
               style: TextButton.styleFrom(
@@ -34,7 +36,8 @@ class CustomAppBar extends StatelessWidget {
             ),
           ),
           Container(
-            margin: EdgeInsets.fromLTRB(0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 20 * sizeAxis),
+            margin: EdgeInsets.fromLTRB(
+                0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 20 * sizeAxis),
             child: Builder(
               builder: (context) => IconButton(
                 icon: Image.asset(

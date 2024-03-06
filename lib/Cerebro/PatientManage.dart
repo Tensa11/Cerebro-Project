@@ -1,7 +1,4 @@
-import 'dart:math';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../util/utils.dart';
 import 'AddPatient.dart';
 import 'Details.dart';
@@ -32,7 +29,8 @@ class _ManagePatientState extends State<ManagePatient> {
           children: [
             CustomAppBar(), // Replace the AppBar with the CustomAppBar
             Container(
-              margin: EdgeInsets.fromLTRB(0 * sizeAxis, 40 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+              margin: EdgeInsets.fromLTRB(
+                  0 * sizeAxis, 40 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
               width: double.infinity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +68,8 @@ class _ManagePatientState extends State<ManagePatient> {
                       elevation: 3,
                       child: ListTile(
                         leading: const CircleAvatar(
-                          backgroundImage: AssetImage('assets/images/userCartoon.png'),
+                          backgroundImage:
+                              AssetImage('assets/images/userCartoon.png'),
                         ),
                         title: Text(
                           'Name: John Doe',

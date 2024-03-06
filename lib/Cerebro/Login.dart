@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../util/utils.dart';
 import 'ForgotPass.dart';
-import 'Home.dart';
 import 'package:http/http.dart' as http;
-
 import 'MainDash.dart';
 
 class Login extends StatefulWidget {
@@ -76,7 +74,12 @@ class _LoginState extends State<Login> {
                   22 * sizeAxis, 120 * sizeAxis, 21 * sizeAxis, 50 * sizeAxis),
               width: double.infinity,
               decoration: const BoxDecoration(
-                color: Color(0xffffffff),
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage(
+                    'assets/images/bgg9.jpg',
+                  ),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,

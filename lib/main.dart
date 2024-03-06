@@ -9,7 +9,7 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 
 import 'Cerebro/POST.dart';
 
-Future <void> main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -47,4 +47,3 @@ class SplashScreen extends StatelessWidget {
     );
   }
 }
-
