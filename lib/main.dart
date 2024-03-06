@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'package:Cerebro/Cerebro/Home.dart';
 import 'package:Cerebro/Cerebro/MainDash.dart';
+import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:Cerebro/Cerebro/get-started.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-
-import 'Cerebro/POST.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +38,7 @@ class SplashScreen extends StatelessWidget {
     return AnimatedSplashScreen(
       splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
       // splash: Lottie.network('https://lottie.host/21218a7c-b9b8-41b1-ae95-6e4b7a95be04/77eXIk00NF.json'),
-      nextScreen: const GetStarted(),
+      nextScreen: const SaleDash(),
       splashIconSize: 900,
       duration: 2000,
       splashTransition: SplashTransition.fadeTransition,

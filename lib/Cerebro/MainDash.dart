@@ -53,10 +53,9 @@ class _MainDashState extends State<MainDash> {
               ),
             ),
             // ListView Card with PieChart
-            // ListView Card with PieChart
             Expanded(
               child: ListView.builder(
-                itemCount: 3, // Add 1 for the PieChart
+                itemCount: 3,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return Card(
@@ -153,7 +152,7 @@ class _MainDashState extends State<MainDash> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      is3D ? 'Admins' : 'Hospitals',
+                                      is3D ? 'Admins' : 'Patient',
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -231,12 +230,12 @@ class _MainDashState extends State<MainDash> {
   List<PieChartSectionData> _generatePieChartData() {
     // Get the total data from _totalAccData
     int totalAdmins = int.parse(_totalAccData(true));
-    int totalHospitals = int.parse(_totalAccData(false));
-    int total = totalAdmins + totalHospitals;
+    int totalEmployee = int.parse(_totalAccData(false));
+    int total = totalAdmins + totalEmployee;
 
     // Calculate percentages for each section
     double adminsPercentage = totalAdmins / total * 100;
-    double hospitalsPercentage = totalHospitals / total * 100;
+    double EmployeePercentage = totalEmployee / total * 100;
 
     // Define custom text style for the percentage labels
     final TextStyle percentageTextStyle = SafeGoogleFont(
@@ -263,14 +262,14 @@ class _MainDashState extends State<MainDash> {
       ),
       PieChartSectionData(
         color: Colors.green,
-        value: hospitalsPercentage,
-        title: '${hospitalsPercentage.toStringAsFixed(0)}%',
+        value: EmployeePercentage,
+        title: '${EmployeePercentage.toStringAsFixed(0)}%',
         // Round to nearest integer
         radius: touchedIndex == 1 ? 60 : 50,
         // Increase radius if touched
         titlePositionPercentageOffset: 0.4,
         // Adjusted position for hospital percentage label
-        badgeWidget: _generateBadge('Hospitals'),
+        badgeWidget: _generateBadge('Employee'),
         badgePositionPercentageOffset: 1,
         titleStyle: percentageTextStyle, // Apply custom text style
       ),
@@ -278,7 +277,7 @@ class _MainDashState extends State<MainDash> {
   }
 
   Widget _generateBadge(String type) {
-    IconData iconData = type == 'Admins' ? Icons.person : Icons.local_hospital;
+    IconData iconData = type == 'Admins' ? Icons.person : Icons.work;
     Color iconColor = type == 'Admins' ? Colors.blue : Colors.green;
     Color borderColor = Colors.white; // Border color
 

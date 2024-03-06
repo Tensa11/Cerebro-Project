@@ -21,7 +21,7 @@ class _LoginState extends State<Login> {
   Future<void> signIn() async {
     try {
       final response = await http.post(
-        Uri.parse('http://178.128.220.232:3000/auth/signin'),
+        Uri.parse('https://5f8f-103-62-152-132.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,

@@ -1,9 +1,10 @@
 import 'package:Cerebro/Cerebro/MainDash.dart';
+import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
 import 'AccountManage.dart';
 import 'Home.dart';
 import 'Login.dart';
-import 'PatientManage.dart';
+import 'Employee.dart';
 
 class CereDrawer extends StatefulWidget {
   const CereDrawer({Key? key}) : super(key: key);
@@ -21,8 +22,8 @@ class _CereDrawerState extends State<CereDrawer> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text("AppMaking.co"),
-              accountEmail: Text("sundar@appmaking.co"),
+              accountName: Text("Admin Name"),
+              accountEmail: Text("Email"),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: AssetImage("assets/images/userCartoon.png"),
               ),
@@ -61,37 +62,37 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => MainDash(),
+                    builder: (context) => SaleDash(),
                   ),
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(
-                Icons.admin_panel_settings,
-                color: const Color(0xffe33924), // Changed icon color
-              ),
-              title: const Text(
-                'Users',
-                style: TextStyle(
-                  color: const Color(0xff231b53), // Changed text color
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ManageAdmin(),
-                  ),
-                );
-              },
-            ),
+            // ListTile(
+            //   leading: const Icon(
+            //     Icons.admin_panel_settings,
+            //     color: const Color(0xffe33924), // Changed icon color
+            //   ),
+            //   title: const Text(
+            //     'Users',
+            //     style: TextStyle(
+            //       color: const Color(0xff231b53), // Changed text color
+            //     ),
+            //   ),
+            //   onTap: () {
+            //     Navigator.of(context).push(
+            //       MaterialPageRoute(
+            //         builder: (context) => ManageAdmin(),
+            //       ),
+            //     );
+            //   },
+            // ),
             ListTile(
               leading: const Icon(
                 Icons.person,
                 color: const Color(0xffe33924), // Changed icon color
               ),
               title: const Text(
-                'Patients',
+                'Employee',
                 style: TextStyle(
                   color: const Color(0xff231b53), // Changed text color
                 ),
@@ -99,7 +100,7 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ManagePatient(),
+                    builder: (context) => ManageEmployee(),
                   ),
                 );
               },

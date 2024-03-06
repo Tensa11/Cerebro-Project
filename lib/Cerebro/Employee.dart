@@ -5,14 +5,14 @@ import 'Details.dart';
 import 'Drawer.dart';
 import 'appbar.dart'; // Import the custom app bar
 
-class ManagePatient extends StatefulWidget {
-  const ManagePatient({Key? key}) : super(key: key);
+class ManageEmployee extends StatefulWidget {
+  const ManageEmployee({Key? key}) : super(key: key);
 
   @override
-  _ManagePatientState createState() => _ManagePatientState();
+  _ManageEmployeeState createState() => _ManageEmployeeState();
 }
 
-class _ManagePatientState extends State<ManagePatient> {
+class _ManageEmployeeState extends State<ManageEmployee> {
   @override
   Widget build(BuildContext context) {
     double baseWidth = 375;
@@ -36,7 +36,7 @@ class _ManagePatientState extends State<ManagePatient> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Patient Management',
+                    'Employee Management',
                     style: SafeGoogleFont(
                       'Urbanist',
                       fontSize: 18 * size,
