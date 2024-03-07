@@ -30,7 +30,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
             CustomAppBar(), // Replace the AppBar with the CustomAppBar
             Container(
               margin: EdgeInsets.fromLTRB(
-                  0 * sizeAxis, 40 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                  0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
               width: double.infinity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +86,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                           children: [
                             SizedBox(height: 5),
                             Text(
-                              'Room: 207',
+                              'Specialty',
                               style: TextStyle(
                                 fontFamily: 'Urbanist',
                                 fontSize: 14,
@@ -96,17 +96,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                               ),
                             ),
                             Text(
-                              'Doctor: Dr. Darth',
-                              style: TextStyle(
-                                fontFamily: 'Urbanist',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xff0272bc),
-                                decoration: TextDecoration.none,
-                              ),
-                            ),
-                            Text(
-                              'Status: Discharged',
+                              'Active',
                               style: TextStyle(
                                 fontFamily: 'Urbanist',
                                 fontSize: 14,
@@ -126,20 +116,20 @@ class _ManageEmployeeState extends State<ManageEmployee> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const AddPatient(),
-            ),
-          );
-        },
-        backgroundColor: const Color(0xff1f375b),
-        child: const Icon(
-          Icons.add,
-          color: Color(0xffe33924),
-        ),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.of(context).push(
+      //       MaterialPageRoute(
+      //         builder: (context) => const AddPatient(),
+      //       ),
+      //     );
+      //   },
+      //   backgroundColor: const Color(0xff1f375b),
+      //   child: const Icon(
+      //     Icons.add,
+      //     color: Color(0xffe33924),
+      //   ),
+      // ),
     );
   }
 }

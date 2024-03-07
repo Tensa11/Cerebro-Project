@@ -16,8 +16,11 @@ class SaleDash extends StatefulWidget {
 }
 
 class _SaleDashState extends State<SaleDash> {
-  late double totalSales;
-  late double totalDisbursement;
+  late double totalCash = 0;
+  late double totalCheque = 0;
+  late double totalSales = 0;
+  late double totalExpense = 0;
+  late double totalDisbursement = 0;
   late int ipd = 0;
   late int opd = 0;
   late int consultation = 0;
@@ -25,62 +28,115 @@ class _SaleDashState extends State<SaleDash> {
   @override
   void initState() {
     super.initState();
-    totalSales = 0;
-    totalDisbursement = 0;
-    fetchSales();
-    fetchDisbursement();
+    fetchTotalSales();
+    fetchTotalExpense();
+    fetchTotalCollection();
+    fetchTotalDisbursement();
     fetchPatients();
   }
 
-  Future<void> fetchSales() async {
-    var url = Uri.parse('https://b54e-103-62-152-132.ngrok-free.app/sales/list');
-    var response = await http.get(url);
+  Future<void> fetchTotalSales() async {
+    try {
+      var url = Uri.parse('https://00bf-103-62-152-132.ngrok-free.app/sales/list?total=true');
+      var response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      double total = 0;
-      for (var item in data['data']) {
-        total += double.parse(item['amount']);
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        totalSales = double.parse(data['data'][0]['total']);
+        setState(() {
+          // Update the state with the fetched totalCash and totalCheque
+        });
+      } else {
+        setState(() {
+          // Handle error state if needed
+        });
       }
+    } catch (e) {
       setState(() {
-        totalSales = total;
-      });
-    } else {
-      setState(() {
-        totalSales = 0;
+        // Handle error state if needed
       });
     }
   }
 
-  Future<void> fetchDisbursement() async {
-    var url = Uri.parse('https://b54e-103-62-152-132.ngrok-free.app/disbursement/list');
-    var response = await http.get(url);
+  Future<void> fetchTotalCollection() async {
+    try {
+      var url = Uri.parse('https://00bf-103-62-152-132.ngrok-free.app/cashier/list?collection=true');
+      var response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      double total = 0;
-      for (var item in data['data']) {
-        total += double.parse(item['amount']);
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        totalCash = double.parse(data['data']['cash'][0]['total']);
+        totalCheque = double.parse(data['data']['cheque'][0]['total']);
+        setState(() {
+          // Update the state with the fetched totalCash and totalCheque
+        });
+      } else {
+        setState(() {
+          // Handle error state if needed
+        });
       }
+    } catch (e) {
       setState(() {
-        totalDisbursement = total;
+        // Handle error state if needed
       });
-    } else {
+    }
+  }
+
+  Future<void> fetchTotalExpense() async {
+    try {
+      var url = Uri.parse('https://00bf-103-62-152-132.ngrok-free.app/acc/expense');
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        totalExpense = double.parse(data['data'][0]['expense']);
+        setState(() {
+          // Update the state with the fetched totalCash and totalCheque
+        });
+      } else {
+        setState(() {
+          // Handle error state if needed
+        });
+      }
+    } catch (e) {
       setState(() {
-        totalDisbursement = 0;
+        // Handle error state if needed
+      });
+    }
+  }
+
+  Future<void> fetchTotalDisbursement() async {
+    try {
+      var url = Uri.parse('https://00bf-103-62-152-132.ngrok-free.app/acc/expense');
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        totalDisbursement = double.parse(data['data'][0]['expense']);
+        setState(() {
+          // Update the state with the fetched totalCash and totalCheque
+        });
+      } else {
+        setState(() {
+          // Handle error state if needed
+        });
+      }
+    } catch (e) {
+      setState(() {
+        // Handle error state if needed
       });
     }
   }
 
   Future<void> fetchPatients() async {
-    var url = Uri.parse('https://b54e-103-62-152-132.ngrok-free.app/patients/');
+    var url = Uri.parse('https://00bf-103-62-152-132.ngrok-free.app/patients');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       if (data['data'].length > 0) {
         setState(() {
-          ipd = data['data'][0]['idd'];
+          ipd = data['data'][0]['ipd'];
           opd = data['data'][0]['opd'];
           consultation = data['data'][0]['consultation'];
         });
@@ -112,11 +168,7 @@ class _SaleDashState extends State<SaleDash> {
             CustomAppBar(), // Replace the AppBar with the CustomAppBar
             Container(
               margin: EdgeInsets.fromLTRB(
-                0 * sizeAxis,
-                40 * sizeAxis,
-                0 * sizeAxis,
-                0 * sizeAxis,
-              ),
+                0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
               width: double.infinity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +191,8 @@ class _SaleDashState extends State<SaleDash> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: SingleChildScrollView( // Wrap the Column with SingleChildScrollView
+                child: SingleChildScrollView(
+                  // Wrap the Column with SingleChildScrollView
                   child: Column(
                     children: [
                       // 1st Row Card (1st and 2nd Card)
@@ -148,30 +201,37 @@ class _SaleDashState extends State<SaleDash> {
                           Expanded(
                             child: Card(
                               elevation: 5,
-                              child: Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Sales',
-                                      style: SafeGoogleFont(
-                                        'Urbanist',
-                                        fontSize: 16 * size,
-                                        fontWeight: FontWeight.bold,
-                                        height: 1.2 * size / sizeAxis,
-                                        decoration: TextDecoration.none,
+                              child: Stack(children: [
+                                // Image.asset(
+                                //   'assets/images/bgg1.jpg',
+                                //   fit: BoxFit.cover,
+                                //   width: 160,
+                                //   height: 115,
+                                // ),
+                                Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Sales',
+                                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                       ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    // Text Content
-                                    Text(
-                                      '₱ ${totalSales.toStringAsFixed(2)}',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                  ],
+                                      SizedBox(height: 10),
+                                      Text(
+                                        '₱ ${totalSales.toStringAsFixed(2)}',
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                      // To provide spacing
+                                      Text(
+                                        '',
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
+                              ]),
                             ),
                           ),
                           SizedBox(width: 20),
@@ -193,11 +253,34 @@ class _SaleDashState extends State<SaleDash> {
                                         decoration: TextDecoration.none,
                                       ),
                                     ),
-                                    SizedBox(height: 10),
-                                    // Text Content
-                                    Text(
-                                      generateCollection(),
-                                      style: TextStyle(fontSize: 14),
+                                    SizedBox(height: 5),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.attach_money),
+                                        // Icon for the first collection
+                                        SizedBox(width: 10),
+                                        // Adjust spacing between icon and text
+                                        Expanded(
+                                          child: Text(
+                                            '₱ ${totalCash.toStringAsFixed(2)}',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.payment),
+                                        // Icon for the second collection
+                                        SizedBox(width: 10),
+                                        // Adjust spacing between icon and text
+                                        Expanded(
+                                          child: Text(
+                                            '₱ ${totalCheque.toStringAsFixed(2)}',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -231,7 +314,7 @@ class _SaleDashState extends State<SaleDash> {
                                     SizedBox(height: 10),
                                     // Text Content
                                     Text(
-                                      generateExpense(),
+                                      '₱ ${totalExpense.toStringAsFixed(2)}',
                                       style: TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -279,7 +362,7 @@ class _SaleDashState extends State<SaleDash> {
                           child: Stack(
                             children: [
                               Image.asset(
-                                'assets/images/bgg11.jpg',
+                                'assets/images/bgg4.jpg',
                                 fit: BoxFit.cover,
                                 width: 500,
                                 height: 380,
@@ -297,33 +380,37 @@ class _SaleDashState extends State<SaleDash> {
                                         fontWeight: FontWeight.bold,
                                         height: 1.2 * size / sizeAxis,
                                         decoration: TextDecoration.none,
-                                        color: Colors.white,
+                                        color: Colors.black,
                                       ),
                                     ),
                                     SizedBox(height: 20),
                                     // BarChart
                                     SfCartesianChart(
                                       primaryXAxis: CategoryAxis(
-                                        labelStyle: TextStyle(color: Colors.white), // Set text color to white
+                                        labelStyle: TextStyle(
+                                            color: Colors
+                                                .black), // Set text color to white
                                       ),
                                       series: <ChartSeries>[
                                         ColumnSeries<SalesData, String>(
                                           dataSource: [
-                                            SalesData('Jan', 200),
-                                            SalesData('Feb', 300),
-                                            SalesData('Mar', 150),
-                                            SalesData('Apr', 32),
+                                            SalesData('Jan', 213),
+                                            SalesData('Feb', 54),
+                                            SalesData('Mar', 213),
+                                            SalesData('Apr', 54),
                                             SalesData('May', 250),
                                             SalesData('Jun', 32),
-                                            SalesData('Jul', 223),
-                                            SalesData('Aug', 250),
-                                            SalesData('Sep', 250),
-                                            SalesData('Oct', 123),
-                                            SalesData('Nov', 532),
+                                            SalesData('Jul', 879),
+                                            SalesData('Aug', 45),
+                                            SalesData('Sep', 876),
+                                            SalesData('Oct', 453),
+                                            SalesData('Nov', 12),
                                             SalesData('Dec', 42),
                                           ],
-                                          xValueMapper: (SalesData sales, _) => sales.year,
-                                          yValueMapper: (SalesData sales, _) => sales.sales,
+                                          xValueMapper: (SalesData sales, _) =>
+                                              sales.year,
+                                          yValueMapper: (SalesData sales, _) =>
+                                              sales.sales,
                                           color: Colors.red,
                                         ),
                                       ],

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
 import '../util/utils.dart';
 import 'ForgotPass.dart';
@@ -21,7 +22,7 @@ class _LoginState extends State<Login> {
   Future<void> signIn() async {
     try {
       final response = await http.post(
-        Uri.parse('https://5f8f-103-62-152-132.ngrok-free.app/auth/signin'),
+        Uri.parse('https://00bf-103-62-152-132.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,
@@ -33,13 +34,13 @@ class _LoginState extends State<Login> {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
 
         // Check for successful login message (adjust based on your API):
-        if (data['message'] == 'Successfully logged in' ||
-            data['message'].toLowerCase().contains('success')) {
+        if (data['message'] == null ||
+            data['message']!.toLowerCase().contains('success')) {
           // User successfully logged in, proceed to the next page
           print('Login successful!');
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const MainDash(),
+              builder: (context) => const SaleDash(),
             ),
           );
         } else {

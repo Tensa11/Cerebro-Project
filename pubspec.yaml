@@ -111,6 +111,9 @@ flutter:
     - assets/images/bgg9.jpg
     - assets/images/bgg10.jpg
     - assets/images/bgg11.jpg
+    - assets/images/bgg12.jpg
+    - assets/images/bgg13.jpg
+    - assets/images/bgg14.jpg
     - assets/logo/appNameLogo.png
     - assets/logo/applogoNoBG.png
     - assets/lottie/LottieAnimIntro.json
