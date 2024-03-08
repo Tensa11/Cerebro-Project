@@ -1,7 +1,7 @@
-import 'package:Cerebro/Cerebro/Login.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
+import 'Login.dart';
 
 class GetStarted extends StatefulWidget {
   const GetStarted({super.key});
@@ -19,14 +19,13 @@ class _GetStartedState extends State<GetStarted> {
     return SizedBox(
       width: double.infinity,
       child: Container(
-        padding: EdgeInsets.fromLTRB(
-            0 * sizeAxis, 520 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+        padding: EdgeInsets.fromLTRB(0*sizeAxis, 572*sizeAxis, 0*sizeAxis, 0*sizeAxis),
         width: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
+        decoration: const BoxDecoration (
+          image: DecorationImage (
             fit: BoxFit.cover,
-            image: AssetImage(
-              'assets/images/bgg6.jpg',
+            image: AssetImage (
+              'assets/images/bgg8.jpg',
             ),
           ),
         ),
@@ -34,11 +33,10 @@ class _GetStartedState extends State<GetStarted> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.fromLTRB(
-                  16 * sizeAxis, 0 * sizeAxis, 16 * sizeAxis, 35 * sizeAxis),
+              padding: EdgeInsets.fromLTRB(16*sizeAxis, 16*sizeAxis, 16*sizeAxis, 16*sizeAxis),
               width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
+              decoration: const BoxDecoration (
+                gradient: LinearGradient (
                   begin: Alignment(0, -1.186),
                   end: Alignment(0, 1),
                   colors: <Color>[Color(0x000f172a), Color(0xff0f172a)],
@@ -47,22 +45,22 @@ class _GetStartedState extends State<GetStarted> {
               ),
               child: ClipRect(
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(
-                    sigmaX: 10 * sizeAxis,
-                    sigmaY: 10 * sizeAxis,
+                  filter: ImageFilter.blur (
+                    sigmaX: 10*sizeAxis,
+                    sigmaY: 10*sizeAxis,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 30 * sizeAxis,
-                            22 * sizeAxis, 43 * sizeAxis),
+                        // textDtM (190:483)
+                        margin: EdgeInsets.fromLTRB(0*sizeAxis, 0*sizeAxis, 22*sizeAxis, 24*sizeAxis),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              margin: EdgeInsets.fromLTRB(0 * sizeAxis,
-                                  0 * sizeAxis, 0 * sizeAxis, 8 * sizeAxis),
+                              // headingMzZ (190:484)
+                              margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 8 * sizeAxis),
                               constraints: BoxConstraints(
                                 maxWidth: 203 * sizeAxis,
                               ),
@@ -74,40 +72,38 @@ class _GetStartedState extends State<GetStarted> {
                                   height: 1.3333333333 * size / sizeAxis,
                                   letterSpacing: -0.48 * sizeAxis,
                                   color: const Color(0xffffffff),
-                                  decoration: TextDecoration
-                                      .none, // Remove the underline
+                                  decoration: TextDecoration.none, // Remove the underline
                                 ),
                               ),
                             ),
                             Container(
-                              constraints: BoxConstraints(
-                                maxWidth: 321 * sizeAxis,
+                              constraints: BoxConstraints (
+                                maxWidth: 321*sizeAxis,
                               ),
                               child: RichText(
                                 text: TextSpan(
                                   style: GoogleFonts.inter(
-                                    fontSize: 13 * size,
+                                    fontSize: 13*size,
                                     fontWeight: FontWeight.w400,
-                                    height: 1.5384615385 * size / sizeAxis,
+                                    height: 1.5384615385*size/sizeAxis,
                                     color: const Color(0xffe2e8f0),
                                   ),
                                   children: [
                                     // TextSpan(
-                                    //   text: 'Cerebro ',
+                                    //   text: 'CEREBRO',
                                     //   style: GoogleFonts.inter(
-                                    //     fontSize: 13 * size,
+                                    //     fontSize: 13*size,
                                     //     fontWeight: FontWeight.w700,
-                                    //     height: 1.5384615385 * size / sizeAxis,
+                                    //     height: 1.5384615385*size/sizeAxis,
                                     //     color: const Color(0xffe2e8f0),
                                     //   ),
                                     // ),
                                     TextSpan(
-                                      text:
-                                          "For any questions or assistance, feel free to visit our comprehensive help center within the app or contact our support team",
+                                      text: " For any questions or assistance, feel free to visit our comprehensive help center within the app or contact our support team",
                                       style: GoogleFonts.inter(
-                                        fontSize: 13 * size,
+                                        fontSize: 13*size,
                                         fontWeight: FontWeight.w400,
-                                        height: 1.5384615385 * size / sizeAxis,
+                                        height: 1.5384615385*size/sizeAxis,
                                         color: const Color(0xffe2e8f0),
                                       ),
                                     ),
@@ -130,7 +126,7 @@ class _GetStartedState extends State<GetStarted> {
                           width: double.infinity,
                           height: 50 * sizeAxis,
                           decoration: BoxDecoration(
-                            color: const Color(0xffe33924),
+                            color: const Color(0xffe74c3c),
                             borderRadius: BorderRadius.circular(6 * sizeAxis),
                           ),
                           child: Center(
@@ -142,8 +138,7 @@ class _GetStartedState extends State<GetStarted> {
                                 fontWeight: FontWeight.w500,
                                 height: 1.5 * size / sizeAxis,
                                 color: const Color(0xffffffff),
-                                decoration:
-                                    TextDecoration.none, // Remove the underline
+                                decoration: TextDecoration.none, // Remove the underline
                               ),
                             ),
                           ),
@@ -156,8 +151,8 @@ class _GetStartedState extends State<GetStarted> {
             ),
             Container(
               width: double.infinity,
-              height: 34 * sizeAxis,
-              decoration: const BoxDecoration(
+              height: 34*sizeAxis,
+              decoration: const BoxDecoration (
                 color: Color(0xff0f172a),
               ),
             ),

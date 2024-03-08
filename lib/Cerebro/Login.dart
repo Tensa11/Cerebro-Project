@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'ForgotPass.dart';
 import 'package:http/http.dart' as http;
@@ -18,11 +19,27 @@ class _LoginState extends State<Login> {
   final TextEditingController _passwordTextController = TextEditingController();
   bool _isObscure = true;
   String _errorMessage = '';
+  late Map<String, dynamic> _userData; // Add this line
+
+  // Declare _prefs as a global variable
+  late SharedPreferences _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _prefs in the initState method
+    initializeSharedPreferences();
+  }
+
+  // Method to initialize shared preferences
+  Future<void> initializeSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
 
   Future<void> signIn() async {
     try {
       final response = await http.post(
-        Uri.parse('https://00bf-103-62-152-132.ngrok-free.app/auth/signin'),
+        Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,
@@ -33,27 +50,30 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
 
-        // Check for successful login message (adjust based on your API):
-        if (data['message'] == null ||
-            data['message']!.toLowerCase().contains('success')) {
-          // User successfully logged in, proceed to the next page
-          print('Login successful!');
+        if (data['message'] == null || data['message']!.toLowerCase().contains('success')) {
+          // Store the authentication token in shared preferences
+          await _prefs.setString('authToken', data['token']);
+
+          // Navigate to the main dashboard or home screen
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => const SaleDash(),
             ),
           );
         } else {
-          // Handle invalid credentials error
-          print('Invalid username or password.');
+          setState(() {
+            _errorMessage = 'Invalid username or password.';
+          });
         }
       } else {
-        print('Error fetching data: ${response.statusCode}');
-        // Handle other errors
+        setState(() {
+          _errorMessage = 'Error: ${response.statusCode}';
+        });
       }
     } catch (e) {
-      print('Error: $e');
-      // Handle other errors
+      setState(() {
+        _errorMessage = 'Error: $e';
+      });
     }
   }
 

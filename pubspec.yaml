@@ -50,6 +50,7 @@ dependencies:
   http: ^1.1.0
   fl_chart: ^0.60.0
   syncfusion_flutter_charts: ^21.2.9
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
