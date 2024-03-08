@@ -867,12 +867,12 @@ class _SaleDashState extends State<SaleDash> {
                   elevation: 5,
                   child: Stack(
                     children: [
-                      // Image.asset(
-                      //   'assets/images/bgg4.jpg',
-                      //   fit: BoxFit.cover,
-                      //   width: 500,
-                      //   height: 380,
-                      // ),
+                      Image.asset(
+                        'assets/images/bgg4.jpg',
+                        fit: BoxFit.cover,
+                        width: 500,
+                        height: 540,
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -889,56 +889,60 @@ class _SaleDashState extends State<SaleDash> {
                                 color: Colors.black,
                               ),
                             ),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: insuranceTODAY.length,
-                              itemBuilder: (context, index) {
-                                Insurance todayInsurance = insuranceTODAY[index];
-                                return GestureDetector(
-                                  onTap: () {
-                                    // Navigate to the next page when a list item is tapped
-                                    // Navigator.of(context).push(
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) => Details(),
-                                    //   ),
-                                    // );
-                                  },
-                                  child: Card(
-                                    elevation: 3,
-                                    child: ListTile(
-                                      leading: const CircleAvatar(
-                                        backgroundImage: AssetImage('assets/images/userCartoon.png'),
-                                      ),
-                                      title: Text(
-                                        todayInsurance.name,
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: const Color(0xffe33924),
-                                          decoration: TextDecoration.none,
+                            SizedBox(height: 10),
+                            Container(
+                              height: 370, // Adjust the height as needed
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: insuranceTODAY.length,
+                                itemBuilder: (context, index) {
+                                  Insurance todayInsurance = insuranceTODAY[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      // Navigate to the next page when a list item is tapped
+                                      // Navigator.of(context).push(
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) => Details(),
+                                      //   ),
+                                      // );
+                                    },
+                                    child: Card(
+                                      elevation: 3,
+                                      child: ListTile(
+                                        leading: const CircleAvatar(
+                                          backgroundImage: AssetImage('assets/images/userCartoon.png'),
+                                        ),
+                                        title: Text(
+                                          todayInsurance.name,
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: const Color(0xffe33924),
+                                            decoration: TextDecoration.none,
+                                          ),
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 5),
+                                            Text(
+                                              todayInsurance.amount,
+                                              style: TextStyle(
+                                                fontFamily: 'Urbanist',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: const Color(0xff0272bc),
+                                                decoration: TextDecoration.none,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(height: 5),
-                                          Text(
-                                            todayInsurance.amount,
-                                            style: TextStyle(
-                                              fontFamily: 'Urbanist',
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: const Color(0xff0272bc),
-                                              decoration: TextDecoration.none,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                             SizedBox(height: 10),
                             Divider(),
@@ -982,6 +986,7 @@ class _SaleDashState extends State<SaleDash> {
                   ),
                 ),
               ),
+
             ],
           ),
         ),

@@ -22,13 +22,13 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // // Set the status bar color and brightness
-    // SystemChrome.setSystemUIOverlayStyle(
-    //   SystemUiOverlayStyle(
-    //     statusBarColor: Colors.red, // Change this to your desired color
-    //     statusBarBrightness: Brightness.dark, // Adjust based on your color
-    //   ),
-    // );
+    // Set the status bar color and brightness
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.black45, // Change this to your desired color
+        statusBarBrightness: Brightness.dark, // Adjust based on your color
+      ),
+    );
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,

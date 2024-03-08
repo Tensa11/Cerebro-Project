@@ -23,8 +23,8 @@ class _CereDrawerState extends State<CereDrawer> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text("Admin Name"),
-              accountEmail: Text("Email"),
+              accountName: Text("Administrator"),
+              accountEmail: Text("admin@gmail.com"),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: AssetImage("assets/images/userCartoon.png"),
               ),
