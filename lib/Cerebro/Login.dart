@@ -18,40 +18,49 @@ class _LoginState extends State<Login> {
   final TextEditingController _passwordTextController = TextEditingController();
   bool _isObscure = true;
   String _errorMessage = '';
-  late Map<String, dynamic> _userData; // Add this line
-
-  // Declare _prefs as a global variable
-  late SharedPreferences _prefs;
 
   @override
   void initState() {
     super.initState();
-    // Initialize _prefs in the initState method
-    initializeSharedPreferences();
-  }
-
-  // Method to initialize shared preferences
-  Future<void> initializeSharedPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
   }
 
   Future<void> signIn() async {
     try {
+      final password = _passwordTextController.text;
+      String convertedPassword;
+
+      if (password == null) {
+        // Handle null password
+        setState(() {
+          _errorMessage = 'Password cannot be null.';
+        });
+        return;
+      }
+
+      if (int.tryParse(password) != null) {
+        // Password is an integer
+        convertedPassword = password.toString();
+      } else {
+        // Password is a string (or combination)
+        convertedPassword = password;
+      }
+
       final response = await http.post(
         Uri.parse('https://6b27-103-62-152-132.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,
-          "password": _passwordTextController.text,
+          "password": convertedPassword,
         }),
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final data = jsonDecode(response.body) as Map<String, dynamic>?;
 
-        if (data['message'] == null || data['message']!.toLowerCase().contains('success')) {
-          // Store the authentication token in shared preferences
-          await _prefs.setString('authToken', data['token']);
+        if (data == null || data['message'] == null || data['message'].toLowerCase().contains('success')) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('username', _usernameTextController.text);
+          await prefs.setString('email', data?['email'] ?? ''); // Handle null email
 
           // Navigate to the main dashboard or home screen
           Navigator.of(context).push(
@@ -75,6 +84,7 @@ class _LoginState extends State<Login> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

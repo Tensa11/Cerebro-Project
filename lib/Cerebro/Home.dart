@@ -55,9 +55,9 @@ class _CereDashState extends State<CereDash> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      endDrawer: Drawer(
-        child: CereDrawer(),
-      ),
+      // endDrawer: Drawer(
+      //   child: CereDrawer(),
+      // ),
 
       body: SingleChildScrollView(
         child: SizedBox(

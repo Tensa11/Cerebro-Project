@@ -23,9 +23,9 @@ class _MainDashState extends State<MainDash> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      endDrawer: Drawer(
-        child: CereDrawer(),
-      ),
+      // endDrawer: Drawer(
+      //   child: CereDrawer(),
+      // ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Column(

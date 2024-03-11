@@ -2,6 +2,7 @@ import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'AccountManage.dart';
 import 'Home.dart';
 import 'Login.dart';
@@ -15,6 +16,22 @@ class CereDrawer extends StatefulWidget {
 }
 
 class _CereDrawerState extends State<CereDrawer> {
+  String username = '';
+  String email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserData();
+  }
+
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    email = prefs.getString('email') ?? '';
+    setState(() {}); // Update the UI with retrieved data
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -23,8 +40,8 @@ class _CereDrawerState extends State<CereDrawer> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text("Administrator"),
-              accountEmail: Text("admin@gmail.com"),
+              accountName: Text(username),
+              accountEmail: Text(email),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: AssetImage("assets/images/userCartoon.png"),
               ),

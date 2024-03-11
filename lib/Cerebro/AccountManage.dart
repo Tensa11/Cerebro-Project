@@ -20,9 +20,9 @@ class _ManageAdminState extends State<ManageAdmin> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      endDrawer: Drawer(
-        child: CereDrawer(),
-      ),
+      // endDrawer: Drawer(
+      //   child: CereDrawer(),
+      // ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: Column(
