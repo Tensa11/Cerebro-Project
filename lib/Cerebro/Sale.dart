@@ -57,6 +57,7 @@ class _SaleDashState extends State<SaleDash> {
     startListeningToChanges();
     fetchPHICTransmittalTODAY();
     fetchPHICTransmittalMONTH();
+    _getUserData();
   }
 
   @override
@@ -140,6 +141,8 @@ class _SaleDashState extends State<SaleDash> {
             double.parse(data['data'][index]['amount']),
           );
         });
+
+        salesMonthData.sort((a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
         setState(() {
           _chartMonthData = salesMonthData;
@@ -428,14 +431,17 @@ class _SaleDashState extends State<SaleDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<TransMonthData> transMonthData =
-        List.generate(data['data'].length, (index) {
-          String dayName = dayTransNames[data['data'][index]['day'] - 1];
+        List<TransMonthData> transMonthData = List.generate(data['data'].length, (index) {
+          int days = data['data'][index]['days'];
+          String dayName = days.toString(); // Convert days to string
           return TransMonthData(
             dayName,
             double.parse(data['data'][index]['amount']),
           );
         });
+
+        // Sort the list based on the dayName
+        transMonthData.sort((a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
         setState(() {
           _chartMonthTransData = transMonthData;
@@ -451,11 +457,17 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
-  String formattedCurrentDate =
-      DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
-  String formattedCurrentYear =
-      DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
+  String formattedCurrentDate = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
+  String formattedCurrentYear = DateFormat('yyyy').format(DateTime.now()).toUpperCase();
+
+  String username = '';
+
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    setState(() {}); // Update the UI with retrieved data
+  }
   @override
   Widget build(BuildContext context) {
     double baseWidth = 375;
@@ -480,7 +492,7 @@ class _SaleDashState extends State<SaleDash> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome Back!',
+                      'Welcome Back! $username',
                       style: SafeGoogleFont(
                         'Urbanist',
                         fontSize: 18 * size,

@@ -1,3 +1,4 @@
+import 'package:Cerebro/Cerebro/ChangePass.dart';
 import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
@@ -119,6 +120,25 @@ class _CereDrawerState extends State<CereDrawer> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => ManageEmployee(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.password,
+                color: const Color(0xffe33924), // Changed icon color
+              ),
+              title: const Text(
+                'Change Password',
+                style: TextStyle(
+                  color: const Color(0xff231b53), // Changed text color
+                ),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ChangePass(),
                   ),
                 );
               },

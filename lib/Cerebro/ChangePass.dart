@@ -31,7 +31,7 @@ class _ChangePassState extends State<ChangePass> {
             width: double.infinity,
             child: Container(
               padding: EdgeInsets.fromLTRB(
-                  22 * sizeAxis, 230 * sizeAxis, 21 * sizeAxis, 130 * sizeAxis),
+                  22 * sizeAxis, 180 * sizeAxis, 21 * sizeAxis, 0 * sizeAxis),
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: Color(0xffffffff),
