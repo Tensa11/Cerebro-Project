@@ -3,7 +3,6 @@ import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
-import 'ForgotPass.dart';
 import 'package:http/http.dart' as http;
 import 'MainDash.dart';
 
@@ -39,7 +38,7 @@ class _LoginState extends State<Login> {
   Future<void> signIn() async {
     try {
       final response = await http.post(
-        Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/auth/signin'),
+        Uri.parse('https://6b27-103-62-152-132.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,
@@ -250,59 +249,59 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(
-                        1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ForgotPass(),
-                          ),
-                        );
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: SafeGoogleFont(
-                            'Poppins',
-                            fontSize: 15 * size,
-                            fontWeight: FontWeight.w600,
-                            height: 1.4 * size / sizeAxis,
-                            letterSpacing: 0.15 * sizeAxis,
-                            color: const Color(0xff1e232c),
-                          ),
-                          children: [
-                            TextSpan(
-                              text: "Can't Remember? ",
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                fontWeight: FontWeight.w500,
-                                height: 1.4 * size / sizeAxis,
-                                letterSpacing: 0.15 * sizeAxis,
-                                color: const Color(0xff1e232c),
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'Rest Password',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                fontWeight: FontWeight.w700,
-                                height: 1.4 * size / sizeAxis,
-                                letterSpacing: 0.15 * sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   margin: EdgeInsets.fromLTRB(
+                  //       1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                  //   child: TextButton(
+                  //     onPressed: () {
+                  //       Navigator.of(context).push(
+                  //         MaterialPageRoute(
+                  //           builder: (context) => const ForgotPass(),
+                  //         ),
+                  //       );
+                  //     },
+                  //     style: TextButton.styleFrom(
+                  //       padding: EdgeInsets.zero,
+                  //     ),
+                  //     child: RichText(
+                  //       textAlign: TextAlign.center,
+                  //       text: TextSpan(
+                  //         style: SafeGoogleFont(
+                  //           'Poppins',
+                  //           fontSize: 15 * size,
+                  //           fontWeight: FontWeight.w600,
+                  //           height: 1.4 * size / sizeAxis,
+                  //           letterSpacing: 0.15 * sizeAxis,
+                  //           color: const Color(0xff1e232c),
+                  //         ),
+                  //         children: [
+                  //           TextSpan(
+                  //             text: "Can't Remember? ",
+                  //             style: SafeGoogleFont(
+                  //               'Urbanist',
+                  //               fontSize: 15 * size,
+                  //               fontWeight: FontWeight.w500,
+                  //               height: 1.4 * size / sizeAxis,
+                  //               letterSpacing: 0.15 * sizeAxis,
+                  //               color: const Color(0xff1e232c),
+                  //             ),
+                  //           ),
+                  //           TextSpan(
+                  //             text: 'Rest Password',
+                  //             style: SafeGoogleFont(
+                  //               'Urbanist',
+                  //               fontSize: 15 * size,
+                  //               fontWeight: FontWeight.w700,
+                  //               height: 1.4 * size / sizeAxis,
+                  //               letterSpacing: 0.15 * sizeAxis,
+                  //               color: const Color(0xff0272bc),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   if (_errorMessage.isNotEmpty)
                     Container(
                       margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis,

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../util/utils.dart';
 import 'AddPatient.dart';
@@ -24,12 +26,16 @@ class _SaleDashState extends State<SaleDash> {
   late double totalDisbursement = 0;
   late int totalIPD = 0;
   late int totalOPD = 0;
-  late int totalPHCC = 0;
+  late int totalPHIC = 0;
   late int totalHMO = 0;
   late int totalCOMPANY = 0;
   late int totalSENIOR = 0;
   late List<Insurance> insuranceTODAY = [];
   late double totalInsuranceMONTH = 0;
+  late int totalClaimCount = 0;
+  late double totalClaimAmount = 0;
+
+  final StreamController<bool> _streamController = StreamController<bool>();
 
   @override
   void initState() {
@@ -42,17 +48,43 @@ class _SaleDashState extends State<SaleDash> {
     fetchSalesYearChart();
     fetchTotalIPD();
     fetchTotalOPD();
-    fetchTotalPHCC();
+    fetchTotalPHIC();
     fetchTotalHMO();
     fetchTotalCOMPANY();
     fetchTotalSENIOR();
     fetchInsuranceTODAY();
     fetchInsuranceMONTH();
+    startListeningToChanges();
+    fetchPHICTransmittalTODAY();
+    fetchPHICTransmittalMONTH();
+  }
+
+  @override
+  void dispose() {
+    _streamController.close();
+    super.dispose();
+  }
+
+  void startListeningToChanges() {
+    Timer.periodic(Duration(seconds: 10), (timer) {
+      // Check for database changes periodically
+      fetchDataAndNotify(); // Fetch data and notify listeners
+    });
+  }
+
+  void fetchDataAndNotify() async {
+    try {
+      await fetchTotalSales(); // Fetch total sales data
+      _streamController.add(true); // Notify listeners about the change
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
   }
 
   Future<void> fetchTotalSales() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/sales/list?today=true');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/sales/total/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -70,7 +102,8 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchTotalCollection() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/cashier/list?today=true');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/cashier/collection/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -88,16 +121,19 @@ class _SaleDashState extends State<SaleDash> {
   }
 
   List<SalesMonthData> _chartMonthData = [];
-  final List<String> dayNames = List.generate(31, (index) => (index + 1).toString());
+  final List<String> dayNames =
+      List.generate(31, (index) => (index + 1).toString());
 
   Future<void> fetchSalesMonthChart() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/sales/list?month=true');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/sales/total/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<SalesMonthData> salesMonthData = List.generate(data['data'].length, (index) {
+        List<SalesMonthData> salesMonthData =
+            List.generate(data['data'].length, (index) {
           String dayName = dayNames[data['data'][index]['day'] - 1];
           return SalesMonthData(
             dayName,
@@ -121,7 +157,8 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchTotalExpense() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/acc/expense/today');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/inv/items/expense/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -139,7 +176,8 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchTotalDisbursement() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/disbursement/list?total=true');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/disbursement/total');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -157,17 +195,30 @@ class _SaleDashState extends State<SaleDash> {
 
   List<SalesYearData> _chartYearData = [];
   final List<String> monthNames = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
   ];
 
   Future<void> fetchSalesYearChart() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/sales/list?year=true');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/sales/total/year');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<SalesYearData> salesYearData = List.generate(data['data'].length, (index) {
+        List<SalesYearData> salesYearData =
+            List.generate(data['data'].length, (index) {
           String monthName = monthNames[data['data'][index]['month'] - 1];
           return SalesYearData(
             monthName,
@@ -180,10 +231,10 @@ class _SaleDashState extends State<SaleDash> {
           _chartYearData = salesYearData;
         });
       } else {
-        throw Exception('Failed to load total sales');
+        throw Exception('Failed to load total year sales');
       }
     } catch (e) {
-      print('Error fetching total sales: $e');
+      print('Error fetching total year sales: $e');
       setState(() {
         // Handle error state if needed
       });
@@ -192,7 +243,8 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchTotalIPD() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/stats/ipd');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/ipd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -200,17 +252,18 @@ class _SaleDashState extends State<SaleDash> {
         totalIPD = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load total IPD');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching total IPD: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalOPD() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/stats/opd');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/opd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -218,35 +271,37 @@ class _SaleDashState extends State<SaleDash> {
         totalOPD = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load total OPD');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching total OPD: $e');
       setState(() {});
     }
   }
 
-  Future<void> fetchTotalPHCC() async {
+  Future<void> fetchTotalPHIC() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/stats/phic');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/phic');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        totalPHCC = int.parse(data['data'][0]['count']);
+        totalPHIC = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load total PHIC');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching total PHIC: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalHMO() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/stats/hmo');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/hmo');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -254,17 +309,18 @@ class _SaleDashState extends State<SaleDash> {
         totalHMO = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load total HMO');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching total HMO: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalCOMPANY() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/stats/company');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/company');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -272,17 +328,18 @@ class _SaleDashState extends State<SaleDash> {
         totalCOMPANY = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load total company');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching total company: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalSENIOR() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/stats/senior_pwd');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/srpwd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -290,22 +347,24 @@ class _SaleDashState extends State<SaleDash> {
         totalSENIOR = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load total senior');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching total senior: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchInsuranceTODAY() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/fin/insurance');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/insurance/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<Insurance> fetchedInsuranceToday = List.generate(data['data'].length, (index) {
+        List<Insurance> fetchedInsuranceToday =
+            List.generate(data['data'].length, (index) {
           return Insurance.fromJson(data['data'][index]);
         });
 
@@ -313,16 +372,17 @@ class _SaleDashState extends State<SaleDash> {
           insuranceTODAY = fetchedInsuranceToday;
         });
       } else {
-        throw Exception('Failed to load physicians');
+        throw Exception('Failed to load fetchInsuranceTODAY');
       }
     } catch (e) {
-      print('Error fetching physicians: $e');
+      print('Error fetching fetchInsuranceTODAY: $e');
     }
   }
 
   Future<void> fetchInsuranceMONTH() async {
     try {
-      var url = Uri.parse('https://dea3-103-62-152-132.ngrok-free.app/fin/insurance?month=true');
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/insurance/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -330,16 +390,71 @@ class _SaleDashState extends State<SaleDash> {
         totalInsuranceMONTH = double.parse(data['data'][0]['amount']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load total fetchInsuranceMONTH');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching total fetchInsuranceMONTH: $e');
       setState(() {});
     }
   }
 
-  String formattedCurrentDate = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
-  String formattedCurrentYear = DateFormat('yyyy').format(DateTime.now()).toUpperCase();
+  Future<void> fetchPHICTransmittalTODAY() async {
+    try {
+      var url = Uri.parse(
+          'https://6b27-103-62-152-132.ngrok-free.app/fin/phic_transmittal/today');
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        setState(() {
+          totalClaimCount = data['data'][0]['claim_count'] as int;
+          totalClaimAmount = double.parse(data['data'][0]['claim_amount']);
+        });
+      } else {
+        throw Exception('Failed to load fetchPHICTransmittalTODAY');
+      }
+    } catch (e) {
+      print('Error fetching fetchPHICTransmittalTODAY: $e');
+    }
+  }
+
+  List<TransMonthData> _chartMonthTransData = [];
+  final List<String> dayTransNames = List.generate(31, (index) => (index + 1).toString());
+
+  Future<void> fetchPHICTransmittalMONTH() async {
+    try {
+      var url = Uri.parse('https://6b27-103-62-152-132.ngrok-free.app/fin/phic_transmittal/month');
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        List<TransMonthData> transMonthData =
+        List.generate(data['data'].length, (index) {
+          String dayName = dayTransNames[data['data'][index]['day'] - 1];
+          return TransMonthData(
+            dayName,
+            double.parse(data['data'][index]['amount']),
+          );
+        });
+
+        setState(() {
+          _chartMonthTransData = transMonthData;
+        });
+      } else {
+        throw Exception('Failed to load monthly sales');
+      }
+    } catch (e) {
+      print('Error fetching monthly sales: $e');
+      setState(() {
+        // Handle error state if needed
+      });
+    }
+  }
+
+  String formattedCurrentDate =
+      DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
+  String formattedCurrentYear =
+      DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
   @override
   Widget build(BuildContext context) {
@@ -365,21 +480,28 @@ class _SaleDashState extends State<SaleDash> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Dashboard',
+                      'Welcome Back!',
                       style: SafeGoogleFont(
                         'Urbanist',
                         fontSize: 18 * size,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                         height: 1.2 * size / sizeAxis,
                         color: const Color(0xff0272bc),
-                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'there is the latest update for the last 7 days. check now',
+                      style: SafeGoogleFont(
+                        'Urbanist',
+                        fontSize: 12 * size,
+                        height: 1.2 * size / sizeAxis,
                       ),
                     ),
                     SizedBox(height: 30),
                   ],
                 ),
               ),
-              // Content 1
               Row(
                 children: [
                   Expanded(
@@ -395,22 +517,26 @@ class _SaleDashState extends State<SaleDash> {
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Sales',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                'Total Sales of the day',
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 15 * size,
+                                  height: 1.2 * size / sizeAxis,
+                                  color: const Color(0xff0272bc),
+                                ),
                               ),
                               SizedBox(height: 10),
                               Text(
                                 '₱ ${totalSales.toStringAsFixed(2)}',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              // To provide spacing
-                              Text(
-                                '',
-                                style: TextStyle(fontSize: 14),
+                                style: SafeGoogleFont(
+                                  'Inter',
+                                  fontSize: 17 * size,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2 * size / sizeAxis,
+                                ),
                               ),
                             ],
                           ),
@@ -435,13 +561,12 @@ class _SaleDashState extends State<SaleDash> {
                               'Collection',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
-                            SizedBox(height: 5),
+                            SizedBox(height: 10),
                             Row(
                               children: [
                                 Icon(Icons.attach_money),
@@ -451,11 +576,17 @@ class _SaleDashState extends State<SaleDash> {
                                 Expanded(
                                   child: Text(
                                     '₱ ${totalCash.toStringAsFixed(2)}',
-                                    style: TextStyle(fontSize: 14),
+                                    style: SafeGoogleFont(
+                                      'Inter',
+                                      fontSize: 17 * size,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2 * size / sizeAxis,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
+                            SizedBox(height: 10),
                             Row(
                               children: [
                                 Icon(Icons.payment),
@@ -465,7 +596,12 @@ class _SaleDashState extends State<SaleDash> {
                                 Expanded(
                                   child: Text(
                                     '₱ ${totalCheque.toStringAsFixed(2)}',
-                                    style: TextStyle(fontSize: 14),
+                                    style: SafeGoogleFont(
+                                      'Inter',
+                                      fontSize: 17 * size,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2 * size / sizeAxis,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -485,26 +621,24 @@ class _SaleDashState extends State<SaleDash> {
                   elevation: 5,
                   child: Stack(
                     children: [
-                      Image.asset(
-                        'assets/images/bgg4.jpg',
-                        fit: BoxFit.cover,
-                        width: 500,
-                        height: 410,
-                      ),
+                      // Image.asset(
+                      //   'assets/images/bgg9.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 410,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              formattedCurrentDate,
+                              "Sale of $formattedCurrentDate",
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
-                                color: Colors.black,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 20),
@@ -518,9 +652,11 @@ class _SaleDashState extends State<SaleDash> {
                               series: <ChartSeries>[
                                 ColumnSeries<SalesMonthData, String>(
                                   dataSource: _chartMonthData,
-                                  xValueMapper: (SalesMonthData sales, _) => sales.dayName,
-                                  yValueMapper: (SalesMonthData sales, _) => sales.amount,
-                                  color: Colors.red,
+                                  xValueMapper: (SalesMonthData sales, _) =>
+                                      sales.dayName,
+                                  yValueMapper: (SalesMonthData sales, _) =>
+                                      sales.amount,
+                                  color: Colors.lightBlue,
                                 ),
                               ],
                             ),
@@ -559,17 +695,21 @@ class _SaleDashState extends State<SaleDash> {
                               'Expense',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
                               '₱ ${totalExpense.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 14),
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.w600,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -586,20 +726,24 @@ class _SaleDashState extends State<SaleDash> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Disbursement',
+                              'DISBMT',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
                               '₱ ${totalDisbursement.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 14),
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -615,12 +759,12 @@ class _SaleDashState extends State<SaleDash> {
                   elevation: 5,
                   child: Stack(
                     children: [
-                      Image.asset(
-                        'assets/images/bgg4.jpg',
-                        fit: BoxFit.cover,
-                        width: 500,
-                        height: 390,
-                      ),
+                      // Image.asset(
+                      //   'assets/images/bgg4.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 390,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -630,11 +774,9 @@ class _SaleDashState extends State<SaleDash> {
                               "Sales of $formattedCurrentYear",
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
-                                color: Colors.black,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 20),
@@ -648,13 +790,15 @@ class _SaleDashState extends State<SaleDash> {
                               series: <ChartSeries>[
                                 SplineSeries<SalesYearData, String>(
                                   dataSource: _chartYearData,
-                                  xValueMapper: (SalesYearData sales, _) => sales.monthName,
-                                  yValueMapper: (SalesYearData sales, _) => sales.amount,
-                                  color: Colors.red,
+                                  xValueMapper: (SalesYearData sales, _) =>
+                                      sales.monthName,
+                                  yValueMapper: (SalesYearData sales, _) =>
+                                      sales.amount,
+                                  color: Colors.lightBlue,
                                   splineType: SplineType.monotonic,
                                   markerSettings: MarkerSettings(
                                     isVisible: true,
-                                    color: Colors.red,
+                                    color: Colors.lightBlue,
                                   ),
                                   dataLabelSettings: DataLabelSettings(
                                     isVisible: true,
@@ -685,17 +829,21 @@ class _SaleDashState extends State<SaleDash> {
                               'IPD',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
                               '$totalIPD',
-                              style: TextStyle(fontSize: 14),
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -714,17 +862,21 @@ class _SaleDashState extends State<SaleDash> {
                               'OPD',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
                               '$totalOPD',
-                              style: TextStyle(fontSize: 14),
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -745,20 +897,24 @@ class _SaleDashState extends State<SaleDash> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'PHCC',
+                              'PHIC',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
-                              '$totalPHCC',
-                              style: TextStyle(fontSize: 14),
+                              '$totalPHIC',
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -777,17 +933,21 @@ class _SaleDashState extends State<SaleDash> {
                               'HMO',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
                               '$totalHMO',
-                              style: TextStyle(fontSize: 14),
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -811,17 +971,21 @@ class _SaleDashState extends State<SaleDash> {
                               'Company',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
                               '$totalCOMPANY',
-                              style: TextStyle(fontSize: 14),
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -840,17 +1004,21 @@ class _SaleDashState extends State<SaleDash> {
                               'Senior',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
                             // Text Content
                             Text(
                               '$totalSENIOR',
-                              style: TextStyle(fontSize: 14),
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 17 * size,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2 * size / sizeAxis,
+                              ),
                             ),
                           ],
                         ),
@@ -860,19 +1028,18 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 20),
-              // Content 2
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
                   child: Stack(
                     children: [
-                      Image.asset(
-                        'assets/images/bgg4.jpg',
-                        fit: BoxFit.cover,
-                        width: 500,
-                        height: 540,
-                      ),
+                      // Image.asset(
+                      //   'assets/images/bgg4.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 570,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -882,11 +1049,9 @@ class _SaleDashState extends State<SaleDash> {
                               'Insurance of $formattedCurrentDate',
                               style: SafeGoogleFont(
                                 'Urbanist',
-                                fontSize: 16 * size,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                decoration: TextDecoration.none,
-                                color: Colors.black,
+                                color: const Color(0xff0272bc),
                               ),
                             ),
                             SizedBox(height: 10),
@@ -896,7 +1061,8 @@ class _SaleDashState extends State<SaleDash> {
                                 shrinkWrap: true,
                                 itemCount: insuranceTODAY.length,
                                 itemBuilder: (context, index) {
-                                  Insurance todayInsurance = insuranceTODAY[index];
+                                  Insurance todayInsurance =
+                                      insuranceTODAY[index];
                                   return GestureDetector(
                                     onTap: () {
                                       // Navigate to the next page when a list item is tapped
@@ -909,31 +1075,28 @@ class _SaleDashState extends State<SaleDash> {
                                     child: Card(
                                       elevation: 3,
                                       child: ListTile(
-                                        leading: const CircleAvatar(
-                                          backgroundImage: AssetImage('assets/images/userCartoon.png'),
-                                        ),
                                         title: Text(
                                           todayInsurance.name,
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                            color: const Color(0xffe33924),
-                                            decoration: TextDecoration.none,
+                                          style: SafeGoogleFont(
+                                            'Urbanist',
+                                            fontSize: 15 * size,
+                                            height: 1.2 * size / sizeAxis,
+                                            color: const Color(0xff0272bc),
                                           ),
                                         ),
                                         subtitle: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             SizedBox(height: 5),
                                             Text(
-                                              todayInsurance.amount,
-                                              style: TextStyle(
-                                                fontFamily: 'Urbanist',
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: const Color(0xff0272bc),
-                                                decoration: TextDecoration.none,
+                                              '\₱ ${double.parse(todayInsurance.amount).toStringAsFixed(2)}',
+                                              style: SafeGoogleFont(
+                                                'Inter',
+                                                fontSize: 17 * size,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                height: 1.2 * size / sizeAxis,
                                               ),
                                             ),
                                           ],
@@ -954,23 +1117,28 @@ class _SaleDashState extends State<SaleDash> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(20.0),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Insurance Month',
                                             style: SafeGoogleFont(
                                               'Urbanist',
-                                              fontSize: 16 * size,
-                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15 * size,
                                               height: 1.2 * size / sizeAxis,
-                                              decoration: TextDecoration.none,
+                                              color: const Color(0xff0272bc),
                                             ),
                                           ),
                                           SizedBox(height: 10),
                                           // Text Content
                                           Text(
                                             '₱ ${totalInsuranceMONTH.toStringAsFixed(2)}',
-                                            style: TextStyle(fontSize: 14),
+                                            style: SafeGoogleFont(
+                                              'Inter',
+                                              fontSize: 17 * size,
+                                              fontWeight: FontWeight.bold,
+                                              height: 1.2 * size / sizeAxis,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -986,7 +1154,125 @@ class _SaleDashState extends State<SaleDash> {
                   ),
                 ),
               ),
-
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      elevation: 5,
+                      child: Stack(children: [
+                        // Image.asset(
+                        //   'assets/images/bgg1.jpg',
+                        //   fit: BoxFit.cover,
+                        //   width: 160,
+                        //   height: 115,
+                        // ),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'PHIC Transmittal',
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 15 * size,
+                                  height: 1.2 * size / sizeAxis,
+                                  color: const Color(0xff0272bc),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                'Count: $totalClaimCount',
+                                style: SafeGoogleFont(
+                                  'Inter',
+                                  fontSize: 17 * size,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2 * size / sizeAxis,
+                                ),
+                              ),
+                              Text(
+                                'Amount: ₱ ${totalClaimAmount.toStringAsFixed(2)}',
+                                style: SafeGoogleFont(
+                                  'Inter',
+                                  fontSize: 17 * size,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2 * size / sizeAxis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Card(
+                  elevation: 5,
+                  child: Stack(
+                    children: [
+                      // Image.asset(
+                      //   'assets/images/bgg9.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 410,
+                      // ),
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "PHIC Transmittal of $formattedCurrentDate",
+                              style: SafeGoogleFont(
+                                'Urbanist',
+                                fontSize: 15 * size,
+                                height: 1.2 * size / sizeAxis,
+                                color: const Color(0xff0272bc),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            // BarChart
+                            SfCartesianChart(
+                              primaryXAxis: CategoryAxis(
+                                labelStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              series: <ChartSeries>[
+                                ColumnSeries<TransMonthData, String>(
+                                  dataSource: _chartMonthTransData,
+                                  xValueMapper: (TransMonthData sales, _) =>
+                                  sales.dayName,
+                                  yValueMapper: (TransMonthData sales, _) =>
+                                  sales.amount,
+                                  color: Colors.lightBlue,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(width: 5),
+                                Text(
+                                  'Days',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -1004,6 +1290,13 @@ class SalesYearData {
 
 class SalesMonthData {
   SalesMonthData(this.dayName, this.amount);
+
+  final String dayName;
+  final double amount;
+}
+
+class TransMonthData {
+  TransMonthData(this.dayName, this.amount);
 
   final String dayName;
   final double amount;

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
 import 'appbar.dart';
@@ -22,7 +23,7 @@ class _MainDashState extends State<MainDash> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      endDrawer: const Drawer(
+      endDrawer: Drawer(
         child: CereDrawer(),
       ),
       body: Padding(

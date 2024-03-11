@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'Drawer.dart';
 
@@ -54,9 +55,10 @@ class _CereDashState extends State<CereDash> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      endDrawer: const Drawer(
+      endDrawer: Drawer(
         child: CereDrawer(),
       ),
+
       body: SingleChildScrollView(
         child: SizedBox(
           width: double.infinity,
