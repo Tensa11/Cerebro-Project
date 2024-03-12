@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'package:http/http.dart' as http;
-import 'MainDash.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -46,7 +45,7 @@ class _LoginState extends State<Login> {
       }
 
       final response = await http.post(
-        Uri.parse('https://6b27-103-62-152-132.ngrok-free.app/auth/signin'),
+        Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,
@@ -72,26 +71,27 @@ class _LoginState extends State<Login> {
           setState(() {
             _errorMessage = 'Invalid username or password.';
           });
+          print('Invalid username or password.');
         }
       } else {
         setState(() {
           _errorMessage = 'Error: ${response.statusCode}';
         });
+        print('Error: ${response.statusCode}');
       }
     } catch (e) {
       setState(() {
         _errorMessage = 'Error: $e';
       });
+      print('Error: $e');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     double baseWidth = 400;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
-    double size = sizeAxis *
-        0.97; // Check if the user is already authenticated and their role
+    double size = sizeAxis * 0.97; // Check if the user is already authenticated and their role
 
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Remove debug banner
@@ -101,7 +101,7 @@ class _LoginState extends State<Login> {
             width: double.infinity,
             child: Container(
               padding: EdgeInsets.fromLTRB(
-                  22 * sizeAxis, 120 * sizeAxis, 21 * sizeAxis, 50 * sizeAxis),
+                  22 * sizeAxis, 110 * sizeAxis, 22 * sizeAxis, 90 * sizeAxis),
               width: double.infinity,
               decoration: const BoxDecoration(
                 image: DecorationImage(

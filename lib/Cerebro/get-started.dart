@@ -99,7 +99,7 @@ class _GetStartedState extends State<GetStarted> {
                                     //   ),
                                     // ),
                                     TextSpan(
-                                      text: " For any questions or assistance, feel free to visit our comprehensive help center within the app or contact our support team",
+                                      text: "For any questions or assistance, feel free to visit our comprehensive help center within the app or contact our support team",
                                       style: GoogleFonts.inter(
                                         fontSize: 13*size,
                                         fontWeight: FontWeight.w400,

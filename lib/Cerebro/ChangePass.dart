@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:Cerebro/Cerebro/Login.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'VerifyPass.dart';
 
@@ -11,11 +15,56 @@ class ChangePass extends StatefulWidget {
 }
 
 class _ChangePassState extends State<ChangePass> {
-  final TextEditingController _passwordTextController = TextEditingController();
-  final TextEditingController _passwordNewTextController = TextEditingController();
-  final TextEditingController _passwordConfirmTextController = TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isObscure = true;
   String _errorMessage = '';
+
+  Future<void> changePassword() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final username = prefs.getString('username');
+      final currentPassword = _currentPasswordController.text;
+      final newPassword = _newPasswordController.text;
+      final confirmPassword = _confirmPasswordController.text;
+
+      if (newPassword != confirmPassword) {
+        setState(() {
+          _errorMessage = 'New password and confirm password do not match.';
+        });
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/auth/change_password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "username": username,
+          "current_password": currentPassword,
+          "new_password": newPassword,
+          "confirm_password": confirmPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Password changed successfully, navigate back to login page
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const Login(),
+          ),
+        );
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to change password. Please try again later.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: $e';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +120,7 @@ class _ChangePassState extends State<ChangePass> {
                       ),
                     ),
                   ),
+                  // Enter current password and must match
                   Container(
                     margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
                         0 * sizeAxis, 15 * sizeAxis),
@@ -81,8 +131,7 @@ class _ChangePassState extends State<ChangePass> {
                       color: const Color(0xfff7f8f9),
                     ),
                     child: TextField(
-                      controller: _passwordTextController,
-                      // Assign the text controller
+                      controller: _currentPasswordController,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -118,6 +167,7 @@ class _ChangePassState extends State<ChangePass> {
                       obscureText: _isObscure, // Toggle password visibility
                     ),
                   ),
+                  // Enter the newly created password
                   Container(
                     margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
                         0 * sizeAxis, 15 * sizeAxis),
@@ -128,7 +178,7 @@ class _ChangePassState extends State<ChangePass> {
                       color: const Color(0xfff7f8f9),
                     ),
                     child: TextField(
-                      controller: _passwordNewTextController,
+                      controller: _newPasswordController,
                       // Assign the text controller
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -165,6 +215,7 @@ class _ChangePassState extends State<ChangePass> {
                       obscureText: _isObscure, // Toggle password visibility
                     ),
                   ),
+                  // Re enter the newly created password for confirmation
                   Container(
                     margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
                         0 * sizeAxis, 15 * sizeAxis),
@@ -175,7 +226,7 @@ class _ChangePassState extends State<ChangePass> {
                       color: const Color(0xfff7f8f9),
                     ),
                     child: TextField(
-                      controller: _passwordConfirmTextController,
+                      controller: _confirmPasswordController,
                       // Assign the text controller
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -212,19 +263,11 @@ class _ChangePassState extends State<ChangePass> {
                       obscureText: _isObscure, // Toggle password visibility
                     ),
                   ),
-
                   Container(
                     margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
                         0 * sizeAxis, 150 * sizeAxis),
                     child: TextButton(
-                      onPressed: () {
-                        // _signIn();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const VerifyPass(),
-                          ),
-                        );
-                      },
+                      onPressed: changePassword,
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
                       ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -85,7 +86,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalSales() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/sales/total/today');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/sales/total/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -104,7 +105,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalCollection() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/cashier/collection/today');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/cashier/collection/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -128,7 +129,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchSalesMonthChart() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/sales/total/month');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/sales/total/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -161,7 +162,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalExpense() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/inv/items/expense/today');
+          'https://ccea-143-44-192-98.ngrok-free.app/inv/items/expense/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -180,7 +181,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalDisbursement() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/disbursement/total');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/disbursement/total');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -215,7 +216,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchSalesYearChart() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/sales/total/year');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/sales/total/year');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -247,7 +248,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalIPD() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/ipd');
+          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/ipd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -266,7 +267,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalOPD() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/opd');
+          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/opd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -285,7 +286,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalPHIC() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/phic');
+          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/phic');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -304,7 +305,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalHMO() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/hmo');
+          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/hmo');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -323,7 +324,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalCOMPANY() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/company');
+          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/company');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -342,7 +343,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalSENIOR() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/med/patients/srpwd');
+          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/srpwd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -361,7 +362,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchInsuranceTODAY() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/insurance/today');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/insurance/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -385,7 +386,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchInsuranceMONTH() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/insurance/month');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/insurance/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -404,7 +405,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchPHICTransmittalTODAY() async {
     try {
       var url = Uri.parse(
-          'https://6b27-103-62-152-132.ngrok-free.app/fin/phic_transmittal/today');
+          'https://ccea-143-44-192-98.ngrok-free.app/fin/phic_transmittal/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -426,7 +427,7 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchPHICTransmittalMONTH() async {
     try {
-      var url = Uri.parse('https://6b27-103-62-152-132.ngrok-free.app/fin/phic_transmittal/month');
+      var url = Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/fin/phic_transmittal/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -457,7 +458,6 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
-
   String formattedCurrentDate = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
   String formattedCurrentYear = DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
@@ -468,6 +468,7 @@ class _SaleDashState extends State<SaleDash> {
     username = prefs.getString('username') ?? '';
     setState(() {}); // Update the UI with retrieved data
   }
+
   @override
   Widget build(BuildContext context) {
     double baseWidth = 375;
@@ -483,6 +484,7 @@ class _SaleDashState extends State<SaleDash> {
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
           child: Column(
             children: [
+              SizedBox(height: 20),
               CustomAppBar(), // Replace the AppBar with the CustomAppBar
               Container(
                 margin: EdgeInsets.fromLTRB(
@@ -650,6 +652,7 @@ class _SaleDashState extends State<SaleDash> {
                                 'Urbanist',
                                 fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
+                                fontWeight: FontWeight.bold,
                                 color: const Color(0xff0272bc),
                               ),
                             ),
@@ -700,68 +703,75 @@ class _SaleDashState extends State<SaleDash> {
                       elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Expense',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal, // Set horizontal scroll direction
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Expense',
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 15 * size,
+                                  height: 1.2 * size / sizeAxis,
+                                  color: const Color(0xff0272bc),
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '₱ ${totalExpense.toStringAsFixed(2)}',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.w600,
-                                height: 1.2 * size / sizeAxis,
+                              SizedBox(height: 10),
+                              // Text Content
+                              Text(
+                                '₱ ${totalExpense.toStringAsFixed(2)}',
+                                style: SafeGoogleFont(
+                                  'Inter',
+                                  fontSize: 17 * size,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2 * size / sizeAxis,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 20),
+
                   Expanded(
                     child: Card(
                       elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'DISBMT',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal, // Set horizontal scroll direction
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'DISBMT',
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 15 * size,
+                                  height: 1.2 * size / sizeAxis,
+                                  color: const Color(0xff0272bc),
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '₱ ${totalDisbursement.toStringAsFixed(2)}',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2 * size / sizeAxis,
+                              SizedBox(height: 10),
+                              // Text Content
+                              Text(
+                                '₱ ${totalDisbursement.toStringAsFixed(2)}',
+                                style: SafeGoogleFont(
+                                  'Inter',
+                                  fontSize: 17 * size,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2 * size / sizeAxis,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
+
                 ],
               ),
               SizedBox(height: 10),
@@ -788,6 +798,7 @@ class _SaleDashState extends State<SaleDash> {
                                 'Urbanist',
                                 fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
+                                fontWeight: FontWeight.bold,
                                 color: const Color(0xff0272bc),
                               ),
                             ),
@@ -1063,6 +1074,7 @@ class _SaleDashState extends State<SaleDash> {
                                 'Urbanist',
                                 fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
+                                fontWeight: FontWeight.bold,
                                 color: const Color(0xff0272bc),
                               ),
                             ),

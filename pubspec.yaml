@@ -117,6 +117,7 @@ flutter:
     - assets/images/bgg14.jpg
     - assets/logo/appNameLogo.png
     - assets/logo/applogoNoBG.png
+    - assets/logo/space.png
     - assets/lottie/LottieAnimIntro.json
     - lib/icons/light-bulb.png
     - lib/icons/air-conditioner.png

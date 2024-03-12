@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'AddPatient.dart';
@@ -27,7 +28,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
 
   Future<void> fetchPhysicians() async {
     try {
-      var url = Uri.parse('https://6b27-103-62-152-132.ngrok-free.app/physicians');
+      var url = Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/physicians');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -56,6 +57,59 @@ class _ManageEmployeeState extends State<ManageEmployee> {
     return Scaffold(
       endDrawer: Drawer(
         child: CereDrawer(),
+      ),
+      appBar: AppBar(
+        // Set a custom height for the app bar
+        toolbarHeight: 80,
+
+        // Transparent background with gradient in flexible space
+        backgroundColor: Colors.transparent,
+        elevation: 10,  // Remove default shadow
+
+        // title: Image(
+        //   image: AssetImage('assets/logo/appNameLogo.png'),
+        //   width: 150,  // Adjust width as needed
+        //   height: 150,  // Adjust height as needed
+        // ),
+        // Leading icon button (menu)
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.black),
+          onPressed: () {
+            // Add functionality for menu button
+          },
+        ),
+        // Search icon button
+        actions: [
+          Image(
+            image: AssetImage('assets/logo/appNameLogo.png'),
+            width: 150,  // Adjust width as needed
+            height: 150,  // Adjust height as needed
+          ),
+          Image(
+            image: AssetImage('assets/logo/space.png'),
+            width: 90,  // Adjust width as needed
+            height: 150,  // Adjust height as needed
+          ),
+          Image(
+            image: AssetImage('assets/logo/appNameLogo.png'),
+            width: 150,  // Adjust width as needed
+            height: 150,  // Adjust height as needed
+          ),
+        ],
+        // Add a gradient background with rounded corners at the bottom
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+            gradient: LinearGradient(
+              colors: [Colors.white, Colors.white],
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+            ),
+          ),
+        ), systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
