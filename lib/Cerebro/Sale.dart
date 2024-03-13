@@ -9,7 +9,6 @@ import '../util/utils.dart';
 import 'AddPatient.dart';
 import 'Details.dart';
 import 'Drawer.dart';
-import 'appbar.dart';
 import 'package:http/http.dart' as http;
 
 class SaleDash extends StatefulWidget {
@@ -86,7 +85,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalSales() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/sales/total/today');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/sales/total/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -105,7 +104,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalCollection() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/cashier/collection/today');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/cashier/collection/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -129,7 +128,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchSalesMonthChart() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/sales/total/month');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/sales/total/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -162,7 +161,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalExpense() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/inv/items/expense/today');
+          'https://e679-143-44-192-98.ngrok-free.app/inv/items/expense/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -181,7 +180,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalDisbursement() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/disbursement/total');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/disbursement/total');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -216,7 +215,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchSalesYearChart() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/sales/total/year');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/sales/total/year');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -248,7 +247,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalIPD() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/ipd');
+          'https://e679-143-44-192-98.ngrok-free.app/med/patients/ipd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -267,7 +266,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalOPD() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/opd');
+          'https://e679-143-44-192-98.ngrok-free.app/med/patients/opd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -286,7 +285,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalPHIC() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/phic');
+          'https://e679-143-44-192-98.ngrok-free.app/med/patients/phic');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -305,7 +304,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalHMO() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/hmo');
+          'https://e679-143-44-192-98.ngrok-free.app/med/patients/hmo');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -324,7 +323,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalCOMPANY() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/company');
+          'https://e679-143-44-192-98.ngrok-free.app/med/patients/company');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -343,7 +342,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalSENIOR() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/med/patients/srpwd');
+          'https://e679-143-44-192-98.ngrok-free.app/med/patients/srpwd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -362,7 +361,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchInsuranceTODAY() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/insurance/today');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/insurance/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -386,7 +385,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchInsuranceMONTH() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/insurance/month');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/insurance/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -405,7 +404,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchPHICTransmittalTODAY() async {
     try {
       var url = Uri.parse(
-          'https://ccea-143-44-192-98.ngrok-free.app/fin/phic_transmittal/today');
+          'https://e679-143-44-192-98.ngrok-free.app/fin/phic_transmittal/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -427,7 +426,7 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchPHICTransmittalMONTH() async {
     try {
-      var url = Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/fin/phic_transmittal/month');
+      var url = Uri.parse('https://e679-143-44-192-98.ngrok-free.app/fin/phic_transmittal/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -469,6 +468,8 @@ class _SaleDashState extends State<SaleDash> {
     setState(() {}); // Update the UI with retrieved data
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     double baseWidth = 375;
@@ -476,16 +477,72 @@ class _SaleDashState extends State<SaleDash> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      endDrawer: const Drawer(
-        child: CereDrawer(),
+      backgroundColor: Colors.white,
+      key: _scaffoldKey,
+      appBar: AppBar(
+        // Set a custom height for the app bar
+        toolbarHeight: 80,
+        // Transparent background with gradient in flexible space
+        backgroundColor: Colors.transparent,
+        elevation: 15,  // Remove default shadow
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.black),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        actions: [
+          Image(
+            image: AssetImage('assets/logo/appNameLogo.png'),
+            width: 150,  // Adjust width as needed
+            height: 150,  // Adjust height as needed
+          ),
+          Image(
+            image: AssetImage('assets/logo/space.png'),
+            width: 50,  // Adjust width as needed
+            height: 150,  // Adjust height as needed
+          ),
+          Image(
+            image: AssetImage('assets/logo/space.png'),
+            width: 90,  // Adjust width as needed
+            height: 150,  // Adjust height as needed
+          ),
+          IconButton(
+            icon: Icon(Icons.search, color: Colors.black),
+            onPressed: () {
+              // Add functionality for search button
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.account_circle, color: Colors.black),
+            onPressed: () {
+              // Add functionality for account button
+            },
+          ),
+        ],
+        // Add a gradient background with rounded corners at the bottom
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bgg4.jpg'),
+              fit: BoxFit.cover,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
+      drawer: CereDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
           child: Column(
             children: [
               SizedBox(height: 20),
-              CustomAppBar(), // Replace the AppBar with the CustomAppBar
+              // CustomAppBar(), // Replace the AppBar with the CustomAppBar
               Container(
                 margin: EdgeInsets.fromLTRB(
                     0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
@@ -512,22 +569,23 @@ class _SaleDashState extends State<SaleDash> {
                         height: 1.2 * size / sizeAxis,
                       ),
                     ),
-                    SizedBox(height: 30),
                   ],
                 ),
               ),
+              SizedBox(height: 30),
+              // Sales of the day
               Row(
                 children: [
                   Expanded(
                     child: Card(
                       elevation: 5,
                       child: Stack(children: [
-                        // Image.asset(
-                        //   'assets/images/bgg1.jpg',
-                        //   fit: BoxFit.cover,
-                        //   width: 160,
-                        //   height: 115,
-                        // ),
+                        Image.asset(
+                          'assets/images/bgg13.jpg',
+                          fit: BoxFit.cover,
+                          width: 360,
+                          height: 93,
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
@@ -539,7 +597,7 @@ class _SaleDashState extends State<SaleDash> {
                                   'Urbanist',
                                   fontSize: 15 * size,
                                   height: 1.2 * size / sizeAxis,
-                                  color: const Color(0xff0272bc),
+                                  color: Colors.white,
                                 ),
                               ),
                               SizedBox(height: 10),
@@ -550,6 +608,7 @@ class _SaleDashState extends State<SaleDash> {
                                   fontSize: 17 * size,
                                   fontWeight: FontWeight.w600,
                                   height: 1.2 * size / sizeAxis,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -561,68 +620,83 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
+              // Cheque and Cash of the day
               Row(
                 children: [
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Collection',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Icon(Icons.attach_money),
-                                // Icon for the first collection
-                                SizedBox(width: 10),
-                                // Adjust spacing between icon and text
-                                Expanded(
-                                  child: Text(
-                                    '₱ ${totalCash.toStringAsFixed(2)}',
-                                    style: SafeGoogleFont(
-                                      'Inter',
-                                      fontSize: 17 * size,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2 * size / sizeAxis,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Icon(Icons.payment),
-                                // Icon for the second collection
-                                SizedBox(width: 10),
-                                // Adjust spacing between icon and text
-                                Expanded(
-                                  child: Text(
-                                    '₱ ${totalCheque.toStringAsFixed(2)}',
-                                    style: SafeGoogleFont(
-                                      'Inter',
-                                      fontSize: 17 * size,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2 * size / sizeAxis,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                      child: Stack(children: [
+                        Image.asset(
+                          'assets/images/bgg13.jpg',
+                          fit: BoxFit.cover,
+                          width: 360,
+                          height: 128,
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Collection',
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 15 * size,
+                                  height: 1.2 * size / sizeAxis,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Icon(Icons.attach_money,
+                                    color: Colors.white,
+                                  ),
+                                  // Icon for the first collection
+                                  SizedBox(width: 10),
+                                  // Adjust spacing between icon and text
+                                  Expanded(
+                                    child: Text(
+                                      '₱ ${totalCash.toStringAsFixed(2)}',
+                                      style: SafeGoogleFont(
+                                        'Inter',
+                                        fontSize: 17 * size,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.2 * size / sizeAxis,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Icon(Icons.payment,
+                                    color: Colors.white,
+                                  ),
+                                  // Icon for the second collection
+                                  SizedBox(width: 10),
+                                  // Adjust spacing between icon and text
+                                  Expanded(
+                                    child: Text(
+                                      '₱ ${totalCheque.toStringAsFixed(2)}',
+                                      style: SafeGoogleFont(
+                                        'Inter',
+                                        fontSize: 17 * size,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.2 * size / sizeAxis,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]),
                     ),
                   ),
                 ],
@@ -635,25 +709,25 @@ class _SaleDashState extends State<SaleDash> {
                   elevation: 5,
                   child: Stack(
                     children: [
-                      // Image.asset(
-                      //   'assets/images/bgg9.jpg',
-                      //   fit: BoxFit.cover,
-                      //   width: 500,
-                      //   height: 410,
-                      // ),
+                      Image.asset(
+                        'assets/images/bgg17.jpg',
+                        fit: BoxFit.cover,
+                        width: 500,
+                        height: 410,
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Sale of $formattedCurrentDate",
+                              "Sales of $formattedCurrentDate",
                               style: SafeGoogleFont(
                                 'Urbanist',
                                 fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xff0272bc),
+                                color: Colors.red,
                               ),
                             ),
                             SizedBox(height: 20),
@@ -661,20 +735,24 @@ class _SaleDashState extends State<SaleDash> {
                             SfCartesianChart(
                               primaryXAxis: CategoryAxis(
                                 labelStyle: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              primaryYAxis: NumericAxis(
+                                labelStyle: TextStyle(
+                                  color: Colors.white, // Set the color of the labels to white
                                 ),
                               ),
                               series: <ChartSeries>[
                                 ColumnSeries<SalesMonthData, String>(
                                   dataSource: _chartMonthData,
-                                  xValueMapper: (SalesMonthData sales, _) =>
-                                      sales.dayName,
-                                  yValueMapper: (SalesMonthData sales, _) =>
-                                      sales.amount,
-                                  color: Colors.lightBlue,
+                                  xValueMapper: (SalesMonthData sales, _) => sales.dayName,
+                                  yValueMapper: (SalesMonthData sales, _) => sales.amount,
+                                  color: Colors.red,
                                 ),
                               ],
                             ),
+
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -683,7 +761,7 @@ class _SaleDashState extends State<SaleDash> {
                                   'Days',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -696,97 +774,113 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
+              // Expense and Disbursement of the day
               Row(
                 children: [
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal, // Set horizontal scroll direction
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Expense',
-                                style: SafeGoogleFont(
-                                  'Urbanist',
-                                  fontSize: 15 * size,
-                                  height: 1.2 * size / sizeAxis,
-                                  color: const Color(0xff0272bc),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              // Text Content
-                              Text(
-                                '₱ ${totalExpense.toStringAsFixed(2)}',
-                                style: SafeGoogleFont(
-                                  'Inter',
-                                  fontSize: 17 * size,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2 * size / sizeAxis,
-                                ),
-                              ),
-                            ],
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
                           ),
-                        ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Expense',
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 15 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: const Color(0xff0272bc),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  '₱ ${totalExpense.toStringAsFixed(2)}',
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 17 * size,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.2 * size / sizeAxis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal, // Set horizontal scroll direction
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'DISBMT',
-                                style: SafeGoogleFont(
-                                  'Urbanist',
-                                  fontSize: 15 * size,
-                                  height: 1.2 * size / sizeAxis,
-                                  color: const Color(0xff0272bc),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              // Text Content
-                              Text(
-                                '₱ ${totalDisbursement.toStringAsFixed(2)}',
-                                style: SafeGoogleFont(
-                                  'Inter',
-                                  fontSize: 17 * size,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.2 * size / sizeAxis,
-                                ),
-                              ),
-                            ],
+                      child: Stack(
+                        children: [
+                          // Background Image for DISBMT
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
                           ),
-                        ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal, // Set horizontal scroll direction
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'DISBMT',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: const Color(0xff0272bc),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Text(
+                                    '₱ ${totalDisbursement.toStringAsFixed(2)}',
+                                    style: SafeGoogleFont(
+                                      'Inter',
+                                      fontSize: 17 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-
                 ],
               ),
               SizedBox(height: 10),
+              // Sales of the year
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
                   child: Stack(
                     children: [
-                      // Image.asset(
-                      //   'assets/images/bgg4.jpg',
-                      //   fit: BoxFit.cover,
-                      //   width: 500,
-                      //   height: 390,
-                      // ),
+                      Image.asset(
+                        'assets/images/bgg17.jpg',
+                        fit: BoxFit.cover,
+                        width: 500,
+                        height: 390,
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -799,7 +893,7 @@ class _SaleDashState extends State<SaleDash> {
                                 fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xff0272bc),
+                                color: Colors.red,
                               ),
                             ),
                             SizedBox(height: 20),
@@ -807,7 +901,12 @@ class _SaleDashState extends State<SaleDash> {
                             SfCartesianChart(
                               primaryXAxis: CategoryAxis(
                                 labelStyle: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              primaryYAxis: NumericAxis(
+                                labelStyle: TextStyle(
+                                  color: Colors.white, // Set the color of the labels to white
                                 ),
                               ),
                               series: <ChartSeries>[
@@ -817,13 +916,14 @@ class _SaleDashState extends State<SaleDash> {
                                       sales.monthName,
                                   yValueMapper: (SalesYearData sales, _) =>
                                       sales.amount,
-                                  color: Colors.lightBlue,
+                                  color: Colors.red,
                                   splineType: SplineType.monotonic,
                                   markerSettings: MarkerSettings(
                                     isVisible: true,
-                                    color: Colors.lightBlue,
+                                    color: Colors.red,
                                   ),
                                   dataLabelSettings: DataLabelSettings(
+                                    color: Colors.white,
                                     isVisible: true,
                                     labelAlignment: ChartDataLabelAlignment.top,
                                   ),
@@ -838,231 +938,295 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
+              // IPD and OPD
               Row(
                 children: [
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'IPD',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'IPD',
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 15 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: const Color(0xff0272bc),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // Text Content
+                                Text(
+                                  '$totalIPD',
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 17 * size,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.2 * size / sizeAxis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '$totalIPD',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2 * size / sizeAxis,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'OPD',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'OPD',
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 15 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: const Color(0xff0272bc),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // Text Content
+                                Text(
+                                  '$totalOPD',
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 17 * size,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.2 * size / sizeAxis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '$totalOPD',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2 * size / sizeAxis,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 10),
+              // PHIC and HMO
               Row(
                 children: [
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'PHIC',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'PHIC',
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 15 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: const Color(0xff0272bc),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // Text Content
+                                Text(
+                                  '$totalPHIC',
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 17 * size,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.2 * size / sizeAxis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '$totalPHIC',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2 * size / sizeAxis,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'HMO',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'HMO',
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 15 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: const Color(0xff0272bc),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // Text Content
+                                Text(
+                                  '$totalHMO',
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 17 * size,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.2 * size / sizeAxis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '$totalHMO',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2 * size / sizeAxis,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 10),
+              // Company and Senior
               Row(
                 children: [
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Company',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'COMPANY',
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 15 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: const Color(0xff0272bc),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // Text Content
+                                Text(
+                                  '$totalCOMPANY',
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 17 * size,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.2 * size / sizeAxis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '$totalCOMPANY',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2 * size / sizeAxis,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Senior',
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
-                              ),
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/images/bgg3.jpg',
+                            fit: BoxFit.cover,
+                            width: 175,
+                            height: 95,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'SENIOR',
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 15 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: const Color(0xff0272bc),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // Text Content
+                                Text(
+                                  '$totalSENIOR',
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 17 * size,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.2 * size / sizeAxis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            // Text Content
-                            Text(
-                              '$totalSENIOR',
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 17 * size,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2 * size / sizeAxis,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
+              // Insurance of the Day
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
                   child: Stack(
                     children: [
-                      // Image.asset(
-                      //   'assets/images/bgg4.jpg',
-                      //   fit: BoxFit.cover,
-                      //   width: 500,
-                      //   height: 570,
-                      // ),
+                      Image.asset(
+                        'assets/images/bgg17.jpg',
+                        fit: BoxFit.cover,
+                        width: 500,
+                        height: 570,
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -1075,7 +1239,7 @@ class _SaleDashState extends State<SaleDash> {
                                 fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xff0272bc),
+                                color: Colors.red,
                               ),
                             ),
                             SizedBox(height: 10),
@@ -1133,40 +1297,48 @@ class _SaleDashState extends State<SaleDash> {
                             ),
                             SizedBox(height: 10),
                             Divider(),
+                            // Insurance of the Month
                             Row(
                               children: [
                                 Expanded(
                                   child: Card(
                                     elevation: 5,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Insurance Month',
-                                            style: SafeGoogleFont(
-                                              'Urbanist',
-                                              fontSize: 15 * size,
-                                              height: 1.2 * size / sizeAxis,
-                                              color: const Color(0xff0272bc),
-                                            ),
-                                          ),
-                                          SizedBox(height: 10),
-                                          // Text Content
-                                          Text(
-                                            '₱ ${totalInsuranceMONTH.toStringAsFixed(2)}',
-                                            style: SafeGoogleFont(
-                                              'Inter',
-                                              fontSize: 17 * size,
-                                              fontWeight: FontWeight.bold,
-                                              height: 1.2 * size / sizeAxis,
-                                            ),
-                                          ),
-                                        ],
+                                    child: Stack(children: [
+                                      Image.asset(
+                                        'assets/images/bgg3.jpg',
+                                        fit: BoxFit.cover,
+                                        width: 360,
+                                        height: 93,
                                       ),
-                                    ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Insurance Month',
+                                              style: SafeGoogleFont(
+                                                'Urbanist',
+                                                fontSize: 15 * size,
+                                                height: 1.2 * size / sizeAxis,
+                                                color: const Color(0xff0272bc),
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            // Text Content
+                                            Text(
+                                              '₱ ${totalInsuranceMONTH.toStringAsFixed(2)}',
+                                              style: SafeGoogleFont(
+                                                'Inter',
+                                                fontSize: 17 * size,
+                                                fontWeight: FontWeight.bold,
+                                                height: 1.2 * size / sizeAxis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]),
                                   ),
                                 ),
                               ],
@@ -1179,18 +1351,19 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
+              // Transmittal of the day
               Row(
                 children: [
                   Expanded(
                     child: Card(
                       elevation: 5,
                       child: Stack(children: [
-                        // Image.asset(
-                        //   'assets/images/bgg1.jpg',
-                        //   fit: BoxFit.cover,
-                        //   width: 160,
-                        //   height: 115,
-                        // ),
+                        Image.asset(
+                          'assets/images/bgg13.jpg',
+                          fit: BoxFit.cover,
+                          width: 360,
+                          height: 117,
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
@@ -1202,7 +1375,7 @@ class _SaleDashState extends State<SaleDash> {
                                   'Urbanist',
                                   fontSize: 15 * size,
                                   height: 1.2 * size / sizeAxis,
-                                  color: const Color(0xff0272bc),
+                                  color: Colors.white,
                                 ),
                               ),
                               SizedBox(height: 10),
@@ -1213,6 +1386,7 @@ class _SaleDashState extends State<SaleDash> {
                                   fontSize: 17 * size,
                                   fontWeight: FontWeight.bold,
                                   height: 1.2 * size / sizeAxis,
+                                  color: Colors.white,
                                 ),
                               ),
                               Text(
@@ -1222,6 +1396,7 @@ class _SaleDashState extends State<SaleDash> {
                                   fontSize: 17 * size,
                                   fontWeight: FontWeight.bold,
                                   height: 1.2 * size / sizeAxis,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -1232,18 +1407,20 @@ class _SaleDashState extends State<SaleDash> {
                   ),
                 ],
               ),
+              SizedBox(height: 10),
+              // Transmittal Month
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
                   child: Stack(
                     children: [
-                      // Image.asset(
-                      //   'assets/images/bgg9.jpg',
-                      //   fit: BoxFit.cover,
-                      //   width: 500,
-                      //   height: 410,
-                      // ),
+                      Image.asset(
+                        'assets/images/bgg17.jpg',
+                        fit: BoxFit.cover,
+                        width: 500,
+                        height: 410,
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -1255,7 +1432,7 @@ class _SaleDashState extends State<SaleDash> {
                                 'Urbanist',
                                 fontSize: 15 * size,
                                 height: 1.2 * size / sizeAxis,
-                                color: const Color(0xff0272bc),
+                                color: Colors.red,
                               ),
                             ),
                             SizedBox(height: 20),
@@ -1263,7 +1440,12 @@ class _SaleDashState extends State<SaleDash> {
                             SfCartesianChart(
                               primaryXAxis: CategoryAxis(
                                 labelStyle: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              primaryYAxis: NumericAxis(
+                                labelStyle: TextStyle(
+                                  color: Colors.white, // Set the color of the labels to white
                                 ),
                               ),
                               series: <ChartSeries>[
@@ -1273,7 +1455,7 @@ class _SaleDashState extends State<SaleDash> {
                                   sales.dayName,
                                   yValueMapper: (TransMonthData sales, _) =>
                                   sales.amount,
-                                  color: Colors.lightBlue,
+                                  color: Colors.red,
                                 ),
                               ],
                             ),
@@ -1285,7 +1467,7 @@ class _SaleDashState extends State<SaleDash> {
                                   'Days',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],

@@ -45,7 +45,7 @@ class _LoginState extends State<Login> {
       }
 
       final response = await http.post(
-        Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/auth/signin'),
+        Uri.parse('https://e679-143-44-192-98.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": _usernameTextController.text,

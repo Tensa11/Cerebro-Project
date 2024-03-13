@@ -1,14 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
-import 'AddPatient.dart';
-import 'Details.dart';
-import 'Drawer.dart';
-import 'appbar.dart';
 import 'package:http/http.dart' as http;
 
+import 'Drawer.dart';
 
 class ManageEmployee extends StatefulWidget {
   const ManageEmployee({Key? key}) : super(key: key);
@@ -47,38 +43,27 @@ class _ManageEmployeeState extends State<ManageEmployee> {
       print('Error fetching physicians: $e');
     }
   }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     double baseWidth = 375;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;
-
     return Scaffold(
-      endDrawer: Drawer(
-        child: CereDrawer(),
-      ),
+      key: _scaffoldKey,
       appBar: AppBar(
         // Set a custom height for the app bar
         toolbarHeight: 80,
-
         // Transparent background with gradient in flexible space
         backgroundColor: Colors.transparent,
-        elevation: 10,  // Remove default shadow
-
-        // title: Image(
-        //   image: AssetImage('assets/logo/appNameLogo.png'),
-        //   width: 150,  // Adjust width as needed
-        //   height: 150,  // Adjust height as needed
-        // ),
-        // Leading icon button (menu)
+        elevation: 15,  // Remove default shadow
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.black),
           onPressed: () {
-            // Add functionality for menu button
+            _scaffoldKey.currentState?.openDrawer();
           },
         ),
-        // Search icon button
         actions: [
           Image(
             image: AssetImage('assets/logo/appNameLogo.png'),
@@ -87,35 +72,47 @@ class _ManageEmployeeState extends State<ManageEmployee> {
           ),
           Image(
             image: AssetImage('assets/logo/space.png'),
-            width: 90,  // Adjust width as needed
+            width: 50,  // Adjust width as needed
             height: 150,  // Adjust height as needed
           ),
           Image(
-            image: AssetImage('assets/logo/appNameLogo.png'),
-            width: 150,  // Adjust width as needed
+            image: AssetImage('assets/logo/space.png'),
+            width: 90,  // Adjust width as needed
             height: 150,  // Adjust height as needed
+          ),
+          IconButton(
+            icon: Icon(Icons.search, color: Colors.black),
+            onPressed: () {
+              // Add functionality for search button
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.account_circle, color: Colors.black),
+            onPressed: () {
+              // Add functionality for account button
+            },
           ),
         ],
         // Add a gradient background with rounded corners at the bottom
         flexibleSpace: Container(
           decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bgg4.jpg'),
+              fit: BoxFit.cover,
+            ),
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
             ),
-            gradient: LinearGradient(
-              colors: [Colors.white, Colors.white],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-            ),
           ),
-        ), systemOverlayStyle: SystemUiOverlayStyle.light,
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
+      drawer: CereDrawer(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: Column(
           children: [
-            CustomAppBar(), // Replace the AppBar with the CustomAppBar
             Container(
               margin: EdgeInsets.fromLTRB(
                   0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),

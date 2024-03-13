@@ -49,7 +49,7 @@ class _CereDrawerState extends State<CereDrawer> {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage(
-                    "assets/images/bgg2.jpg",
+                    "assets/images/bgg15.jpg",
                   ),
                   fit: BoxFit.fill,
                 ),

@@ -8,6 +8,8 @@ import 'package:lottie/lottie.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'Cerebro/LandV2.dart';
+
 late SharedPreferences _prefs;
 
 Future<void> main() async {
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'iPECS',
+      title: 'CEREBRO',
       home: SplashScreen(),
     );
   }
