@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../util/utils.dart';
 import 'package:http/http.dart' as http;
-
+import 'dart:async';
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import '../util/utils.dart';
 import 'Drawer.dart';
-
 class ManageEmployee extends StatefulWidget {
   const ManageEmployee({Key? key}) : super(key: key);
 
@@ -15,16 +16,40 @@ class ManageEmployee extends StatefulWidget {
 
 class _ManageEmployeeState extends State<ManageEmployee> {
   late List<Physician> physicians = [];
+  final StreamController<bool> _streamController = StreamController<bool>();
 
   @override
   void initState() {
     super.initState();
     fetchPhysicians();
+    startListeningToChanges();
   }
+  @override
+  void dispose() {
+    _streamController.close();
+    super.dispose();
+  }
+
+  void startListeningToChanges() {
+    Timer.periodic(Duration(seconds: 10), (timer) {
+      // Check for database changes periodically
+      fetchDataAndNotify(); // Fetch data and notify listeners
+    });
+  }
+
+  void fetchDataAndNotify() async {
+    try {
+      await fetchPhysicians(); // Fetch total sales data
+      _streamController.add(true); // Notify listeners about the change
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
 
   Future<void> fetchPhysicians() async {
     try {
-      var url = Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/physicians');
+      var url = Uri.parse('https://ef80-103-62-152-132.ngrok-free.app/med/physicians');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -113,6 +138,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: Column(
           children: [
+            SizedBox(height: 30,),
             Container(
               margin: EdgeInsets.fromLTRB(
                   0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),

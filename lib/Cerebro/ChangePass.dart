@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:Cerebro/Cerebro/Login.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
+import 'Drawer.dart';
 import 'VerifyPass.dart';
 
 class ChangePass extends StatefulWidget {
@@ -18,7 +20,9 @@ class _ChangePassState extends State<ChangePass> {
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  bool _isObscure = true;
+  bool _hideCofrmPass = true;
+  bool _hideCurrentPass = true;
+  bool _hideNewPass = true;
   String _errorMessage = '';
 
   Future<void> changePassword() async {
@@ -37,7 +41,7 @@ class _ChangePassState extends State<ChangePass> {
       }
 
       final response = await http.post(
-        Uri.parse('https://ccea-143-44-192-98.ngrok-free.app/auth/change_password'),
+        Uri.parse('https://ef80-103-62-152-132.ngrok-free.app/auth/change_password'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": username,
@@ -65,6 +69,7 @@ class _ChangePassState extends State<ChangePass> {
       });
     }
   }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +79,66 @@ class _ChangePassState extends State<ChangePass> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Remove debug banner
+
       home: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          // Set a custom height for the app bar
+          toolbarHeight: 80,
+          // Transparent background with gradient in flexible space
+          backgroundColor: Colors.transparent,
+          elevation: 15,  // Remove default shadow
+          leading: IconButton(
+            icon: Icon(Icons.menu, color: Colors.black),
+            onPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
+          ),
+          actions: [
+            Image(
+              image: AssetImage('assets/logo/appNameLogo.png'),
+              width: 150,  // Adjust width as needed
+              height: 150,  // Adjust height as needed
+            ),
+            Image(
+              image: AssetImage('assets/logo/space.png'),
+              width: 50,  // Adjust width as needed
+              height: 150,  // Adjust height as needed
+            ),
+            Image(
+              image: AssetImage('assets/logo/space.png'),
+              width: 90,  // Adjust width as needed
+              height: 150,  // Adjust height as needed
+            ),
+            IconButton(
+              icon: Icon(Icons.search, color: Colors.black),
+              onPressed: () {
+                // Add functionality for search button
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.account_circle, color: Colors.black),
+              onPressed: () {
+                // Add functionality for account button
+              },
+            ),
+          ],
+          // Add a gradient background with rounded corners at the bottom
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bgg4.jpg'),
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+          ),
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+        ),
+        drawer: CereDrawer(),
         body: Stack(
           children: [
             // Background image
@@ -89,7 +153,7 @@ class _ChangePassState extends State<ChangePass> {
                 width: double.infinity,
                 child: Container(
                   padding: EdgeInsets.fromLTRB(
-                      22 * sizeAxis, 180 * sizeAxis, 21 * sizeAxis, 0 * sizeAxis),
+                      22 * sizeAxis, 80 * sizeAxis, 21 * sizeAxis, 0 * sizeAxis),
                   width: double.infinity,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -150,14 +214,14 @@ class _ChangePassState extends State<ChangePass> {
                             hintStyle: const TextStyle(color: Color(0xff8390a1)),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _isObscure
+                                _hideCurrentPass
                                     ? Icons.visibility
                                     : Icons.visibility_off,
                                 color: Colors.grey,
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _isObscure = !_isObscure;
+                                  _hideCurrentPass = !_hideCurrentPass;
                                 });
                               },
                             ),
@@ -170,7 +234,7 @@ class _ChangePassState extends State<ChangePass> {
                             color: const Color(0xff0272bc),
                           ),
                           keyboardType: TextInputType.text,
-                          obscureText: _isObscure, // Toggle password visibility
+                          obscureText: _hideCurrentPass, // Toggle password visibility
                         ),
                       ),
                       // Enter the newly created password
@@ -198,14 +262,14 @@ class _ChangePassState extends State<ChangePass> {
                             hintStyle: const TextStyle(color: Color(0xff8390a1)),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _isObscure
+                                _hideNewPass
                                     ? Icons.visibility
                                     : Icons.visibility_off,
                                 color: Colors.grey,
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _isObscure = !_isObscure;
+                                  _hideNewPass = !_hideNewPass;
                                 });
                               },
                             ),
@@ -218,7 +282,7 @@ class _ChangePassState extends State<ChangePass> {
                             color: const Color(0xff0272bc),
                           ),
                           keyboardType: TextInputType.text,
-                          obscureText: _isObscure, // Toggle password visibility
+                          obscureText: _hideNewPass, // Toggle password visibility
                         ),
                       ),
                       // Re enter the newly created password for confirmation
@@ -246,14 +310,14 @@ class _ChangePassState extends State<ChangePass> {
                             hintStyle: const TextStyle(color: Color(0xff8390a1)),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _isObscure
+                                _hideCofrmPass
                                     ? Icons.visibility
                                     : Icons.visibility_off,
                                 color: Colors.grey,
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _isObscure = !_isObscure;
+                                  _hideCofrmPass = !_hideCofrmPass;
                                 });
                               },
                             ),
@@ -266,7 +330,7 @@ class _ChangePassState extends State<ChangePass> {
                             color: const Color(0xff0272bc),
                           ),
                           keyboardType: TextInputType.text,
-                          obscureText: _isObscure, // Toggle password visibility
+                          obscureText: _hideCofrmPass, // Toggle password visibility
                         ),
                       ),
                       Container(

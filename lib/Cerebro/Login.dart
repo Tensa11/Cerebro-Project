@@ -25,13 +25,22 @@ class _LoginState extends State<Login> {
 
   Future<void> signIn() async {
     try {
+      final username = _usernameTextController.text;
       final password = _passwordTextController.text;
       String convertedPassword;
 
-      if (password == null) {
-        // Handle null password
+      // Check for empty username
+      if (username.isEmpty) {
         setState(() {
-          _errorMessage = 'Password cannot be null.';
+          _errorMessage = 'Please enter your username.';
+        });
+        return;
+      }
+
+      // Check for empty password
+      if (password.isEmpty) {
+        setState(() {
+          _errorMessage = 'Please enter your password.';
         });
         return;
       }
@@ -45,10 +54,10 @@ class _LoginState extends State<Login> {
       }
 
       final response = await http.post(
-        Uri.parse('https://e679-143-44-192-98.ngrok-free.app/auth/signin'),
+        Uri.parse('https://ef80-103-62-152-132.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "username": _usernameTextController.text,
+          "username": username,
           "password": convertedPassword,
         }),
       );
@@ -58,7 +67,7 @@ class _LoginState extends State<Login> {
 
         if (data == null || data['message'] == null || data['message'].toLowerCase().contains('success')) {
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('username', _usernameTextController.text);
+          await prefs.setString('username', username);
           await prefs.setString('email', data?['email'] ?? ''); // Handle null email
 
           // Navigate to the main dashboard or home screen
@@ -74,14 +83,21 @@ class _LoginState extends State<Login> {
           print('Invalid username or password.');
         }
       } else {
+        // Improved error handling for non-200 status codes
+        String errorMessage = 'An Error has occurred.';
+        if (response.statusCode >= 400 && response.statusCode < 500) {
+          errorMessage = 'Client-side error';
+        } else if (response.statusCode >= 500) {
+          errorMessage = 'Server-side error';
+        }
         setState(() {
-          _errorMessage = 'Error: ${response.statusCode}';
+          _errorMessage = errorMessage;
         });
-        print('Error: ${response.statusCode}');
+        print('Error: ${response.statusCode} - ${errorMessage}');
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error: $e';
+        _errorMessage = 'An Error has occurred. Please try again later.';
       });
       print('Error: $e');
     }
@@ -225,6 +241,22 @@ class _LoginState extends State<Login> {
                       obscureText: _isObscure, // Toggle password visibility
                     ),
                   ),
+                  if (_errorMessage.isNotEmpty)
+                    Container(
+                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis,
+                          0 * sizeAxis, 0 * sizeAxis),
+                      child: Text(
+                        _errorMessage,
+                        style: SafeGoogleFont(
+                          'Urbanist',
+                          fontSize: 15 * size,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4 * size / sizeAxis,
+                          letterSpacing: 0.15 * sizeAxis,
+                          color: const Color(0xffe74c3c),
+                        ),
+                      ),
+                    ),
                   Container(
                     margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
                         0 * sizeAxis, 100 * sizeAxis),
@@ -312,22 +344,6 @@ class _LoginState extends State<Login> {
                   //     ),
                   //   ),
                   // ),
-                  if (_errorMessage.isNotEmpty)
-                    Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis,
-                          0 * sizeAxis, 0 * sizeAxis),
-                      child: Text(
-                        _errorMessage,
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 15 * size,
-                          fontWeight: FontWeight.w500,
-                          height: 1.4 * size / sizeAxis,
-                          letterSpacing: 0.15 * sizeAxis,
-                          color: const Color(0xffe74c3c),
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
