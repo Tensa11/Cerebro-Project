@@ -54,7 +54,7 @@ class _LoginState extends State<Login> {
       }
 
       final response = await http.post(
-        Uri.parse('https://ef80-103-62-152-132.ngrok-free.app/auth/signin'),
+        Uri.parse('https://219e-103-62-152-132.ngrok-free.app/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": username,
@@ -63,12 +63,18 @@ class _LoginState extends State<Login> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>?;
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
 
-        if (data == null || data['message'] == null || data['message'].toLowerCase().contains('success')) {
+        if (data.containsKey('token')) {
+          // Extract token from the response
+          final token = data['token'];
+          print('Token: $token'); // Print token in the console
+
+          // Save token or handle it as needed
+
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('username', username);
-          await prefs.setString('email', data?['email'] ?? ''); // Handle null email
+          await prefs.setString('email', data['email'] ?? ''); // Handle null email
 
           // Navigate to the main dashboard or home screen
           Navigator.of(context).push(
@@ -78,9 +84,9 @@ class _LoginState extends State<Login> {
           );
         } else {
           setState(() {
-            _errorMessage = 'Invalid username or password.';
+            _errorMessage = 'Token not found in response.';
           });
-          print('Invalid username or password.');
+          print('Token not found in response.');
         }
       } else {
         // Improved error handling for non-200 status codes
@@ -112,6 +118,7 @@ class _LoginState extends State<Login> {
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Remove debug banner
       home: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: SingleChildScrollView(
           child: SizedBox(
             width: double.infinity,
@@ -119,14 +126,15 @@ class _LoginState extends State<Login> {
               padding: EdgeInsets.fromLTRB(
                   22 * sizeAxis, 110 * sizeAxis, 22 * sizeAxis, 90 * sizeAxis),
               width: double.infinity,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage(
-                    'assets/images/bgg9.jpg',
-                  ),
-                ),
-              ),
+              // Background Image
+              // decoration: const BoxDecoration(
+              //   image: DecorationImage(
+              //     fit: BoxFit.cover,
+              //     image: AssetImage(
+              //       'assets/images/bgg9.jpg',
+              //     ),
+              //   ),
+              // ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -152,7 +160,7 @@ class _LoginState extends State<Login> {
                         fontWeight: FontWeight.w700,
                         height: 1.3 * size / sizeAxis,
                         letterSpacing: -0.3 * sizeAxis,
-                        color: const Color(0xff1e232c),
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                   ),
@@ -162,8 +170,15 @@ class _LoginState extends State<Login> {
                     width: 331 * sizeAxis,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8 * sizeAxis),
-                      border: Border.all(color: const Color(0xffe8ecf4)),
-                      color: const Color(0xfff7f8f9),
+                      color: Theme.of(context).colorScheme.primary,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 2,
+                          offset: Offset(0, 1), // changes position of shadow
+                        ),
+                      ],
                     ),
                     child: TextFormField(
                       controller: _usernameTextController,
@@ -194,14 +209,22 @@ class _LoginState extends State<Login> {
                       },
                     ),
                   ),
+                  SizedBox(height: 5),
                   Container(
                     margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
                         0 * sizeAxis, 15 * sizeAxis),
                     width: 331 * sizeAxis,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8 * sizeAxis),
-                      border: Border.all(color: const Color(0xffe8ecf4)),
-                      color: const Color(0xfff7f8f9),
+                      color: Theme.of(context).colorScheme.primary,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 2,
+                          offset: Offset(0, 1), // changes position of shadow
+                        ),
+                      ],
                     ),
                     child: TextField(
                       controller: _passwordTextController,
@@ -221,7 +244,7 @@ class _LoginState extends State<Login> {
                             _isObscure
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                           onPressed: () {
                             setState(() {

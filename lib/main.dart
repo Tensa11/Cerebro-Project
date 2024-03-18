@@ -2,12 +2,12 @@ import 'dart:async';
 import 'package:Cerebro/Cerebro/POST.dart';
 import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:Cerebro/Cerebro/get-started.dart';
+import 'package:Cerebro/util/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'Cerebro/LandV2.dart';
 
 late SharedPreferences _prefs;
@@ -31,10 +31,10 @@ class MyApp extends StatelessWidget {
         statusBarBrightness: Brightness.dark, // Adjust based on your color
       ),
     );
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'CEREBRO',
+      theme: lightMode,
+      darkTheme: darkMode,
       home: SplashScreen(),
     );
   }
@@ -45,7 +45,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
-      nextScreen: const GetStarted(),
+      nextScreen: const LandingPage(),
       splashIconSize: 900,
       duration: 2900,
       splashTransition: SplashTransition.fadeTransition,

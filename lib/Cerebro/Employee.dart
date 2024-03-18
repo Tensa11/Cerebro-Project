@@ -49,7 +49,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
 
   Future<void> fetchPhysicians() async {
     try {
-      var url = Uri.parse('https://ef80-103-62-152-132.ngrok-free.app/med/physicians');
+      var url = Uri.parse('https://219e-103-62-152-132.ngrok-free.app/med/physicians');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -75,44 +75,32 @@ class _ManageEmployeeState extends State<ManageEmployee> {
     double baseWidth = 375;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;
+
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       key: _scaffoldKey,
       appBar: AppBar(
         // Set a custom height for the app bar
         toolbarHeight: 80,
         // Transparent background with gradient in flexible space
         backgroundColor: Colors.transparent,
-        elevation: 15,  // Remove default shadow
+        elevation: 15,
+        // Remove default shadow
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
+          icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
         actions: [
-          Image(
-            image: AssetImage('assets/logo/appNameLogo.png'),
-            width: 150,  // Adjust width as needed
-            height: 150,  // Adjust height as needed
-          ),
-          Image(
-            image: AssetImage('assets/logo/space.png'),
-            width: 50,  // Adjust width as needed
-            height: 150,  // Adjust height as needed
-          ),
-          Image(
-            image: AssetImage('assets/logo/space.png'),
-            width: 90,  // Adjust width as needed
-            height: 150,  // Adjust height as needed
-          ),
           IconButton(
-            icon: Icon(Icons.search, color: Colors.black),
+            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
               // Add functionality for search button
             },
           ),
           IconButton(
-            icon: Icon(Icons.account_circle, color: Colors.black),
+            icon: Icon(Icons.account_circle, color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
               // Add functionality for account button
             },
@@ -121,10 +109,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
         // Add a gradient background with rounded corners at the bottom
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/bgg4.jpg'),
-              fit: BoxFit.cover,
-            ),
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -176,6 +161,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                     },
                     child: Card(
                       elevation: 3,
+                      color: Theme.of(context).colorScheme.primary,
                       child: ListTile(
                         leading: const CircleAvatar(
                           backgroundImage: AssetImage('assets/images/userCartoon.png'),

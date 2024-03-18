@@ -77,47 +77,31 @@ class _ChangePassState extends State<ChangePass> {
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false, // Remove debug banner
-
-      home: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      key: _scaffoldKey,
+      appBar: AppBar(
           // Set a custom height for the app bar
           toolbarHeight: 80,
           // Transparent background with gradient in flexible space
           backgroundColor: Colors.transparent,
-          elevation: 15,  // Remove default shadow
+          elevation: 15,
+          // Remove default shadow
           leading: IconButton(
-            icon: Icon(Icons.menu, color: Colors.black),
+            icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
               _scaffoldKey.currentState?.openDrawer();
             },
           ),
           actions: [
-            Image(
-              image: AssetImage('assets/logo/appNameLogo.png'),
-              width: 150,  // Adjust width as needed
-              height: 150,  // Adjust height as needed
-            ),
-            Image(
-              image: AssetImage('assets/logo/space.png'),
-              width: 50,  // Adjust width as needed
-              height: 150,  // Adjust height as needed
-            ),
-            Image(
-              image: AssetImage('assets/logo/space.png'),
-              width: 90,  // Adjust width as needed
-              height: 150,  // Adjust height as needed
-            ),
             IconButton(
-              icon: Icon(Icons.search, color: Colors.black),
+              icon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary),
               onPressed: () {
                 // Add functionality for search button
               },
             ),
             IconButton(
-              icon: Icon(Icons.account_circle, color: Colors.black),
+              icon: Icon(Icons.account_circle, color: Theme.of(context).colorScheme.tertiary),
               onPressed: () {
                 // Add functionality for account button
               },
@@ -126,10 +110,7 @@ class _ChangePassState extends State<ChangePass> {
           // Add a gradient background with rounded corners at the bottom
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/bgg4.jpg'),
-                fit: BoxFit.cover,
-              ),
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -142,12 +123,12 @@ class _ChangePassState extends State<ChangePass> {
         body: Stack(
           children: [
             // Background image
-            Image.asset(
-              'assets/images/bgg9.jpg',
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-            ),
+            // Image.asset(
+            //   'assets/images/bgg9.jpg',
+            //   fit: BoxFit.cover,
+            //   width: double.infinity,
+            //   height: double.infinity,
+            // ),
             SingleChildScrollView(
               child: SizedBox(
                 width: double.infinity,
@@ -186,7 +167,7 @@ class _ChangePassState extends State<ChangePass> {
                             fontWeight: FontWeight.w400,
                             height: 1.3 * size / sizeAxis,
                             letterSpacing: -0.3 * sizeAxis,
-                            color: const Color(0xff1e232c),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                         ),
                       ),
@@ -197,11 +178,19 @@ class _ChangePassState extends State<ChangePass> {
                         width: 331 * sizeAxis,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8 * sizeAxis),
-                          border: Border.all(color: const Color(0xffe8ecf4)),
-                          color: const Color(0xfff7f8f9),
+                          color: Theme.of(context).colorScheme.primary,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 2,
+                              offset: Offset(0, 1), // changes position of shadow
+                            ),
+                          ],
                         ),
                         child: TextField(
                           controller: _currentPasswordController,
+                          // Assign the text controller
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             focusedBorder: InputBorder.none,
@@ -217,7 +206,7 @@ class _ChangePassState extends State<ChangePass> {
                                 _hideCurrentPass
                                     ? Icons.visibility
                                     : Icons.visibility_off,
-                                color: Colors.grey,
+                                color: Theme.of(context).colorScheme.tertiary,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -234,7 +223,7 @@ class _ChangePassState extends State<ChangePass> {
                             color: const Color(0xff0272bc),
                           ),
                           keyboardType: TextInputType.text,
-                          obscureText: _hideCurrentPass, // Toggle password visibility
+                          obscureText: _hideCofrmPass, // Toggle password visibility
                         ),
                       ),
                       // Enter the newly created password
@@ -244,12 +233,18 @@ class _ChangePassState extends State<ChangePass> {
                         width: 331 * sizeAxis,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8 * sizeAxis),
-                          border: Border.all(color: const Color(0xffe8ecf4)),
-                          color: const Color(0xfff7f8f9),
+                          color: Theme.of(context).colorScheme.primary,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 2,
+                              offset: Offset(0, 1), // changes position of shadow
+                            ),
+                          ],
                         ),
                         child: TextField(
                           controller: _newPasswordController,
-                          // Assign the text controller
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             focusedBorder: InputBorder.none,
@@ -265,7 +260,7 @@ class _ChangePassState extends State<ChangePass> {
                                 _hideNewPass
                                     ? Icons.visibility
                                     : Icons.visibility_off,
-                                color: Colors.grey,
+                                color: Theme.of(context).colorScheme.tertiary,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -282,7 +277,7 @@ class _ChangePassState extends State<ChangePass> {
                             color: const Color(0xff0272bc),
                           ),
                           keyboardType: TextInputType.text,
-                          obscureText: _hideNewPass, // Toggle password visibility
+                          obscureText: _hideCofrmPass, // Toggle password visibility
                         ),
                       ),
                       // Re enter the newly created password for confirmation
@@ -292,12 +287,18 @@ class _ChangePassState extends State<ChangePass> {
                         width: 331 * sizeAxis,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8 * sizeAxis),
-                          border: Border.all(color: const Color(0xffe8ecf4)),
-                          color: const Color(0xfff7f8f9),
+                          color: Theme.of(context).colorScheme.primary,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 2,
+                              offset: Offset(0, 1), // changes position of shadow
+                            ),
+                          ],
                         ),
                         child: TextField(
                           controller: _confirmPasswordController,
-                          // Assign the text controller
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             focusedBorder: InputBorder.none,
@@ -313,7 +314,7 @@ class _ChangePassState extends State<ChangePass> {
                                 _hideCofrmPass
                                     ? Icons.visibility
                                     : Icons.visibility_off,
-                                color: Colors.grey,
+                                color: Theme.of(context).colorScheme.tertiary,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -333,6 +334,7 @@ class _ChangePassState extends State<ChangePass> {
                           obscureText: _hideCofrmPass, // Toggle password visibility
                         ),
                       ),
+                      // Button
                       Container(
                         margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
                             0 * sizeAxis, 150 * sizeAxis),
@@ -371,7 +373,6 @@ class _ChangePassState extends State<ChangePass> {
             ),
           ],
         ),
-      ),
     );
   }
 }

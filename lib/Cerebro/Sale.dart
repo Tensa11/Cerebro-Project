@@ -110,7 +110,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalSalesToday() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/sales/total/today');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -129,7 +129,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchPercentSalesToday() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/sales/total/today/percentage');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/today/percentage');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -148,7 +148,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalCollection() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/cashier/collection/today');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/cashier/collection/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -168,7 +168,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchPercentCollection() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/cashier/collection/percentage');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/cashier/collection/percentage');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -187,18 +187,18 @@ class _SaleDashState extends State<SaleDash> {
 
   List<SalesMonthData> _chartMonthData = [];
   final List<String> dayNames =
-      List.generate(31, (index) => (index + 1).toString());
+  List.generate(31, (index) => (index + 1).toString());
 
   Future<void> fetchSalesMonthChart() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/sales/total/month');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<SalesMonthData> salesMonthData =
-            List.generate(data['data'].length, (index) {
+        List.generate(data['data'].length, (index) {
           String dayName = dayNames[data['data'][index]['day'] - 1];
           return SalesMonthData(
             dayName,
@@ -207,7 +207,7 @@ class _SaleDashState extends State<SaleDash> {
         });
 
         salesMonthData.sort(
-            (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
+                (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
         setState(() {
           _chartMonthData = salesMonthData;
@@ -226,7 +226,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalExpense() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/inv/items/expense/today');
+          'https://219e-103-62-152-132.ngrok-free.app/inv/items/expense/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -245,7 +245,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalDisbursement() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/disbursement/total');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/disbursement/total');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -280,13 +280,13 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchSalesYearChart() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/sales/total/year');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/year');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<SalesYearData> salesYearData =
-            List.generate(data['data'].length, (index) {
+        List.generate(data['data'].length, (index) {
           String monthName = monthNames[data['data'][index]['month'] - 1];
           return SalesYearData(
             monthName,
@@ -312,7 +312,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalIPD() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/med/patients/ipd');
+          'https://219e-103-62-152-132.ngrok-free.app/med/patients/ipd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -331,7 +331,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalOPD() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/med/patients/opd');
+          'https://219e-103-62-152-132.ngrok-free.app/med/patients/opd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -350,7 +350,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalPHIC() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/med/patients/phic');
+          'https://219e-103-62-152-132.ngrok-free.app/med/patients/phic');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -369,7 +369,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalHMO() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/med/patients/hmo');
+          'https://219e-103-62-152-132.ngrok-free.app/med/patients/hmo');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -388,7 +388,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalCOMPANY() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/med/patients/company');
+          'https://219e-103-62-152-132.ngrok-free.app/med/patients/company');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -407,7 +407,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchTotalSENIOR() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/med/patients/srpwd');
+          'https://219e-103-62-152-132.ngrok-free.app/med/patients/srpwd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -426,13 +426,13 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchInsuranceTODAY() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/insurance/today');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/insurance/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<Insurance> fetchedInsuranceToday =
-            List.generate(data['data'].length, (index) {
+        List.generate(data['data'].length, (index) {
           return Insurance.fromJson(data['data'][index]);
         });
 
@@ -450,7 +450,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchPercentInsuranceTODAY() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/insurance/today/percentage');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/insurance/today/percentage');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -469,7 +469,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchInsuranceMONTH() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/insurance/month');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/insurance/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -488,7 +488,7 @@ class _SaleDashState extends State<SaleDash> {
   Future<void> fetchPHICTransmittalTODAY() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/phic_transmittal/today');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/phic_transmittal/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -507,18 +507,18 @@ class _SaleDashState extends State<SaleDash> {
 
   List<TransMonthData> _chartMonthTransData = [];
   final List<String> dayTransNames =
-      List.generate(31, (index) => (index + 1).toString());
+  List.generate(31, (index) => (index + 1).toString());
 
   Future<void> fetchPHICTransmittalMONTH() async {
     try {
       var url = Uri.parse(
-          'https://ef80-103-62-152-132.ngrok-free.app/fin/phic_transmittal/month');
+          'https://219e-103-62-152-132.ngrok-free.app/fin/phic_transmittal/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<TransMonthData> transMonthData =
-            List.generate(data['data'].length, (index) {
+        List.generate(data['data'].length, (index) {
           int days = data['data'][index]['days'];
           String dayName = days.toString(); // Convert days to string
           return TransMonthData(
@@ -529,7 +529,7 @@ class _SaleDashState extends State<SaleDash> {
 
         // Sort the list based on the dayName
         transMonthData.sort(
-            (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
+                (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
         setState(() {
           _chartMonthTransData = transMonthData;
@@ -546,11 +546,11 @@ class _SaleDashState extends State<SaleDash> {
   }
 
   String formattedCurrentDate =
-      DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
+  DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
   String formattedCurrentMonth =
-      DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
+  DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
   String formattedCurrentYear =
-      DateFormat('yyyy').format(DateTime.now()).toUpperCase();
+  DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
   String username = '';
 
@@ -569,7 +569,7 @@ class _SaleDashState extends State<SaleDash> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       key: _scaffoldKey,
       appBar: AppBar(
         // Set a custom height for the app bar
@@ -579,35 +579,20 @@ class _SaleDashState extends State<SaleDash> {
         elevation: 15,
         // Remove default shadow
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
+          icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
         actions: [
-          Image(
-            image: AssetImage('assets/logo/appNameLogo.png'),
-            width: 150, // Adjust width as needed
-            height: 150, // Adjust height as needed
-          ),
-          Image(
-            image: AssetImage('assets/logo/space.png'),
-            width: 50, // Adjust width as needed
-            height: 150, // Adjust height as needed
-          ),
-          Image(
-            image: AssetImage('assets/logo/space.png'),
-            width: 90, // Adjust width as needed
-            height: 150, // Adjust height as needed
-          ),
           IconButton(
-            icon: Icon(Icons.search, color: Colors.black),
+            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
               // Add functionality for search button
             },
           ),
           IconButton(
-            icon: Icon(Icons.account_circle, color: Colors.black),
+            icon: Icon(Icons.account_circle, color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
               // Add functionality for account button
             },
@@ -616,10 +601,7 @@ class _SaleDashState extends State<SaleDash> {
         // Add a gradient background with rounded corners at the bottom
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/bgg4.jpg'),
-              fit: BoxFit.cover,
-            ),
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -660,6 +642,7 @@ class _SaleDashState extends State<SaleDash> {
                         'Urbanist',
                         fontSize: 12 * size,
                         height: 1.2 * size / sizeAxis,
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                   ],
@@ -672,6 +655,7 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      // color: Theme.of(context).colorScheme.primary,
                       child: Stack(children: [
                         Image.asset(
                           'assets/images/bgg13.jpg',
@@ -873,9 +857,9 @@ class _SaleDashState extends State<SaleDash> {
                                 ColumnSeries<SalesMonthData, String>(
                                   dataSource: _chartMonthData,
                                   xValueMapper: (SalesMonthData sales, _) =>
-                                      sales.dayName,
+                                  sales.dayName,
                                   yValueMapper: (SalesMonthData sales, _) =>
-                                      sales.amount,
+                                  sales.amount,
                                   color: Colors.white,
                                 ),
                               ],
@@ -911,7 +895,7 @@ class _SaleDashState extends State<SaleDash> {
                       child: Stack(
                         children: [
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -927,7 +911,7 @@ class _SaleDashState extends State<SaleDash> {
                                     'Urbanist',
                                     fontSize: 15 * size,
                                     height: 1.2 * size / sizeAxis,
-                                    color: const Color(0xff0272bc),
+                                    color: Colors.white,
                                   ),
                                 ),
                                 SizedBox(height: 10),
@@ -938,6 +922,7 @@ class _SaleDashState extends State<SaleDash> {
                                     fontSize: 17 * size,
                                     fontWeight: FontWeight.w600,
                                     height: 1.2 * size / sizeAxis,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -954,7 +939,7 @@ class _SaleDashState extends State<SaleDash> {
                         children: [
                           // Background Image for DISBMT
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -973,7 +958,7 @@ class _SaleDashState extends State<SaleDash> {
                                       'Urbanist',
                                       fontSize: 15 * size,
                                       height: 1.2 * size / sizeAxis,
-                                      color: const Color(0xff0272bc),
+                                      color: Colors.white,
                                     ),
                                   ),
                                   SizedBox(height: 10),
@@ -984,6 +969,7 @@ class _SaleDashState extends State<SaleDash> {
                                       fontSize: 17 * size,
                                       fontWeight: FontWeight.bold,
                                       height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ],
@@ -1043,9 +1029,9 @@ class _SaleDashState extends State<SaleDash> {
                                 SplineSeries<SalesYearData, String>(
                                   dataSource: _chartYearData,
                                   xValueMapper: (SalesYearData sales, _) =>
-                                      sales.monthName,
+                                  sales.monthName,
                                   yValueMapper: (SalesYearData sales, _) =>
-                                      sales.amount,
+                                  sales.amount,
                                   color: Colors.white,
                                   splineType: SplineType.monotonic,
                                   markerSettings: MarkerSettings(
@@ -1077,7 +1063,7 @@ class _SaleDashState extends State<SaleDash> {
                       child: Stack(
                         children: [
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -1095,7 +1081,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 15 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Text(
@@ -1104,7 +1090,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 11 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
@@ -1118,6 +1104,7 @@ class _SaleDashState extends State<SaleDash> {
                                     fontSize: 17 * size,
                                     fontWeight: FontWeight.bold,
                                     height: 1.2 * size / sizeAxis,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -1133,7 +1120,7 @@ class _SaleDashState extends State<SaleDash> {
                       child: Stack(
                         children: [
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -1151,7 +1138,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 15 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Text(
@@ -1160,7 +1147,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 11 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
@@ -1175,6 +1162,7 @@ class _SaleDashState extends State<SaleDash> {
                                     fontSize: 17 * size,
                                     fontWeight: FontWeight.bold,
                                     height: 1.2 * size / sizeAxis,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -1196,7 +1184,7 @@ class _SaleDashState extends State<SaleDash> {
                       child: Stack(
                         children: [
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -1214,7 +1202,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 15 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Text(
@@ -1223,12 +1211,11 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 11 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
                                 ),
-
                                 SizedBox(height: 10),
                                 // Text Content
                                 Text(
@@ -1238,6 +1225,7 @@ class _SaleDashState extends State<SaleDash> {
                                     fontSize: 17 * size,
                                     fontWeight: FontWeight.bold,
                                     height: 1.2 * size / sizeAxis,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -1253,7 +1241,7 @@ class _SaleDashState extends State<SaleDash> {
                       child: Stack(
                         children: [
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -1271,7 +1259,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 15 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Text(
@@ -1280,7 +1268,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 11 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
@@ -1295,6 +1283,7 @@ class _SaleDashState extends State<SaleDash> {
                                     fontSize: 17 * size,
                                     fontWeight: FontWeight.bold,
                                     height: 1.2 * size / sizeAxis,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -1316,7 +1305,7 @@ class _SaleDashState extends State<SaleDash> {
                       child: Stack(
                         children: [
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -1334,7 +1323,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 15 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Text(
@@ -1343,12 +1332,11 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 11 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
                                 ),
-
                                 SizedBox(height: 10),
                                 // Text Content
                                 Text(
@@ -1358,6 +1346,7 @@ class _SaleDashState extends State<SaleDash> {
                                     fontSize: 17 * size,
                                     fontWeight: FontWeight.bold,
                                     height: 1.2 * size / sizeAxis,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -1373,7 +1362,7 @@ class _SaleDashState extends State<SaleDash> {
                       child: Stack(
                         children: [
                           Image.asset(
-                            'assets/images/bgg3.jpg',
+                            'assets/images/bgg13.jpg',
                             fit: BoxFit.cover,
                             width: 175,
                             height: 95,
@@ -1391,7 +1380,7 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 15 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Text(
@@ -1400,12 +1389,11 @@ class _SaleDashState extends State<SaleDash> {
                                         'Urbanist',
                                         fontSize: 11 * size,
                                         height: 1.2 * size / sizeAxis,
-                                        color: const Color(0xff0272bc),
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
                                 ),
-
                                 SizedBox(height: 10),
                                 // Text Content
                                 Text(
@@ -1415,6 +1403,7 @@ class _SaleDashState extends State<SaleDash> {
                                     fontSize: 17 * size,
                                     fontWeight: FontWeight.bold,
                                     height: 1.2 * size / sizeAxis,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
@@ -1463,7 +1452,7 @@ class _SaleDashState extends State<SaleDash> {
                                 itemCount: insuranceTODAY.length,
                                 itemBuilder: (context, index) {
                                   Insurance todayInsurance =
-                                      insuranceTODAY[index];
+                                  insuranceTODAY[index];
                                   return GestureDetector(
                                     onTap: () {
                                       // Navigate to the next page when a list item is tapped
@@ -1487,7 +1476,7 @@ class _SaleDashState extends State<SaleDash> {
                                         ),
                                         subtitle: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             SizedBox(height: 5),
                                             Text(
@@ -1518,7 +1507,7 @@ class _SaleDashState extends State<SaleDash> {
                                     elevation: 5,
                                     child: Stack(children: [
                                       Image.asset(
-                                        'assets/images/bgg3.jpg',
+                                        'assets/images/bgg13.jpg',
                                         fit: BoxFit.cover,
                                         width: 360,
                                         height: 125,
@@ -1527,7 +1516,7 @@ class _SaleDashState extends State<SaleDash> {
                                         padding: const EdgeInsets.all(20.0),
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Insurance Month',
@@ -1535,7 +1524,7 @@ class _SaleDashState extends State<SaleDash> {
                                                 'Urbanist',
                                                 fontSize: 15 * size,
                                                 height: 1.2 * size / sizeAxis,
-                                                color: const Color(0xff0272bc),
+                                                color: Colors.white,
                                               ),
                                             ),
                                             SizedBox(height: 15),
@@ -1547,6 +1536,7 @@ class _SaleDashState extends State<SaleDash> {
                                                 fontSize: 17 * size,
                                                 fontWeight: FontWeight.bold,
                                                 height: 1.2 * size / sizeAxis,
+                                                color: Colors.white,
                                               ),
                                             ),
                                             SizedBox(height: 10),
@@ -1557,6 +1547,7 @@ class _SaleDashState extends State<SaleDash> {
                                                 fontSize: 11 * size,
                                                 fontWeight: FontWeight.bold,
                                                 height: 1.2 * size / sizeAxis,
+                                                color: Colors.white,
                                               ),
                                             ),
                                           ],
@@ -1677,9 +1668,9 @@ class _SaleDashState extends State<SaleDash> {
                                 ColumnSeries<TransMonthData, String>(
                                   dataSource: _chartMonthTransData,
                                   xValueMapper: (TransMonthData sales, _) =>
-                                      sales.dayName,
+                                  sales.dayName,
                                   yValueMapper: (TransMonthData sales, _) =>
-                                      sales.amount,
+                                  sales.amount,
                                   color: Colors.white,
                                 ),
                               ],

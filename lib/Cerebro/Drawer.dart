@@ -36,6 +36,7 @@ class _CereDrawerState extends State<CereDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Theme.of(context).colorScheme.background,
       child: Container(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -48,24 +49,10 @@ class _CereDrawerState extends State<CereDrawer> {
               ),
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(
-                    "assets/images/bgg15.jpg",
-                  ),
+                  image: AssetImage("assets/images/bgg15.jpg"),
                   fit: BoxFit.fill,
                 ),
               ),
-              // otherAccountsPictures: [
-              //   CircleAvatar(
-              //     backgroundColor: Colors.white,
-              //     backgroundImage:  AssetImage(
-              //         "assets/images/bgg1.jpg"),
-              //   ),
-              //   CircleAvatar(
-              //     backgroundColor: Colors.white,
-              //     backgroundImage:  AssetImage(
-              //         "assets/images/bgg4.jpg"),
-              //   ),
-              // ],
             ),
             ListTile(
               leading: const Icon(
@@ -75,7 +62,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Home',
                 style: TextStyle(
-                  color: const Color(0xff231b53), // Changed text color
+                  color: Colors.blue, // Changed text color
                 ),
               ),
               onTap: () {
@@ -86,25 +73,6 @@ class _CereDrawerState extends State<CereDrawer> {
                 );
               },
             ),
-            // ListTile(
-            //   leading: const Icon(
-            //     Icons.admin_panel_settings,
-            //     color: const Color(0xffe33924), // Changed icon color
-            //   ),
-            //   title: const Text(
-            //     'Users',
-            //     style: TextStyle(
-            //       color: const Color(0xff231b53), // Changed text color
-            //     ),
-            //   ),
-            //   onTap: () {
-            //     Navigator.of(context).push(
-            //       MaterialPageRoute(
-            //         builder: (context) => ManageAdmin(),
-            //       ),
-            //     );
-            //   },
-            // ),
             ListTile(
               leading: const Icon(
                 Icons.person,
@@ -113,7 +81,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Employee',
                 style: TextStyle(
-                  color: const Color(0xff231b53), // Changed text color
+                  color: Colors.blue, // Changed text color
                 ),
               ),
               onTap: () {
@@ -132,7 +100,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Change Password',
                 style: TextStyle(
-                  color: const Color(0xff231b53), // Changed text color
+                  color: Colors.blue, // Changed text color
                 ),
               ),
               onTap: () {
@@ -152,7 +120,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Logout',
                 style: TextStyle(
-                  color: const Color(0xff231b53), // Changed text color
+                  color: Colors.blue, // Changed text color
                 ),
               ),
               onTap: () async {
@@ -160,7 +128,6 @@ class _CereDrawerState extends State<CereDrawer> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    // Set to false to prevent dialog dismissal on tap outside
                     builder: (context) {
                       return Center(
                         child: CircularProgressIndicator(
@@ -170,7 +137,6 @@ class _CereDrawerState extends State<CereDrawer> {
                     },
                   );
                   Navigator.of(context).pushReplacement(
-                    // Use pushReplacement to prevent going back to the previous screen
                     MaterialPageRoute(
                       builder: (context) => const Login(),
                     ),
