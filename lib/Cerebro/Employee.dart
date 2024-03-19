@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
-import 'dart:convert';
-import 'package:intl/intl.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
+
 class ManageEmployee extends StatefulWidget {
   const ManageEmployee({Key? key}) : super(key: key);
 
@@ -138,7 +137,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                       fontSize: 18 * size,
                       fontWeight: FontWeight.w500,
                       height: 1.2 * size / sizeAxis,
-                      color: const Color(0xff0272bc),
+                      color: const Color(0xFF13A4FF),
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -186,7 +185,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                                 fontFamily: 'Urbanist',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xff0272bc),
+                                color: const Color(0xFF13A4FF),
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -196,7 +195,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                                 fontFamily: 'Urbanist',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xff0272bc),
+                                color: const Color(0xFF13A4FF),
                                 decoration: TextDecoration.none,
                               ),
                             ),

@@ -15,8 +15,7 @@ class _CereAddState extends State<CereAdd> {
   double sizeAxis = 1.0;
   double size = 1.0;
 
-  TextEditingController itemController =
-      TextEditingController(); // Add a TextEditingController for the reference input
+  TextEditingController itemController = TextEditingController();
   TextEditingController dateTimeController = TextEditingController();
   TextEditingController amountController = TextEditingController();
 

@@ -5,7 +5,7 @@ ThemeData lightMode = ThemeData(
   colorScheme: ColorScheme.light(
       background: Color(0xFFFFFFFF),
       primary: Color(0xFFFFFFFF),
-      secondary: Color(0xFFFFFFFF),
+      secondary: Color(0xFF13A4FF),
       tertiary: Color(0xFF000000)
   ),
 );
@@ -13,9 +13,14 @@ ThemeData lightMode = ThemeData(
 ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
-      background: Color(0xFF020F2A),
+      background: Color(0xFF010D23),
       primary: Color(0xFF041648),
-      secondary: Color(0xFF69C3F2),
+      secondary: Color(0xFF081E65),
       tertiary: Color(0xFFFFFFFF)
   ),
 );
+
+
+// Color Lists
+// 0xFF081E65 Dark Blue
+// 0xFF13A4FF Blue

@@ -26,7 +26,7 @@ class LandingPage extends StatelessWidget {
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     image: AssetImage(
-                      'assets/images/bgg8.jpg',
+                      'assets/images/bgg1.jpg',
                     ),
                   ),
                 ),
@@ -69,7 +69,7 @@ class LandingPage extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         height: 0.5365853659 * sizes / size,
                         letterSpacing: -0.4079999924 * size,
-                        color: const Color(0xff0075ff),
+                        color: const Color(0xFF13A4FF),
                       ),
                     ),
                     SizedBox(height: 20 * size),
@@ -120,14 +120,16 @@ class LandingPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
+        backgroundColor: Color(0xFF13A4FF),
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => Login()),
           );
         },
-        child: Icon(Icons.arrow_forward),
+        child: Icon(
+          Icons.arrow_forward,
+          color: Colors.white,),
       ),
     );
   }

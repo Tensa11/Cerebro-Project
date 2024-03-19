@@ -1,11 +1,8 @@
 import 'package:Cerebro/Cerebro/ChangePass.dart';
-import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'AccountManage.dart';
-import 'Home.dart';
 import 'Login.dart';
 import 'Employee.dart';
 
@@ -62,7 +59,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Home',
                 style: TextStyle(
-                  color: Colors.blue, // Changed text color
+                  color: Color(0xFF13A4FF), // Changed text color
                 ),
               ),
               onTap: () {
@@ -81,7 +78,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Employee',
                 style: TextStyle(
-                  color: Colors.blue, // Changed text color
+                  color: Color(0xFF13A4FF), // Changed text color
                 ),
               ),
               onTap: () {
@@ -100,7 +97,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Change Password',
                 style: TextStyle(
-                  color: Colors.blue, // Changed text color
+                  color: Color(0xFF13A4FF), // Changed text color
                 ),
               ),
               onTap: () {
@@ -120,7 +117,7 @@ class _CereDrawerState extends State<CereDrawer> {
               title: const Text(
                 'Logout',
                 style: TextStyle(
-                  color: Colors.blue, // Changed text color
+                  color: Color(0xFF13A4FF), // Changed text color
                 ),
               ),
               onTap: () async {

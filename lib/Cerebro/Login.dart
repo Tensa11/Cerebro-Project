@@ -15,7 +15,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _usernameTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
-  bool _isObscure = true;
+  bool _isHide = true;
   String _errorMessage = '';
 
   @override
@@ -241,14 +241,14 @@ class _LoginState extends State<Login> {
                         hintStyle: const TextStyle(color: Color(0xff8390a1)),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isObscure
+                            _isHide
                                 ? Icons.visibility
                                 : Icons.visibility_off,
                             color: Theme.of(context).colorScheme.tertiary,
                           ),
                           onPressed: () {
                             setState(() {
-                              _isObscure = !_isObscure;
+                              _isHide = !_isHide;
                             });
                           },
                         ),
@@ -261,7 +261,7 @@ class _LoginState extends State<Login> {
                         color: const Color(0xff0272bc),
                       ),
                       keyboardType: TextInputType.text,
-                      obscureText: _isObscure, // Toggle password visibility
+                      obscureText: _isHide, // Toggle password visibility
                     ),
                   ),
                   if (_errorMessage.isNotEmpty)

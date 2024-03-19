@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'package:Cerebro/Cerebro/POST.dart';
 import 'package:Cerebro/Cerebro/Sale.dart';
-import 'package:Cerebro/Cerebro/get-started.dart';
 import 'package:Cerebro/util/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,7 +25,7 @@ class MyApp extends StatelessWidget {
     // Set the status bar color and brightness
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Colors.black45, // Change this to your desired color
+        statusBarColor: Color(0xFF020F2A), // Change this to your desired color
         statusBarBrightness: Brightness.dark, // Adjust based on your color
       ),
     );
@@ -45,7 +43,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
-      nextScreen: const LandingPage(),
+      nextScreen: const SaleDash(),
       splashIconSize: 900,
       duration: 2900,
       splashTransition: SplashTransition.fadeTransition,

@@ -6,8 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../util/utils.dart';
-import 'AddPatient.dart';
-import 'Details.dart';
 import 'Drawer.dart';
 import 'package:http/http.dart' as http;
 
@@ -617,7 +615,8 @@ class _SaleDashState extends State<SaleDash> {
           child: Column(
             children: [
               SizedBox(height: 20),
-              // CustomAppBar(), // Replace the AppBar with the CustomAppBar
+              // CustomAppBar(),
+              // WELCOME Text
               Container(
                 margin: EdgeInsets.fromLTRB(
                     0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
@@ -632,7 +631,7 @@ class _SaleDashState extends State<SaleDash> {
                         fontSize: 18 * size,
                         fontWeight: FontWeight.bold,
                         height: 1.2 * size / sizeAxis,
-                        color: const Color(0xff0272bc),
+                        color: const Color(0xFF13A4FF),
                       ),
                     ),
                     SizedBox(height: 10),
@@ -655,14 +654,14 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
-                      // color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(children: [
-                        Image.asset(
-                          'assets/images/bgg13.jpg',
-                          fit: BoxFit.cover,
-                          width: 360,
-                          height: 123,
-                        ),
+                        // Image.asset(
+                        //   'assets/images/bgg15.jpg',
+                        //   fit: BoxFit.cover,
+                        //   width: 360,
+                        //   height: 123,
+                        // ),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
@@ -713,13 +712,14 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(children: [
-                        Image.asset(
-                          'assets/images/bgg13.jpg',
-                          fit: BoxFit.cover,
-                          width: 360,
-                          height: 190,
-                        ),
+                        // Image.asset(
+                        //   'assets/images/bgg15.jpg',
+                        //   fit: BoxFit.cover,
+                        //   width: 360,
+                        //   height: 190,
+                        // ),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
@@ -816,14 +816,15 @@ class _SaleDashState extends State<SaleDash> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
+                  color: Theme.of(context).colorScheme.secondary,
                   child: Stack(
                     children: [
-                      Image.asset(
-                        'assets/images/bgg17.jpg',
-                        fit: BoxFit.cover,
-                        width: 500,
-                        height: 410,
-                      ),
+                      // Image.asset(
+                      //   'assets/images/bgg16.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 410,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -892,14 +893,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -935,15 +937,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          // Background Image for DISBMT
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: SingleChildScrollView(
@@ -988,14 +990,15 @@ class _SaleDashState extends State<SaleDash> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
+                  color: Theme.of(context).colorScheme.secondary,
                   child: Stack(
                     children: [
-                      Image.asset(
-                        'assets/images/bgg17.jpg',
-                        fit: BoxFit.cover,
-                        width: 500,
-                        height: 390,
-                      ),
+                      // Image.asset(
+                      //   'assets/images/bgg16.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 390,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -1060,14 +1063,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -1117,14 +1121,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -1181,14 +1186,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -1238,14 +1244,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -1302,14 +1309,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -1359,14 +1367,15 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/bgg13.jpg',
-                            fit: BoxFit.cover,
-                            width: 175,
-                            height: 95,
-                          ),
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -1421,14 +1430,15 @@ class _SaleDashState extends State<SaleDash> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
+                  color: Theme.of(context).colorScheme.secondary,
                   child: Stack(
                     children: [
-                      Image.asset(
-                        'assets/images/bgg17.jpg',
-                        fit: BoxFit.cover,
-                        width: 500,
-                        height: 600,
-                      ),
+                      // Image.asset(
+                      //   'assets/images/bgg16.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 600,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
@@ -1446,7 +1456,7 @@ class _SaleDashState extends State<SaleDash> {
                             ),
                             SizedBox(height: 10),
                             Container(
-                              height: 370, // Adjust the height as needed
+                              height: 320, // Adjust the height as needed
                               child: ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: insuranceTODAY.length,
@@ -1505,13 +1515,14 @@ class _SaleDashState extends State<SaleDash> {
                                 Expanded(
                                   child: Card(
                                     elevation: 5,
+                                    color: Theme.of(context).colorScheme.secondary,
                                     child: Stack(children: [
-                                      Image.asset(
-                                        'assets/images/bgg13.jpg',
-                                        fit: BoxFit.cover,
-                                        width: 360,
-                                        height: 125,
-                                      ),
+                                      // Image.asset(
+                                      //   'assets/images/bgg15.jpg',
+                                      //   fit: BoxFit.cover,
+                                      //   width: 360,
+                                      //   height: 125,
+                                      // ),
                                       Padding(
                                         padding: const EdgeInsets.all(20.0),
                                         child: Column(
@@ -1572,13 +1583,14 @@ class _SaleDashState extends State<SaleDash> {
                   Expanded(
                     child: Card(
                       elevation: 5,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Stack(children: [
-                        Image.asset(
-                          'assets/images/bgg13.jpg',
-                          fit: BoxFit.cover,
-                          width: 360,
-                          height: 117,
-                        ),
+                        // Image.asset(
+                        //   'assets/images/bgg15.jpg',
+                        //   fit: BoxFit.cover,
+                        //   width: 360,
+                        //   height: 117,
+                        // ),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
@@ -1622,20 +1634,21 @@ class _SaleDashState extends State<SaleDash> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 5),
               // Transmittal Month
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
                   elevation: 5,
+                  color: Theme.of(context).colorScheme.secondary,
                   child: Stack(
                     children: [
-                      Image.asset(
-                        'assets/images/bgg17.jpg',
-                        fit: BoxFit.cover,
-                        width: 500,
-                        height: 410,
-                      ),
+                      // Image.asset(
+                      //   'assets/images/bgg16.jpg',
+                      //   fit: BoxFit.cover,
+                      //   width: 500,
+                      //   height: 410,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
