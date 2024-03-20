@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:Cerebro/Cerebro/Login.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
@@ -50,10 +53,12 @@ class _ChangePassState extends State<ChangePass> {
         });
         return;
       }
-
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
       final response = await http.post(
-        Uri.parse(
-            'https://ef80-103-62-152-132.ngrok-free.app/auth/change_password'),
+        Uri.parse('$apiUrl/auth/change_password'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": username,
@@ -84,70 +89,24 @@ class _ChangePassState extends State<ChangePass> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Future<bool> confirmPasswordChange() async {
-    double baseWidth = 400;
-    double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
-    double size = sizeAxis * 0.97;
+  void confirmAndPasswordChange() {
+    changePassword();
+    Navigator.pop(context, true); // Explicitly close dialog and return true
+  }
 
-    final result = await showDialog(
+  Future<bool> confirmPasswordChange() async {
+    final result = await QuickAlert.show(
+      backgroundColor: Theme.of(context).colorScheme.background,
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.background,
-          title: Text(
-            'Confirm to Change Password?!',
-            style: GoogleFonts.urbanist(
-              fontSize: 20 * size,
-              fontWeight: FontWeight.w700,
-              height: 1.3 * size / sizeAxis,
-              letterSpacing: -0.3 * sizeAxis,
-              color: const Color(0xFF13A4FF),
-            ),
-          ),
-          content: Text(
-            'Are you sure you want to change your password?',
-            style: GoogleFonts.urbanist(
-              fontSize: 13 * size,
-              height: 1.3 * size / sizeAxis,
-              letterSpacing: -0.3 * sizeAxis,
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                changePassword();
-                Navigator.of(context).pop(true); // Return true for "Yes"
-              },
-              child: Text(
-                'Confirm',
-                style: GoogleFonts.urbanist(
-                  fontSize: 15 * size,
-                  fontWeight: FontWeight.w700,
-                  height: 1.3 * size / sizeAxis,
-                  letterSpacing: -0.3 * sizeAxis,
-                  color: const Color(0xffe74c3c),
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false); // Return false for "No"
-              },
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.urbanist(
-                  fontSize: 15 * size,
-                  fontWeight: FontWeight.w700,
-                  height: 1.3 * size / sizeAxis,
-                  letterSpacing: -0.3 * sizeAxis,
-                  color: const Color(0xffe74c3c),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+      type: QuickAlertType.confirm,
+      title: 'Confirm', // Clear and concise title
+      titleColor: Color(0xFF13A4FF),
+      text: 'Are you sure you want to change your password?',
+      textColor: Theme.of(context).colorScheme.tertiary,
+      confirmBtnText: 'Confirm',
+      cancelBtnText: 'Cancel',
+      confirmBtnColor: Theme.of(context).colorScheme.primary, // Optional: Set button color
+      onConfirmBtnTap: confirmAndPasswordChange, // Call the separate function
     );
     return result ?? false;
   }

@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:Cerebro/Cerebro/Sale.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'package:http/http.dart' as http;
@@ -53,8 +56,13 @@ class _LoginState extends State<Login> {
         convertedPassword = password;
       }
 
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+
       final response = await http.post(
-        Uri.parse('https://219e-103-62-152-132.ngrok-free.app/auth/signin'),
+        Uri.parse('$apiUrl/auth/signin'), // Use the retrieved API URL
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "username": username,
@@ -79,7 +87,7 @@ class _LoginState extends State<Login> {
           // Navigate to the main dashboard or home screen
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const SaleDash(),
+              builder: (context) => LoginSplashScreen(),
             ),
           );
         } else {
@@ -373,6 +381,20 @@ class _LoginState extends State<Login> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class LoginSplashScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSplashScreen(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      splash: Lottie.asset('assets/lottie/LoadingWater.json'),
+      nextScreen: const SaleDash(),
+      splashIconSize: 900,
+      duration: 4500,
+      splashTransition: SplashTransition.fadeTransition,
     );
   }
 }

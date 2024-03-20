@@ -52,6 +52,8 @@ dependencies:
   syncfusion_flutter_charts: ^21.2.9
   shared_preferences: ^2.2.2
   provider: ^6.1.2
+  quickalert: ^1.1.0
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +83,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/logo/applogo.png
     - assets/images/material-symbols-location-on.png
     - assets/images/back.png
@@ -123,7 +126,9 @@ flutter:
     - assets/logo/applogoNoBG.png
     - assets/logo/space.png
     - assets/lottie/LottieAnimIntro.json
-    -
+    - assets/lottie/LoadingWave.json
+    - assets/lottie/LoadingWater.json
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

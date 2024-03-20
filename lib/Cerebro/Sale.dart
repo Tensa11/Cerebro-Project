@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../util/utils.dart';
@@ -38,6 +41,7 @@ class _SaleDashState extends State<SaleDash> {
   late int percentInsurance = 0;
 
   final StreamController<bool> _streamController = StreamController<bool>();
+  bool _isQuickAlertShown = false;
 
   @override
   void initState() {
@@ -63,6 +67,26 @@ class _SaleDashState extends State<SaleDash> {
     fetchPercentSalesToday();
     fetchPercentCollection();
     fetchPercentInsuranceTODAY();
+    // ----------------------------------------------------
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool hasShownAlert = prefs.getBool('hasShownQuickAlert') ?? false;
+
+      if (!hasShownAlert && !_isQuickAlertShown) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: "Welcome $username",
+          text: "This are the Data's for today.",
+          confirmBtnColor: Color(0xFF13A4FF),
+          headerBackgroundColor: Color(0xFF13A4FF),
+        );
+        setState(() {
+          _isQuickAlertShown = true;
+        });
+        await prefs.setBool('hasShownQuickAlert', true);
+      }
+    });
   }
 
   @override
@@ -107,27 +131,35 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchTotalSalesToday() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/today');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/sales/total/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        totalSales = double.parse(data['data'][0]['total']);
+        totalSales = double.parse(data['data'][0]['total'].toString());
+        // Update the UI to reflect the fetched total sales
         setState(() {});
       } else {
-        throw Exception('Failed to load total sales');
+        throw Exception('Failed to load fetchTotalSalesToday');
       }
     } catch (e) {
-      print('Error fetching total sales: $e');
+      print('Error fetching fetchTotalSalesToday: $e');
+      // Handle the error, for example, show an error message to the user
       setState(() {});
     }
   }
 
   Future<void> fetchPercentSalesToday() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/today/percentage');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/sales/total/today/percentage');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -135,18 +167,21 @@ class _SaleDashState extends State<SaleDash> {
         percentSales = int.parse(data['data'][0]['amount']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total IPD');
+        throw Exception('Failed to load fetchPercentSalesToday');
       }
     } catch (e) {
-      print('Error fetching total IPD: $e');
+      print('Error fetching total fetchPercentSalesToday: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalCollection() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/cashier/collection/today');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/cashier/collection/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -155,18 +190,21 @@ class _SaleDashState extends State<SaleDash> {
         totalCheque = double.parse(data['data']['cheque'][0]['total']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total collection');
+        throw Exception('Failed to load fetchTotalCollection');
       }
     } catch (e) {
-      print('Error fetching total collection: $e');
+      print('Error fetching fetchTotalCollection: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchPercentCollection() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/cashier/collection/percentage');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/cashier/collection/percentage');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -175,28 +213,31 @@ class _SaleDashState extends State<SaleDash> {
         percentCheque = data['data']['percentageCheque'];
         setState(() {});
       } else {
-        throw Exception('Failed to load percentage collection data');
+        throw Exception('Failed to load fetchPercentCollection');
       }
     } catch (e) {
-      print('Error fetching percentage collection data: $e');
+      print('Error fetching fetchPercentCollection: $e');
       setState(() {});
     }
   }
 
   List<SalesMonthData> _chartMonthData = [];
   final List<String> dayNames =
-  List.generate(31, (index) => (index + 1).toString());
+      List.generate(31, (index) => (index + 1).toString());
 
   Future<void> fetchSalesMonthChart() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/month');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/sales/total/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<SalesMonthData> salesMonthData =
-        List.generate(data['data'].length, (index) {
+            List.generate(data['data'].length, (index) {
           String dayName = dayNames[data['data'][index]['day'] - 1];
           return SalesMonthData(
             dayName,
@@ -205,16 +246,16 @@ class _SaleDashState extends State<SaleDash> {
         });
 
         salesMonthData.sort(
-                (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
+            (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
         setState(() {
           _chartMonthData = salesMonthData;
         });
       } else {
-        throw Exception('Failed to load monthly sales');
+        throw Exception('Failed to load fetchSalesMonthChart');
       }
     } catch (e) {
-      print('Error fetching monthly sales: $e');
+      print('Error fetching fetchSalesMonthChart: $e');
       setState(() {
         // Handle error state if needed
       });
@@ -223,8 +264,11 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchTotalExpense() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/inv/items/expense/today');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/inv/items/expense/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -232,18 +276,21 @@ class _SaleDashState extends State<SaleDash> {
         totalExpense = double.parse(data['data'][0]['expense']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total expense');
+        throw Exception('Failed to load fetchTotalExpense');
       }
     } catch (e) {
-      print('Error fetching total expense: $e');
+      print('Error fetching fetchTotalExpense: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalDisbursement() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/disbursement/total');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/disbursement/total');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -251,10 +298,10 @@ class _SaleDashState extends State<SaleDash> {
         totalDisbursement = double.parse(data['data'][0]['total']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total disbursement');
+        throw Exception('Failed to load fetchTotalDisbursement');
       }
     } catch (e) {
-      print('Error fetching total disbursement: $e');
+      print('Error fetching fetchTotalDisbursement: $e');
       setState(() {});
     }
   }
@@ -277,14 +324,17 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchSalesYearChart() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/sales/total/year');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/sales/total/year');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<SalesYearData> salesYearData =
-        List.generate(data['data'].length, (index) {
+            List.generate(data['data'].length, (index) {
           String monthName = monthNames[data['data'][index]['month'] - 1];
           return SalesYearData(
             monthName,
@@ -297,10 +347,10 @@ class _SaleDashState extends State<SaleDash> {
           _chartYearData = salesYearData;
         });
       } else {
-        throw Exception('Failed to load total year sales');
+        throw Exception('Failed to load fetchSalesYearChart');
       }
     } catch (e) {
-      print('Error fetching total year sales: $e');
+      print('Error fetching fetchSalesYearChart: $e');
       setState(() {
         // Handle error state if needed
       });
@@ -309,8 +359,11 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchTotalIPD() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/med/patients/ipd');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/patients/ipd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -318,18 +371,21 @@ class _SaleDashState extends State<SaleDash> {
         totalIPD = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total IPD');
+        throw Exception('Failed to load fetchTotalIPD');
       }
     } catch (e) {
-      print('Error fetching total IPD: $e');
+      print('Error fetching fetchTotalIPD: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalOPD() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/med/patients/opd');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/patients/opd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -337,18 +393,21 @@ class _SaleDashState extends State<SaleDash> {
         totalOPD = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total OPD');
+        throw Exception('Failed to load fetchTotalOPD');
       }
     } catch (e) {
-      print('Error fetching total OPD: $e');
+      print('Error fetching fetchTotalOPD: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalPHIC() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/med/patients/phic');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/patients/phic');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -356,18 +415,21 @@ class _SaleDashState extends State<SaleDash> {
         totalPHIC = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total PHIC');
+        throw Exception('Failed to load fetchTotalPHIC');
       }
     } catch (e) {
-      print('Error fetching total PHIC: $e');
+      print('Error fetching fetchTotalPHIC: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalHMO() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/med/patients/hmo');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/patients/hmo');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -375,18 +437,21 @@ class _SaleDashState extends State<SaleDash> {
         totalHMO = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total HMO');
+        throw Exception('Failed to load fetchTotalHMO');
       }
     } catch (e) {
-      print('Error fetching total HMO: $e');
+      print('Error fetching fetchTotalHMO: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalCOMPANY() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/med/patients/company');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/patients/company');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -394,18 +459,21 @@ class _SaleDashState extends State<SaleDash> {
         totalCOMPANY = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total company');
+        throw Exception('Failed to load fetchTotalCOMPANY');
       }
     } catch (e) {
-      print('Error fetching total company: $e');
+      print('Error fetching fetchTotalCOMPANY: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchTotalSENIOR() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/med/patients/srpwd');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/patients/srpwd');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -413,24 +481,27 @@ class _SaleDashState extends State<SaleDash> {
         totalSENIOR = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load total senior');
+        throw Exception('Failed to load fetchTotalSENIOR');
       }
     } catch (e) {
-      print('Error fetching total senior: $e');
+      print('Error fetching fetchTotalSENIOR: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchInsuranceTODAY() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/insurance/today');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/insurance/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<Insurance> fetchedInsuranceToday =
-        List.generate(data['data'].length, (index) {
+            List.generate(data['data'].length, (index) {
           return Insurance.fromJson(data['data'][index]);
         });
 
@@ -447,8 +518,11 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchPercentInsuranceTODAY() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/insurance/today/percentage');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/insurance/today/percentage');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -456,18 +530,21 @@ class _SaleDashState extends State<SaleDash> {
         percentInsurance = data['data']['today'];
         setState(() {});
       } else {
-        throw Exception('Failed to load percentage collection data');
+        throw Exception('Failed to load fetchPercentInsuranceTODAY');
       }
     } catch (e) {
-      print('Error fetching percentage collection data: $e');
+      print('Error fetching fetchPercentInsuranceTODAY: $e');
       setState(() {});
     }
   }
 
   Future<void> fetchInsuranceMONTH() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/insurance/month');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/insurance/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -485,8 +562,11 @@ class _SaleDashState extends State<SaleDash> {
 
   Future<void> fetchPHICTransmittalTODAY() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/phic_transmittal/today');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/phic_transmittal/today');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -505,18 +585,21 @@ class _SaleDashState extends State<SaleDash> {
 
   List<TransMonthData> _chartMonthTransData = [];
   final List<String> dayTransNames =
-  List.generate(31, (index) => (index + 1).toString());
+      List.generate(31, (index) => (index + 1).toString());
 
   Future<void> fetchPHICTransmittalMONTH() async {
     try {
-      var url = Uri.parse(
-          'https://219e-103-62-152-132.ngrok-free.app/fin/phic_transmittal/month');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/phic_transmittal/month');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<TransMonthData> transMonthData =
-        List.generate(data['data'].length, (index) {
+            List.generate(data['data'].length, (index) {
           int days = data['data'][index]['days'];
           String dayName = days.toString(); // Convert days to string
           return TransMonthData(
@@ -527,16 +610,16 @@ class _SaleDashState extends State<SaleDash> {
 
         // Sort the list based on the dayName
         transMonthData.sort(
-                (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
+            (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
         setState(() {
           _chartMonthTransData = transMonthData;
         });
       } else {
-        throw Exception('Failed to load monthly sales');
+        throw Exception('Failed to load fetchPHICTransmittalMONTH');
       }
     } catch (e) {
-      print('Error fetching monthly sales: $e');
+      print('Error fetching fetchPHICTransmittalMONTH: $e');
       setState(() {
         // Handle error state if needed
       });
@@ -544,11 +627,11 @@ class _SaleDashState extends State<SaleDash> {
   }
 
   String formattedCurrentDate =
-  DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
+      DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
   String formattedCurrentMonth =
-  DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
+      DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
   String formattedCurrentYear =
-  DateFormat('yyyy').format(DateTime.now()).toUpperCase();
+      DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
   String username = '';
 
@@ -584,13 +667,15 @@ class _SaleDashState extends State<SaleDash> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary),
+            icon: Icon(Icons.search,
+                color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
               // Add functionality for search button
             },
           ),
           IconButton(
-            icon: Icon(Icons.account_circle, color: Theme.of(context).colorScheme.tertiary),
+            icon: Icon(Icons.account_circle,
+                color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
               // Add functionality for account button
             },
@@ -636,7 +721,7 @@ class _SaleDashState extends State<SaleDash> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      'there is the latest update for the last 7 days. check now',
+                      'latest update for the last 7 days.',
                       style: SafeGoogleFont(
                         'Urbanist',
                         fontSize: 12 * size,
@@ -858,9 +943,9 @@ class _SaleDashState extends State<SaleDash> {
                                 ColumnSeries<SalesMonthData, String>(
                                   dataSource: _chartMonthData,
                                   xValueMapper: (SalesMonthData sales, _) =>
-                                  sales.dayName,
+                                      sales.dayName,
                                   yValueMapper: (SalesMonthData sales, _) =>
-                                  sales.amount,
+                                      sales.amount,
                                   color: Colors.white,
                                 ),
                               ],
@@ -1032,9 +1117,9 @@ class _SaleDashState extends State<SaleDash> {
                                 SplineSeries<SalesYearData, String>(
                                   dataSource: _chartYearData,
                                   xValueMapper: (SalesYearData sales, _) =>
-                                  sales.monthName,
+                                      sales.monthName,
                                   yValueMapper: (SalesYearData sales, _) =>
-                                  sales.amount,
+                                      sales.amount,
                                   color: Colors.white,
                                   splineType: SplineType.monotonic,
                                   markerSettings: MarkerSettings(
@@ -1462,7 +1547,7 @@ class _SaleDashState extends State<SaleDash> {
                                 itemCount: insuranceTODAY.length,
                                 itemBuilder: (context, index) {
                                   Insurance todayInsurance =
-                                  insuranceTODAY[index];
+                                      insuranceTODAY[index];
                                   return GestureDetector(
                                     onTap: () {
                                       // Navigate to the next page when a list item is tapped
@@ -1486,7 +1571,7 @@ class _SaleDashState extends State<SaleDash> {
                                         ),
                                         subtitle: Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             SizedBox(height: 5),
                                             Text(
@@ -1508,14 +1593,15 @@ class _SaleDashState extends State<SaleDash> {
                               ),
                             ),
                             SizedBox(height: 10),
-                            Divider(),
+                            // Divider(),
                             // Insurance of the Month
                             Row(
                               children: [
                                 Expanded(
                                   child: Card(
-                                    elevation: 5,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    elevation: 10,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     child: Stack(children: [
                                       // Image.asset(
                                       //   'assets/images/bgg15.jpg',
@@ -1527,7 +1613,7 @@ class _SaleDashState extends State<SaleDash> {
                                         padding: const EdgeInsets.all(20.0),
                                         child: Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Insurance Month',
@@ -1681,9 +1767,9 @@ class _SaleDashState extends State<SaleDash> {
                                 ColumnSeries<TransMonthData, String>(
                                   dataSource: _chartMonthTransData,
                                   xValueMapper: (TransMonthData sales, _) =>
-                                  sales.dayName,
+                                      sales.dayName,
                                   yValueMapper: (TransMonthData sales, _) =>
-                                  sales.amount,
+                                      sales.amount,
                                   color: Colors.white,
                                 ),
                               ],

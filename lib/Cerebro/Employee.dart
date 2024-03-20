@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import '../util/utils.dart';
@@ -48,7 +49,11 @@ class _ManageEmployeeState extends State<ManageEmployee> {
 
   Future<void> fetchPhysicians() async {
     try {
-      var url = Uri.parse('https://219e-103-62-152-132.ngrok-free.app/med/physicians');
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/physicians');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {

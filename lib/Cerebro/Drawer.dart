@@ -2,6 +2,8 @@ import 'package:Cerebro/Cerebro/ChangePass.dart';
 import 'package:Cerebro/Cerebro/Sale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Login.dart';
 import 'Employee.dart';
@@ -121,27 +123,47 @@ class _CereDrawerState extends State<CereDrawer> {
                 ),
               ),
               onTap: () async {
-                try {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: const Color(0xffdfb153),
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.confirm,
+                  title: 'Confirm Logout',
+                  text: 'Are you sure you want to log out?',
+                  confirmBtnText: 'Logout',
+                  cancelBtnText: 'Cancel',
+                  confirmBtnColor: Theme.of(context).primaryColor, // Optional: Set button color
+                  onConfirmBtnTap: () async {
+                    try {
+                      // Show loading indicator while logging out
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(),
                         ),
                       );
-                    },
-                  );
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const Login(),
-                    ),
-                  );
-                  SystemNavigator.pop(); // Disable back button
-                } catch (e) {
-                  print('Error logging out: $e');
-                }
+
+                      // Logout logic (clear shared preferences, etc.)
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
+
+                      // Navigate to Login screen and pop the drawer
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const Login(),
+                        ),
+                      );
+                      Navigator.pop(context); // Close the drawer
+
+                      SystemNavigator.pop(); // Disable back button (optional)
+                    } catch (e) {
+                      print('Error logging out: $e');
+                      // Handle errors (optional)
+                    } finally {
+                      // Hide loading indicator after logout is complete
+                      Navigator.of(context, rootNavigator: true).pop();
+                    }
+                  },
+                );
               },
             ),
           ],

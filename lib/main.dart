@@ -7,10 +7,14 @@ import 'package:lottie/lottie.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Cerebro/LandV2.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 late SharedPreferences _prefs;
 
 Future<void> main() async {
+  // Load environment variables
+  await dotenv.load();
+
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -25,7 +29,7 @@ class MyApp extends StatelessWidget {
     // Set the status bar color and brightness
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Color(0xFF020F2A), // Change this to your desired color
+        statusBarColor: Color(0xFF010D23), // Change this to your desired color
         statusBarBrightness: Brightness.dark, // Adjust based on your color
       ),
     );
@@ -42,8 +46,9 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
+      backgroundColor: Theme.of(context).colorScheme.background,
       splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
-      nextScreen: const SaleDash(),
+      nextScreen: const LandingPage(),
       splashIconSize: 900,
       duration: 2900,
       splashTransition: SplashTransition.fadeTransition,
