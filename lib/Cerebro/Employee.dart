@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import '../util/utils.dart';
+import 'Details.dart';
 import 'Drawer.dart';
 
 class ManageEmployee extends StatefulWidget {
@@ -18,12 +19,20 @@ class _ManageEmployeeState extends State<ManageEmployee> {
   late List<Physician> physicians = [];
   final StreamController<bool> _streamController = StreamController<bool>();
 
+  late List<Physician> filteredPhysicians;
+  TextEditingController searchController = TextEditingController();
+
+  late String dropdownValue = 'Alphabetical';
+
   @override
   void initState() {
     super.initState();
     fetchPhysicians();
     startListeningToChanges();
+    filteredPhysicians = List.from(physicians); // Initialize with all physicians
+    startListeningToChanges();
   }
+
   @override
   void dispose() {
     _streamController.close();
@@ -45,7 +54,6 @@ class _ManageEmployeeState extends State<ManageEmployee> {
       print('Error fetching data: $e');
     }
   }
-
 
   Future<void> fetchPhysicians() async {
     try {
@@ -72,6 +80,18 @@ class _ManageEmployeeState extends State<ManageEmployee> {
       print('Error fetching physicians: $e');
     }
   }
+
+  Future<void>  filterSearchResults(String query) async {
+    List<Physician> searchResults = physicians.where((physician) {
+      return physician.doctorName.toLowerCase().contains(query.toLowerCase()) ||
+          physician.specialty.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      filteredPhysicians = searchResults;
+    });
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -79,6 +99,10 @@ class _ManageEmployeeState extends State<ManageEmployee> {
     double baseWidth = 375;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;
+
+    if (physicians.isNotEmpty && filteredPhysicians.isEmpty) {
+      filteredPhysicians = List.from(physicians); // Initialize with all physicians
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -97,12 +121,6 @@ class _ManageEmployeeState extends State<ManageEmployee> {
           },
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary),
-            onPressed: () {
-              // Add functionality for search button
-            },
-          ),
           IconButton(
             icon: Icon(Icons.account_circle, color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
@@ -136,48 +154,129 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Employee Management',
+                    'Physicians',
                     style: SafeGoogleFont(
                       'Urbanist',
                       fontSize: 18 * size,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold,
                       height: 1.2 * size / sizeAxis,
                       color: const Color(0xFF13A4FF),
-                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'List of Physicians in the database.',
+                    style: SafeGoogleFont(
+                      'Urbanist',
+                      fontSize: 12 * size,
+                      height: 1.2 * size / sizeAxis,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                 ],
               ),
             ),
+            SizedBox(height: 30),
+            Container(
+              margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                  0 * sizeAxis, 15 * sizeAxis),
+              width: 331 * sizeAxis,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: Theme.of(context).colorScheme.primary,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: Offset(0, 1), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: searchController,
+                onChanged: filterSearchResults,
+                decoration: InputDecoration(
+                  labelText: "Search",
+                  hintText: "Search for Physicians",
+                  prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary,),
+                  border: InputBorder.none, // Remove the underline
+                ),
+              ),
+            ),
+            // Sort the ListView
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      "Sort",
+                      style: SafeGoogleFont(
+                        'Urbanist',
+                        fontSize: 13 * size,
+                        height: 1.2 * size / sizeAxis,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    DropdownButton<String>(
+                      value: dropdownValue,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownValue = newValue!;
+                        });
+                      },
+                      items: <String>['Alphabetical', 'Status']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: physicians.length,
+                itemCount: filteredPhysicians.length,
                 itemBuilder: (context, index) {
-                  Physician physician = physicians[index];
+                  Physician physician = filteredPhysicians[index];
                   return GestureDetector(
                     onTap: () {
                       // Navigate to the next page when a list item is tapped
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //     builder: (context) => Details(),
-                      //   ),
-                      // );
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => Details(),
+                        ),
+                      );
                     },
                     child: Card(
                       elevation: 3,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: ListTile(
                         leading: const CircleAvatar(
                           backgroundImage: AssetImage('assets/images/userCartoon.png'),
                         ),
                         title: Text(
                           physician.doctorName,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xffe33924),
-                            decoration: TextDecoration.none,
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 13 * size,
+                            height: 1.2 * size / sizeAxis,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                         subtitle: Column(
@@ -186,25 +285,18 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                             SizedBox(height: 5),
                             Text(
                               physician.specialty,
-                              style: TextStyle(
-                                fontFamily: 'Urbanist',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF13A4FF),
-                                decoration: TextDecoration.none,
-                              ),
-                            ),
-                            Text(
-                              physician.isActive ? 'Active' : 'Inactive',
-                              style: TextStyle(
-                                fontFamily: 'Urbanist',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF13A4FF),
-                                decoration: TextDecoration.none,
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 11 * size,
+                                height: 1.2 * size / sizeAxis,
+                                color: Colors.red,
                               ),
                             ),
                           ],
+                        ),
+                        trailing: Icon(
+                          physician.isActive ? Icons.check_circle : Icons.cancel,
+                          color: physician.isActive ? Colors.green : Colors.red,
                         ),
                       ),
                     ),
@@ -215,20 +307,6 @@ class _ManageEmployeeState extends State<ManageEmployee> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.of(context).push(
-      //       MaterialPageRoute(
-      //         builder: (context) => const AddPatient(),
-      //       ),
-      //     );
-      //   },
-      //   backgroundColor: const Color(0xff1f375b),
-      //   child: const Icon(
-      //     Icons.add,
-      //     color: Color(0xffe33924),
-      //   ),
-      // ),
     );
   }
 }

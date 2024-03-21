@@ -140,7 +140,14 @@ class _SaleDashState extends State<SaleDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        totalSales = double.parse(data['data'][0]['total'].toString());
+        var totalValue = data['data'][0]['total'];
+        if (totalValue is int) {
+          totalSales = totalValue.toDouble();
+        } else if (totalValue is double) {
+          totalSales = totalValue;
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
         // Update the UI to reflect the fetched total sales
         setState(() {});
       } else {
@@ -148,10 +155,10 @@ class _SaleDashState extends State<SaleDash> {
       }
     } catch (e) {
       print('Error fetching fetchTotalSalesToday: $e');
-      // Handle the error, for example, show an error message to the user
       setState(() {});
     }
   }
+
 
   Future<void> fetchPercentSalesToday() async {
     try {
@@ -244,7 +251,6 @@ class _SaleDashState extends State<SaleDash> {
             double.parse(data['data'][index]['amount']),
           );
         });
-
         salesMonthData.sort(
             (a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
@@ -667,13 +673,6 @@ class _SaleDashState extends State<SaleDash> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.search,
-                color: Theme.of(context).colorScheme.tertiary),
-            onPressed: () {
-              // Add functionality for search button
-            },
-          ),
-          IconButton(
             icon: Icon(Icons.account_circle,
                 color: Theme.of(context).colorScheme.tertiary),
             onPressed: () {
@@ -893,6 +892,100 @@ class _SaleDashState extends State<SaleDash> {
                       ]),
                     ),
                   ),
+                  // Void Y/N
+                  // Expanded(
+                  //   child: Card(
+                  //     elevation: 5,
+                  //     color: Theme.of(context).colorScheme.secondary,
+                  //     child: Stack(children: [
+                  //       // Image.asset(
+                  //       //   'assets/images/bgg15.jpg',
+                  //       //   fit: BoxFit.cover,
+                  //       //   width: 360,
+                  //       //   height: 190,
+                  //       // ),
+                  //       Padding(
+                  //         padding: const EdgeInsets.all(20.0),
+                  //         child: Column(
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //
+                  //             Text(
+                  //               "Void",
+                  //               style: SafeGoogleFont(
+                  //                 'Urbanist',
+                  //                 fontSize: 15 * size,
+                  //                 height: 1.2 * size / sizeAxis,
+                  //                 color: Colors.white,
+                  //               ),
+                  //             ),
+                  //             SizedBox(height: 15),
+                  //             Row(
+                  //               children: [
+                  //                 Text(
+                  //                   'Y',
+                  //                   style: SafeGoogleFont(
+                  //                     'Inter',
+                  //                     fontSize: 17 * size,
+                  //                     fontWeight: FontWeight.w600,
+                  //                     height: 1.2 * size / sizeAxis,
+                  //                     color: Colors.white,
+                  //                   ),
+                  //                 ),
+                  //                 // Icon for the first collection
+                  //                 SizedBox(width: 10),
+                  //                 // Adjust spacing between icon and text
+                  //                 Expanded(
+                  //                   child: Text(
+                  //                     '₱ ${NumberFormat('#,##0.00').format(totalCash)}',
+                  //                     style: SafeGoogleFont(
+                  //                       'Inter',
+                  //                       fontSize: 17 * size,
+                  //                       fontWeight: FontWeight.w600,
+                  //                       height: 1.2 * size / sizeAxis,
+                  //                       color: Colors.white,
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //             SizedBox(height: 15),
+                  //             Row(
+                  //               children: [
+                  //                 Text(
+                  //                   'N',
+                  //                   style: SafeGoogleFont(
+                  //                     'Inter',
+                  //                     fontSize: 17 * size,
+                  //                     fontWeight: FontWeight.w600,
+                  //                     height: 1.2 * size / sizeAxis,
+                  //                     color: Colors.white,
+                  //                   ),
+                  //                 ),
+                  //                 // Icon for the second collection
+                  //                 SizedBox(width: 10),
+                  //                 // Adjust spacing between icon and text
+                  //                 Expanded(
+                  //                   child: Text(
+                  //                     '₱ ${NumberFormat('#,##0.00').format(totalCheque)}',
+                  //                     style: SafeGoogleFont(
+                  //                       'Inter',
+                  //                       fontSize: 17 * size,
+                  //                       fontWeight: FontWeight.w600,
+                  //                       height: 1.2 * size / sizeAxis,
+                  //                       color: Colors.white,
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ]),
+                  //   ),
+                  // ),
                 ],
               ),
               SizedBox(height: 10),
@@ -975,6 +1068,7 @@ class _SaleDashState extends State<SaleDash> {
               // Expense and Disbursement of the day
               Row(
                 children: [
+                  // Expense
                   Expanded(
                     child: Card(
                       elevation: 5,
@@ -1019,6 +1113,7 @@ class _SaleDashState extends State<SaleDash> {
                       ),
                     ),
                   ),
+                  // Disbursement
                   Expanded(
                     child: Card(
                       elevation: 5,

@@ -42,14 +42,14 @@ class _ChangePassState extends State<ChangePass> {
           currentPassword.isEmpty) {
         setState(() {
           _errorMessage =
-              'Current password, new password and confirm password are required.';
+              'Current password, New password and Confirm password are required.';
         });
         return;
       }
 
       if (newPassword != confirmPassword) {
         setState(() {
-          _errorMessage = 'New password and confirm password do not match.';
+          _errorMessage = 'New password and Confirm password do not match.';
         });
         return;
       }
@@ -134,13 +134,6 @@ class _ChangePassState extends State<ChangePass> {
           },
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.search,
-                color: Theme.of(context).colorScheme.tertiary),
-            onPressed: () {
-              // Add functionality for search button
-            },
-          ),
           IconButton(
             icon: Icon(Icons.account_circle,
                 color: Theme.of(context).colorScheme.tertiary),
@@ -265,8 +258,7 @@ class _ChangePassState extends State<ChangePass> {
                           color: const Color(0xff0272bc),
                         ),
                         keyboardType: TextInputType.text,
-                        obscureText:
-                            _hideConfirmPass, // Toggle password visibility
+                        obscureText: _hideCurrentPass, // Toggle password visibility
                       ),
                     ),
                     // Enter the newly created password
@@ -321,7 +313,7 @@ class _ChangePassState extends State<ChangePass> {
                         ),
                         keyboardType: TextInputType.text,
                         obscureText:
-                            _hideConfirmPass, // Toggle password visibility
+                            _hideNewPass // Toggle password visibility
                       ),
                     ),
                     // Re enter the newly created password for confirmation

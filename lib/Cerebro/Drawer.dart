@@ -78,7 +78,7 @@ class _CereDrawerState extends State<CereDrawer> {
                 color: const Color(0xffe33924), // Changed icon color
               ),
               title: const Text(
-                'Employee',
+                'Physicians',
                 style: TextStyle(
                   color: Color(0xFF13A4FF), // Changed text color
                 ),
