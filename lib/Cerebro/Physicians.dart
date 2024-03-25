@@ -17,42 +17,30 @@ class ManageEmployee extends StatefulWidget {
 
 class _ManageEmployeeState extends State<ManageEmployee> {
   late List<Physician> physicians = [];
-  final StreamController<bool> _streamController = StreamController<bool>();
+  late String dropdownValue = 'Sort';
 
   late List<Physician> filteredPhysicians;
   TextEditingController searchController = TextEditingController();
 
-  late String dropdownValue = 'Alphabetical';
+  int itemCountToShow = 5; // Number of items to show initially
+  int currentItemCount = 0;
+  late bool canLoadMore = true; // Flag to indicate if more items can be loaded
+
+  // Added scroll controller to maintain scroll position
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController(); // Initialize scroll controller
     fetchPhysicians();
-    startListeningToChanges();
     filteredPhysicians = List.from(physicians); // Initialize with all physicians
-    startListeningToChanges();
   }
 
   @override
   void dispose() {
-    _streamController.close();
+    _scrollController.dispose(); // Dispose scroll controller
     super.dispose();
-  }
-
-  void startListeningToChanges() {
-    Timer.periodic(Duration(seconds: 10), (timer) {
-      // Check for database changes periodically
-      fetchDataAndNotify(); // Fetch data and notify listeners
-    });
-  }
-
-  void fetchDataAndNotify() async {
-    try {
-      await fetchPhysicians(); // Fetch total sales data
-      _streamController.add(true); // Notify listeners about the change
-    } catch (e) {
-      print('Error fetching data: $e');
-    }
   }
 
   Future<void> fetchPhysicians() async {
@@ -72,6 +60,10 @@ class _ManageEmployeeState extends State<ManageEmployee> {
 
         setState(() {
           physicians = fetchedPhysicians;
+          // Update the filtered list with initial items
+          filteredPhysicians = physicians.take(itemCountToShow).toList();
+          currentItemCount = itemCountToShow;
+          canLoadMore = true; // Reset canLoadMore flag
         });
       } else {
         throw Exception('Failed to load physicians');
@@ -92,6 +84,26 @@ class _ManageEmployeeState extends State<ManageEmployee> {
     });
   }
 
+
+  // Change this to Display all the Specialty in the dropdown and when selected only the selected specialty will be displayed in the listview.
+  void applySorting(String selectedSpecialty) {
+    if (selectedSpecialty == 'Sort') {
+      // If 'Specialty' is selected, show all physicians
+      setState(() {
+        physicians.sort((a, b) => a.doctorName.compareTo(b.doctorName));
+      });
+    } else {
+      // Filter physicians by the selected specialty
+      List<Physician> specialtyFiltered = physicians.where((physician) {
+        return physician.specialty == selectedSpecialty;
+      }).toList();
+
+      setState(() {
+        filteredPhysicians = specialtyFiltered;
+      });
+    }
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -99,6 +111,8 @@ class _ManageEmployeeState extends State<ManageEmployee> {
     double baseWidth = 375;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;
+
+    physicians.sort((a, b) => a.doctorName.compareTo(b.doctorName));
 
     if (physicians.isNotEmpty && filteredPhysicians.isEmpty) {
       filteredPhysicians = List.from(physicians); // Initialize with all physicians
@@ -165,7 +179,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'List of Physicians in the database.',
+                    'These are the list of Physicians in the database.',
                     style: SafeGoogleFont(
                       'Urbanist',
                       fontSize: 12 * size,
@@ -176,7 +190,7 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                 ],
               ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 15),
             Container(
               margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
                   0 * sizeAxis, 15 * sizeAxis),
@@ -231,9 +245,10 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                       onChanged: (String? newValue) {
                         setState(() {
                           dropdownValue = newValue!;
+                          applySorting(newValue); // Apply sorting when dropdown value changes
                         });
                       },
-                      items: <String>['Alphabetical', 'Status']
+                      items: <String>['Sort', ...physicians.map((physician) => physician.specialty).toSet().toList()]
                           .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
@@ -245,63 +260,78 @@ class _ManageEmployeeState extends State<ManageEmployee> {
                 ),
               ],
             ),
-
             SizedBox(height: 10),
             Expanded(
-              child: ListView.builder(
-                itemCount: filteredPhysicians.length,
-                itemBuilder: (context, index) {
-                  Physician physician = filteredPhysicians[index];
-                  return GestureDetector(
-                    onTap: () {
-                      // Navigate to the next page when a list item is tapped
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => Details(),
-                        ),
-                      );
-                    },
-                    child: Card(
-                      elevation: 3,
-                      color: Theme.of(context).colorScheme.secondary,
-                      child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundImage: AssetImage('assets/images/userCartoon.png'),
-                        ),
-                        title: Text(
-                          physician.doctorName,
-                          style: SafeGoogleFont(
-                            'Urbanist',
-                            fontSize: 13 * size,
-                            height: 1.2 * size / sizeAxis,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            fontStyle: FontStyle.italic,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                    // Reached the bottom of the ListView
+                    loadMoreItems();
+                  }
+                  return true;
+                },
+                child: ListView.builder(
+                  itemCount: filteredPhysicians.length + (isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == filteredPhysicians.length) {
+                      return _buildLoadingIndicator(); // Show loading indicator at the end
+                    } else {
+                      Physician physician = filteredPhysicians[index];
+                      return GestureDetector(
+                        onTap: () {
+                          // Navigate to the next page when a list item is tapped
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => Details(),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 5),
-                            Text(
-                              physician.specialty,
+                          elevation: 3,
+                          color: Theme.of(context).colorScheme.secondary,
+                          child: ListTile(
+                            leading: const CircleAvatar(
+                              backgroundImage: AssetImage('assets/images/userCartoon.png'),
+                            ),
+                            title: Text(
+                              physician.doctorName,
                               style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 11 * size,
+                                'Urbanist',
+                                fontSize: 13 * size,
                                 height: 1.2 * size / sizeAxis,
-                                color: Colors.red,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
-                          ],
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 5),
+                                Text(
+                                  physician.specialty,
+                                  style: SafeGoogleFont(
+                                    'Inter',
+                                    fontSize: 11 * size,
+                                    height: 1.2 * size / sizeAxis,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            trailing: Icon(
+                              physician.isActive ? Icons.check_circle : Icons.cancel,
+                              color: physician.isActive ? Colors.green : Colors.red,
+                            ),
+                          ),
                         ),
-                        trailing: Icon(
-                          physician.isActive ? Icons.check_circle : Icons.cancel,
-                          color: physician.isActive ? Colors.green : Colors.red,
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ],
@@ -309,6 +339,43 @@ class _ManageEmployeeState extends State<ManageEmployee> {
       ),
     );
   }
+
+  Widget _buildLoadingIndicator() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.tertiary,), // Show CircularProgressIndicator while loading
+      ),
+    );
+  }
+
+  bool isLoading = false; // Add isLoading flag
+
+  void loadMoreItems() {
+    setState(() {
+      isLoading = true; // Set isLoading flag to true
+    });
+
+    if (currentItemCount < physicians.length) {
+      int itemsToAdd = itemCountToShow;
+      if (currentItemCount + itemCountToShow > physicians.length) {
+        itemsToAdd = physicians.length - currentItemCount;
+      }
+      // Simulate a delay for loading more items
+      Future.delayed(Duration(seconds: 3), () {
+        setState(() {
+          filteredPhysicians.addAll(physicians.getRange(currentItemCount, currentItemCount + itemsToAdd));
+          currentItemCount += itemsToAdd;
+          isLoading = false; // Set isLoading flag to false after loading
+        });
+      });
+    } else {
+      setState(() {
+        isLoading = false; // Set isLoading flag to false if no more items to load
+      });
+    }
+  }
+
 }
 
 class Physician {

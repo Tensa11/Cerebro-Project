@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Cerebro/Advisory.dart';
 import 'Cerebro/LandV2.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -48,7 +49,7 @@ class SplashScreen extends StatelessWidget {
     return AnimatedSplashScreen(
       backgroundColor: Theme.of(context).colorScheme.background,
       splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
-      nextScreen: const LandingPage(),
+      nextScreen: const Advisory(),
       splashIconSize: 900,
       duration: 2900,
       splashTransition: SplashTransition.fadeTransition,

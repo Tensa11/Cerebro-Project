@@ -5,8 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Advisory.dart';
 import 'Login.dart';
-import 'Employee.dart';
+import 'Physicians.dart';
 
 class CereDrawer extends StatefulWidget {
   const CereDrawer({Key? key}) : super(key: key);
@@ -68,6 +69,25 @@ class _CereDrawerState extends State<CereDrawer> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SaleDash(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.newspaper,
+                color: const Color(0xffe33924), // Changed icon color
+              ),
+              title: const Text(
+                'Advisory',
+                style: TextStyle(
+                  color: Color(0xFF13A4FF), // Changed text color
+                ),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Advisory(),
                   ),
                 );
               },
