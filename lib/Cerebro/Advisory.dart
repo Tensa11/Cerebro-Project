@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:random_avatar/random_avatar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
@@ -22,6 +24,8 @@ class _AdvisoryState extends State<Advisory> {
   void initState() {
     super.initState();
     fetchAdvisory();
+    _getUserData();
+
   }
 
   Future<void> fetchAdvisory() async {
@@ -60,6 +64,14 @@ class _AdvisoryState extends State<Advisory> {
     }
   }
 
+  String username = '';
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    // Generate avatar URL based on username
+    setState(() {}); // Update the UI with retrieved data
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -77,7 +89,6 @@ class _AdvisoryState extends State<Advisory> {
         // Transparent background with gradient in flexible space
         backgroundColor: Colors.transparent,
         elevation: 15,
-        // Remove default shadow
         leading: IconButton(
           icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
           onPressed: () {
@@ -85,15 +96,24 @@ class _AdvisoryState extends State<Advisory> {
           },
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.account_circle,
-                color: Theme.of(context).colorScheme.tertiary),
-            onPressed: () {
-              // Add functionality for account button
-            },
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white, // Border color
+                width: 2, // Border width
+              ),
+            ),
+            child: ClipOval(
+              child: RandomAvatar(
+                username,
+                height: 40,
+                width: 40,
+              ),
+            ),
           ),
+          SizedBox(width: 20),
         ],
-        // Add a gradient background with rounded corners at the bottom
         flexibleSpace: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primary,
@@ -180,9 +200,9 @@ class _AdvisoryState extends State<Advisory> {
               children: [
                 Ink.image(
                   image: NetworkImage(advisory['imageSrc'] ?? ''),
-                  child: InkWell(
-                    onTap: () {},
-                  ),
+                  // child: InkWell(
+                  //   onTap: () {},
+                  // ),
                   height: 240,
                   fit: BoxFit.contain,
                 ),
@@ -193,7 +213,7 @@ class _AdvisoryState extends State<Advisory> {
               advisory['title'] ?? '',
               style: SafeGoogleFont(
                 'Urbanist',
-                fontSize: 15 * size,
+                fontSize: 16 * size,
                 fontWeight: FontWeight.bold,
                 fontStyle: FontStyle.italic,
                 height: 1.2 * size / sizeAxis,
@@ -251,7 +271,7 @@ class _AdvisoryState extends State<Advisory> {
         textSpans.add(TextSpan(
           text: description.substring(prevIndex, match.start),
           style: SafeGoogleFont(
-            'Inter',
+            'Urbanist',
             fontSize: 13 * size,
             height: 1.2 * size / sizeAxis,
             color: Colors.white,
@@ -261,8 +281,13 @@ class _AdvisoryState extends State<Advisory> {
 
       textSpans.add(TextSpan(
         text: text,
-        style: TextStyle(
-          color: Colors.red,
+        style: SafeGoogleFont(
+          fontSize: 13 * size,
+          'Urbanist',
+          fontWeight: FontWeight.bold,
+          fontStyle: FontStyle.italic,
+          height: 1.2 * size / sizeAxis,
+          color: Colors.white,
         ),
         recognizer: TapGestureRecognizer()
           ..onTap = () async {
@@ -277,7 +302,7 @@ class _AdvisoryState extends State<Advisory> {
       textSpans.add(TextSpan(
         text: description.substring(prevIndex),
         style: SafeGoogleFont(
-          'Inter',
+          'Urbanist',
           fontSize: 13 * size,
           height: 1.2 * size / sizeAxis,
           color: Colors.white,
@@ -293,7 +318,7 @@ class _AdvisoryState extends State<Advisory> {
           child: Text(
             description,
             style: SafeGoogleFont(
-              'Inter',
+              'Urbanist',
               fontSize: 13 * size,
               height: 1.2 * size / sizeAxis,
               color: Colors.transparent, // Make text transparent

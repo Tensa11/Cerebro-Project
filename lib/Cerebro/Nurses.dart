@@ -10,18 +10,18 @@ import '../util/utils.dart';
 import 'Details.dart';
 import 'Drawer.dart';
 
-class ManagePhysicians extends StatefulWidget {
-  const ManagePhysicians({Key? key}) : super(key: key);
+class ManageNurses extends StatefulWidget {
+  const ManageNurses({Key? key}) : super(key: key);
 
   @override
-  _ManagePhysiciansState createState() => _ManagePhysiciansState();
+  _ManageNursesState createState() => _ManageNursesState();
 }
 
-class _ManagePhysiciansState extends State<ManagePhysicians> {
-  late List<Physician> physicians = [];
+class _ManageNursesState extends State<ManageNurses> {
+  late List<Nurse> nurses = [];
   late String dropdownValue = 'Filter';
 
-  late List<Physician> filteredPhysicians;
+  late List<Nurse> filteredNurses;
   TextEditingController searchController = TextEditingController();
 
   int itemCountToShow = 6; // Number of items to show initially
@@ -35,76 +35,15 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
   void initState() {
     super.initState();
     _scrollController = ScrollController(); // Initialize scroll controller
-    fetchPhysicians();
+    fetchNurses();
     _getUserData();
-    filteredPhysicians = List.from(physicians); // Initialize with all physicians
+    filteredNurses = List.from(nurses); // Initialize with all nurses
   }
 
   @override
   void dispose() {
     _scrollController.dispose(); // Dispose scroll controller
     super.dispose();
-  }
-
-  Future<void> fetchPhysicians() async {
-    try {
-      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
-      if (apiUrl == null) {
-        throw Exception('API_URL environment variable is not defined');
-      }
-      var url = Uri.parse('$apiUrl/med/physicians');
-      var response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        List<Physician> fetchedPhysicians = List.generate(data['data'].length, (index) {
-          return Physician.fromJson(data['data'][index]);
-        });
-
-        setState(() {
-          physicians = fetchedPhysicians;
-          // Update the filtered list with initial items
-          filteredPhysicians = physicians.take(itemCountToShow).toList();
-          currentItemCount = itemCountToShow;
-          canLoadMore = true; // Reset canLoadMore flag
-        });
-      } else {
-        throw Exception('Failed to load physicians');
-      }
-    } catch (e) {
-      print('Error fetching physicians: $e');
-    }
-  }
-
-  Future<void>  filterSearchResults(String query) async {
-    List<Physician> searchResults = physicians.where((physician) {
-      return physician.doctorName.toLowerCase().contains(query.toLowerCase()) ||
-          physician.specialty.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-
-    setState(() {
-      filteredPhysicians = searchResults;
-    });
-  }
-
-
-  // Change this to Display all the Specialty in the dropdown and when selected only the selected specialty will be displayed in the listview.
-  void applySorting(String selectedSpecialty) {
-    if (selectedSpecialty == 'Filter') {
-      // If 'Specialty' is selected, show all physicians
-      setState(() {
-        physicians.sort((a, b) => a.doctorName.compareTo(b.doctorName));
-      });
-    } else {
-      // Filter physicians by the selected specialty
-      List<Physician> specialtyFiltered = physicians.where((physician) {
-        return physician.specialty == selectedSpecialty;
-      }).toList();
-
-      setState(() {
-        filteredPhysicians = specialtyFiltered;
-      });
-    }
   }
 
   String username = '';
@@ -115,6 +54,47 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
     setState(() {}); // Update the UI with retrieved data
   }
 
+  Future<void> fetchNurses() async {
+    try {
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/nurses');
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        List<Nurse> fetchedNurses = List.generate(data['data'].length, (index) {
+          return Nurse.fromJson(data['data'][index]);
+        });
+
+        setState(() {
+          nurses = fetchedNurses;
+          // Update the filtered list with initial items
+          filteredNurses = nurses.take(itemCountToShow).toList();
+          currentItemCount = itemCountToShow;
+          canLoadMore = true; // Reset canLoadMore flag
+        });
+      } else {
+        throw Exception('Failed to load nurses');
+      }
+    } catch (e) {
+      print('Error fetching nurses: $e');
+    }
+  }
+
+  Future<void>  filterSearchResults(String query) async {
+    List<Nurse> searchResults = nurses.where((nurse) {
+      return nurse.nurseName.toLowerCase().contains(query.toLowerCase()) ||
+          nurse.license_number.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      filteredNurses = searchResults;
+    });
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -123,10 +103,10 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;
 
-    physicians.sort((a, b) => a.doctorName.compareTo(b.doctorName));
+    nurses.sort((a, b) => a.nurseName.compareTo(b.nurseName));
 
-    if (physicians.isNotEmpty && filteredPhysicians.isEmpty) {
-      filteredPhysicians = List.from(physicians); // Initialize with all physicians
+    if (nurses.isNotEmpty && filteredNurses.isEmpty) {
+      filteredNurses = List.from(nurses); // Initialize with all nurses
     }
 
     return Scaffold(
@@ -188,7 +168,7 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Physicians',
+                    'Nurses',
                     style: SafeGoogleFont(
                       'Urbanist',
                       fontSize: 18 * size,
@@ -199,7 +179,7 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'These are the list of Physicians in the database.',
+                    'These are the list of Nurses in the database.',
                     style: SafeGoogleFont(
                       'Urbanist',
                       fontSize: 12 * size,
@@ -232,53 +212,11 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                 onChanged: filterSearchResults,
                 decoration: InputDecoration(
                   labelText: "Search",
-                  hintText: "Search for Physicians",
+                  hintText: "Search for Nurses",
                   prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary,),
                   border: InputBorder.none, // Remove the underline
                 ),
               ),
-            ),
-            // Sort the ListView
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      "Sort",
-                      style: SafeGoogleFont(
-                        'Urbanist',
-                        fontSize: 13 * size,
-                        height: 1.2 * size / sizeAxis,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    DropdownButton<String>(
-                      value: dropdownValue,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          dropdownValue = newValue!;
-                          applySorting(newValue); // Apply sorting when dropdown value changes
-                        });
-                      },
-                      items: <String>['Filter', ...physicians.map((physician) => physician.specialty).toSet().toList()]
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ],
             ),
             SizedBox(height: 10),
             Expanded(
@@ -291,12 +229,12 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                   return true;
                 },
                 child: ListView.builder(
-                  itemCount: filteredPhysicians.length + (isLoading ? 1 : 0),
+                  itemCount: filteredNurses.length + (isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
-                    if (index == filteredPhysicians.length) {
+                    if (index == filteredNurses.length) {
                       return _buildLoadingIndicator(); // Show loading indicator at the end
                     } else {
-                      Physician physician = filteredPhysicians[index];
+                      Nurse nurse = filteredNurses[index];
                       return GestureDetector(
                         onTap: () {
                           // Navigate to the next page when a list item is tapped
@@ -323,14 +261,14 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                               ),
                               child: ClipOval(
                                 child: RandomAvatar(
-                                  physician.id,
+                                  nurse.id,
                                   height: 50,
                                   width: 50,
                                 ),
                               ),
                             ),
                             title: Text(
-                              physician.doctorName,
+                              nurse.nurseName,
                               style: SafeGoogleFont(
                                 'Urbanist',
                                 fontSize: 13 * size,
@@ -345,7 +283,7 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                               children: [
                                 SizedBox(height: 5),
                                 Text(
-                                  physician.specialty,
+                                  nurse.license_number,
                                   style: SafeGoogleFont(
                                     'Inter',
                                     fontSize: 11 * size,
@@ -356,8 +294,8 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                               ],
                             ),
                             trailing: Icon(
-                              physician.isActive == 1 ? Icons.check_circle : Icons.cancel, // Update the comparison here
-                              color: physician.isActive == 1 ? Colors.green : Colors.red, // Update the comparison here
+                              nurse.isActive == 1 ? Icons.check_circle : Icons.cancel, // Update the comparison here
+                              color: nurse.isActive == 1 ? Colors.green : Colors.red, // Update the comparison here
                             ),
                           ),
                         ),
@@ -365,7 +303,6 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                     }
                   },
                 ),
-
               ),
             ),
           ],
@@ -390,15 +327,15 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
       isLoading = true; // Set isLoading flag to true
     });
 
-    if (currentItemCount < physicians.length) {
+    if (currentItemCount < nurses.length) {
       int itemsToAdd = itemCountToShow;
-      if (currentItemCount + itemCountToShow > physicians.length) {
-        itemsToAdd = physicians.length - currentItemCount;
+      if (currentItemCount + itemCountToShow > nurses.length) {
+        itemsToAdd = nurses.length - currentItemCount;
       }
       // Simulate a delay for loading more items
       Future.delayed(Duration(seconds: 3), () {
         setState(() {
-          filteredPhysicians.addAll(physicians.getRange(currentItemCount, currentItemCount + itemsToAdd));
+          filteredNurses.addAll(nurses.getRange(currentItemCount, currentItemCount + itemsToAdd));
           currentItemCount += itemsToAdd;
           isLoading = false; // Set isLoading flag to false after loading
         });
@@ -412,27 +349,27 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
 
 }
 
-class Physician {
+class Nurse {
   final String id;
   final int pin;
-  final String doctorName;
-  final String specialty;
+  final String nurseName;
+  final String license_number;
   final int isActive; // Change the type to int
 
-  Physician({
+  Nurse({
     required this.id,
     required this.pin,
-    required this.doctorName,
-    required this.specialty,
+    required this.nurseName,
+    required this.license_number,
     required this.isActive,
   });
 
-  factory Physician.fromJson(Map<String, dynamic> json) {
-    return Physician(
-      id: json['id'],
-      pin: json['pin'],
-      doctorName: json['doctor_name'],
-      specialty: json['specialty'],
+  factory Nurse.fromJson(Map<String, dynamic> json) {
+    return Nurse(
+      id: json['id'] ?? '',
+      pin: json['pin'] ?? 0,
+      nurseName: json['nurse_name'],
+      license_number: json['license_number'] ?? 'N/A',
       isActive: json['is_active'], // Update the type here
     );
   }

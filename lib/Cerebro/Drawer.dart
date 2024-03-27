@@ -1,13 +1,17 @@
 import 'package:Cerebro/Cerebro/ChangePass.dart';
-import 'package:Cerebro/Cerebro/Sale.dart';
+import 'package:Cerebro/Cerebro/Physicians.dart';
+import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Advisory.dart';
 import 'Login.dart';
-import 'Physicians.dart';
+import '../util/utils.dart';
+import 'Nurses.dart';
+
 
 class CereDrawer extends StatefulWidget {
   const CereDrawer({Key? key}) : super(key: key);
@@ -30,11 +34,16 @@ class _CereDrawerState extends State<CereDrawer> {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
     email = prefs.getString('email') ?? '';
+     // Generate avatar URL based on username
     setState(() {}); // Update the UI with retrieved data
   }
 
   @override
   Widget build(BuildContext context) {
+    double baseWidth = 375;
+    double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
+    double size = sizeAxis * 0.97;
+
     return Drawer(
       backgroundColor: Theme.of(context).colorScheme.background,
       child: Container(
@@ -42,10 +51,31 @@ class _CereDrawerState extends State<CereDrawer> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text(username),
+              accountName: Text(
+                username,
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 15 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFFFFFFFF),
+                ),
+              ),
               accountEmail: Text(email),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage("assets/images/userCartoon.png"),
+              currentAccountPicture: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white, // Border color
+                    width: 2, // Border width
+                  ),
+                ),
+                child: ClipOval(
+                  child: RandomAvatar(
+                    username,
+                    height: 40,
+                    width: 40,
+                  ),
+                ),
               ),
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -59,10 +89,13 @@ class _CereDrawerState extends State<CereDrawer> {
                 Icons.dashboard,
                 color: const Color(0xffe33924), // Changed icon color
               ),
-              title: const Text(
+              title: Text(
                 'Home',
-                style: TextStyle(
-                  color: Color(0xFF13A4FF), // Changed text color
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 13 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFF13A4FF),
                 ),
               ),
               onTap: () {
@@ -78,10 +111,13 @@ class _CereDrawerState extends State<CereDrawer> {
                 Icons.newspaper,
                 color: const Color(0xffe33924), // Changed icon color
               ),
-              title: const Text(
+              title: Text(
                 'Advisory',
-                style: TextStyle(
-                  color: Color(0xFF13A4FF), // Changed text color
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 13 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFF13A4FF),
                 ),
               ),
               onTap: () {
@@ -97,16 +133,41 @@ class _CereDrawerState extends State<CereDrawer> {
                 Icons.person,
                 color: const Color(0xffe33924), // Changed icon color
               ),
-              title: const Text(
-                'Physicians',
-                style: TextStyle(
-                  color: Color(0xFF13A4FF), // Changed text color
+              title: Text(
+                'Nurses',
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 13 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFF13A4FF),
                 ),
               ),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ManageEmployee(),
+                    builder: (context) => ManageNurses(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.person_add_alt_1,
+                color: const Color(0xffe33924), // Changed icon color
+              ),
+              title: Text(
+                'Physicians',
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 13 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFF13A4FF),
+                ),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ManagePhysicians(),
                   ),
                 );
               },
@@ -116,10 +177,13 @@ class _CereDrawerState extends State<CereDrawer> {
                 Icons.password,
                 color: const Color(0xffe33924), // Changed icon color
               ),
-              title: const Text(
+              title: Text(
                 'Change Password',
-                style: TextStyle(
-                  color: Color(0xFF13A4FF), // Changed text color
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 13 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFF13A4FF),
                 ),
               ),
               onTap: () {
@@ -130,16 +194,19 @@ class _CereDrawerState extends State<CereDrawer> {
                 );
               },
             ),
-            const Divider(),
+            // const Divider(),
             ListTile(
               leading: const Icon(
                 Icons.logout,
                 color: const Color(0xffe33924), // Changed icon color
               ),
-              title: const Text(
+              title: Text(
                 'Logout',
-                style: TextStyle(
-                  color: Color(0xFF13A4FF), // Changed text color
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 13 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFF13A4FF),
                 ),
               ),
               onTap: () async {

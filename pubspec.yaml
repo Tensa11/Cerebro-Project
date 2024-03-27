@@ -61,8 +61,10 @@ dependencies:
   flutter_widget_from_html: ^0.14.11
   bulleted_list: ^0.0.1+0.1a
   flutter_linkify: ^6.0.0
-
-
+  dice_bear: ^0.1.7
+  path_provider: ^2.1.2
+  cached_network_image: ^3.3.1
+  random_avatar: ^0.0.8
 
 #  flutter_html: ^2.1.1
 

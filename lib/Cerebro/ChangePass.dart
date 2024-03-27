@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
@@ -19,15 +20,19 @@ class ChangePass extends StatefulWidget {
 }
 
 class _ChangePassState extends State<ChangePass> {
-  final TextEditingController _currentPasswordController =
-      TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _hideConfirmPass = true;
   bool _hideCurrentPass = true;
   bool _hideNewPass = true;
   String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserData();
+  }
 
   Future<void> changePassword() async {
     try {
@@ -111,6 +116,14 @@ class _ChangePassState extends State<ChangePass> {
     return result ?? false;
   }
 
+  String username = '';
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    // Generate avatar URL based on username
+    setState(() {}); // Update the UI with retrieved data
+  }
+
   @override
   Widget build(BuildContext context) {
     double baseWidth = 400;
@@ -126,7 +139,6 @@ class _ChangePassState extends State<ChangePass> {
         // Transparent background with gradient in flexible space
         backgroundColor: Colors.transparent,
         elevation: 15,
-        // Remove default shadow
         leading: IconButton(
           icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
           onPressed: () {
@@ -134,15 +146,24 @@ class _ChangePassState extends State<ChangePass> {
           },
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.account_circle,
-                color: Theme.of(context).colorScheme.tertiary),
-            onPressed: () {
-              // Add functionality for account button
-            },
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white, // Border color
+                width: 2, // Border width
+              ),
+            ),
+            child: ClipOval(
+              child: RandomAvatar(
+                username,
+                height: 40,
+                width: 40,
+              ),
+            ),
           ),
+          SizedBox(width: 20),
         ],
-        // Add a gradient background with rounded corners at the bottom
         flexibleSpace: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primary,
