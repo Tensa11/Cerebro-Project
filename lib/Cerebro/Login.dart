@@ -79,10 +79,10 @@ class _LoginState extends State<Login> {
           print('Token: $token'); // Print token in the console
 
           // Save token or handle it as needed
-
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('username', username);
           await prefs.setString('email', data['email'] ?? ''); // Handle null email
+          await prefs.setString('token', token);
 
           // Navigate to the main dashboard or home screen
           Navigator.of(context).push(

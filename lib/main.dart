@@ -50,7 +50,7 @@ class SplashScreen extends StatelessWidget {
     return AnimatedSplashScreen(
       backgroundColor: Theme.of(context).colorScheme.background,
       splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
-      nextScreen: const SaleDash(),
+      nextScreen: const LandingPage(),
       splashIconSize: 900,
       duration: 2900,
       splashTransition: SplashTransition.fadeTransition,

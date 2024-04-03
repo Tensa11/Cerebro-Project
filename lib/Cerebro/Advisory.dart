@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -64,12 +65,38 @@ class _AdvisoryState extends State<Advisory> {
     }
   }
 
+  String avatarUrl = '';
   String username = '';
   Future<void> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
-    // Generate avatar URL based on username
-    setState(() {}); // Update the UI with retrieved data
+
+    // Fetch the avatar URL
+    final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+    if (apiUrl == null) {
+      throw Exception('API_URL environment variable is not defined');
+    }
+    var url = Uri.parse('$apiUrl/med/hospital/me');
+    final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+    if (token == null) {
+      throw Exception('Token not found.');
+    }
+    var response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token', // Include the token in the Authorization header
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      setState(() {
+        avatarUrl = data['avatar']; // Store the avatar URL
+      });
+    } else {
+      print('Failed to load user data');
+    }
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -96,19 +123,64 @@ class _AdvisoryState extends State<Advisory> {
           },
         ),
         actions: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white, // Border color
-                width: 2, // Border width
+          GestureDetector(
+            onTap: () async {
+              if (avatarUrl.isNotEmpty) {
+                await showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                icon: Icon(Icons.close_rounded),
+                                color: Colors.redAccent,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          child: Image.network(
+                            avatarUrl,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white, // Border color
+                  width: 2, // Border width
+                ),
               ),
-            ),
-            child: ClipOval(
-              child: RandomAvatar(
-                username,
-                height: 40,
-                width: 40,
+              child: ClipOval(
+                child: avatarUrl.isNotEmpty
+                    ? Image.network(
+                  avatarUrl,
+                  height: 40,
+                  width: 40,
+                  fit: BoxFit.cover,
+                )
+                    : Container(), // Removed the fallback to RandomAvatar
               ),
             ),
           ),

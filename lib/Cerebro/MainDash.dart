@@ -47,6 +47,9 @@ class _SaleDashState extends State<SaleDash> {
   @override
   void initState() {
     super.initState();
+    _getUserData();
+    // startListeningToChanges();
+    //-----------------------------------------------------------------------
     fetchTotalSalesToday();
     fetchTotalExpense();
     fetchTotalCollection();
@@ -61,14 +64,12 @@ class _SaleDashState extends State<SaleDash> {
     fetchTotalSENIOR();
     fetchInsuranceTODAY();
     fetchInsuranceMONTH();
-    startListeningToChanges();
     fetchPHICTransmittalTODAY();
     fetchPHICTransmittalMONTH();
-    _getUserData();
     fetchPercentSalesToday();
     fetchPercentCollection();
     fetchPercentInsuranceTODAY();
-    // ----------------------------------------------------
+    //-----------------------------------------------------------------------
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool hasShownAlert = prefs.getBool('hasShownQuickAlert') ?? false;
@@ -96,39 +97,39 @@ class _SaleDashState extends State<SaleDash> {
     super.dispose();
   }
 
-  void startListeningToChanges() {
-    Timer.periodic(Duration(seconds: 5), (timer) {
-      // Check for database changes periodically
-      fetchDataAndNotify(); // Fetch data and notify listeners
-    });
-  }
+  // void startListeningToChanges() {
+  //   Timer.periodic(Duration(seconds: 50.0), (timer) {
+  //     // Check for database changes periodically
+  //     fetchDataAndNotify(); // Fetch data and notify listeners
+  //   });
+  // }
 
-  void fetchDataAndNotify() async {
-    try {
-      await fetchTotalSalesToday();
-      await fetchTotalExpense();
-      await fetchTotalCollection();
-      await fetchTotalDisbursement();
-      await fetchSalesMonthChart();
-      await fetchSalesYearChart();
-      await fetchTotalIPD();
-      await fetchTotalOPD();
-      await fetchTotalPHIC();
-      await fetchTotalHMO();
-      await fetchTotalCOMPANY();
-      await fetchTotalSENIOR();
-      await fetchInsuranceTODAY();
-      await fetchInsuranceMONTH();
-      await fetchPHICTransmittalTODAY();
-      await fetchPHICTransmittalMONTH();
-      await fetchPercentSalesToday();
-      await fetchPercentCollection();
-      await fetchPercentInsuranceTODAY(); // Fetch total sales data
-      _streamController.add(true); // Notify listeners about the change
-    } catch (e) {
-      print('Error fetching data: $e');
-    }
-  }
+  // void fetchDataAndNotify() async {
+  //   try {
+  //     await fetchTotalSalesToday();
+  //     await fetchTotalExpense();
+  //     await fetchTotalCollection();
+  //     await fetchTotalDisbursement();
+  //     await fetchSalesMonthChart();
+  //     await fetchSalesYearChart();
+  //     await fetchTotalIPD();
+  //     await fetchTotalOPD();
+  //     await fetchTotalPHIC();
+  //     await fetchTotalHMO();
+  //     await fetchTotalCOMPANY();
+  //     await fetchTotalSENIOR();
+  //     await fetchInsuranceTODAY();
+  //     await fetchInsuranceMONTH();
+  //     await fetchPHICTransmittalTODAY();
+  //     await fetchPHICTransmittalMONTH();
+  //     await fetchPercentSalesToday();
+  //     await fetchPercentCollection();
+  //     await fetchPercentInsuranceTODAY();
+  //     _streamController.add(true); // Notify listeners about the change
+  //   } catch (e) {
+  //     print('Error fetching data: $e');
+  //   }
+  // }
 
   Future<void> fetchTotalSalesToday() async {
     try {
@@ -137,7 +138,20 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/sales/total/today');
-      var response = await http.get(url);
+
+      // Retrieve the token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -188,13 +202,42 @@ class _SaleDashState extends State<SaleDash> {
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
+
       var url = Uri.parse('$apiUrl/fin/cashier/collection/today');
-      var response = await http.get(url);
+
+      // Retrieve the token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        totalCash = double.parse(data['data']['cash'][0]['total']);
-        totalCheque = double.parse(data['data']['cheque'][0]['total']);
+        var cashTotal = data['data'][0]['cash'];
+        if (cashTotal is int) {
+          totalCash = cashTotal.toDouble();
+        } else if (cashTotal is double) {
+          totalCash = cashTotal;
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
+
+        var chequeTotal = data['data'][0]['cheque'];
+        if (chequeTotal is int) {
+          totalCheque = chequeTotal.toDouble();
+        } else if (chequeTotal is double) {
+          totalCheque = chequeTotal;
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
         setState(() {});
       } else {
         throw Exception('Failed to load fetchTotalCollection');
@@ -238,7 +281,21 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/sales/total/month');
-      var response = await http.get(url);
+
+
+      // Retrieve the token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -272,11 +329,32 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/inv/items/expense/today');
-      var response = await http.get(url);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        totalExpense = double.parse(data['data'][0]['expense']);
+        var expenseTotal = data['data'][0]['expense'];
+        if (expenseTotal is int) {
+          totalExpense = expenseTotal.toDouble();
+        } else if (expenseTotal is double) {
+          totalExpense = expenseTotal;
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
+
+        // totalExpense = double.parse(data['data'][0]['expense']);
         setState(() {});
       } else {
         throw Exception('Failed to load fetchTotalExpense');
@@ -294,11 +372,31 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/disbursement/total');
-      var response = await http.get(url);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        totalDisbursement = double.parse(data['data'][0]['total']);
+        var disbursTotal = data['data'][0]['total'];
+        if (disbursTotal is int) {
+          totalDisbursement = disbursTotal.toDouble();
+        } else if (disbursTotal is double) {
+          totalDisbursement = disbursTotal;
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
+
         setState(() {});
       } else {
         throw Exception('Failed to load fetchTotalDisbursement');
@@ -332,7 +430,19 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/sales/total/year');
-      var response = await http.get(url);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -365,7 +475,19 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/med/patients/ipd');
-      var response = await http.get(url);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -387,7 +509,19 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/med/patients/opd');
-      var response = await http.get(url);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -409,7 +543,18 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/med/patients/phic');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -431,7 +576,18 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/med/patients/hmo');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -453,8 +609,18 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/med/patients/company');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
 
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         totalCOMPANY = int.parse(data['data'][0]['count']);
@@ -475,8 +641,18 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/med/patients/srpwd');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
 
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         totalSENIOR = int.parse(data['data'][0]['count']);
@@ -497,7 +673,18 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/insurance/today');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -524,7 +711,18 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/insurance/today/percentage');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
@@ -546,11 +744,29 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/insurance/month');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        totalInsuranceMONTH = double.parse(data['data'][0]['amount']);
+        var insuranceMonthTotal = data['data'][0]['amount'];
+        if (insuranceMonthTotal is int) {
+          totalInsuranceMONTH = insuranceMonthTotal.toDouble();
+        } else if (insuranceMonthTotal is double) {
+          totalInsuranceMONTH = insuranceMonthTotal;
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
         setState(() {});
       } else {
         throw Exception('Failed to load total fetchInsuranceMONTH');
@@ -568,21 +784,32 @@ class _SaleDashState extends State<SaleDash> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/phic_transmittal/today');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        setState(() {
-          totalClaimCount = data['data'][0]['claim_count'] as int;
+        totalClaimCount = data['data'][0]['claim_count'] as int;
 
-          // Check if the claim_amount is an int or double and parse accordingly
-          if (data['data'][0]['claim_amount'] is int) {
-            totalClaimAmount = (data['data'][0]['claim_amount'] as int).toDouble();
-          } else if (data['data'][0]['claim_amount'] is double) {
-            totalClaimAmount = data['data'][0]['claim_amount'];
-          } else {
-            throw Exception('Invalid claim_amount type');
-          }
+        var claimAmountTotal = data['data'][0]['claim_amount'];
+        if (claimAmountTotal is int) {
+          totalClaimAmount = claimAmountTotal.toDouble();
+        } else if (claimAmountTotal is double) {
+          totalClaimAmount = claimAmountTotal;
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
+        setState(() {
         });
       } else {
         throw Exception('Failed to load fetchPHICTransmittalTODAY');
@@ -591,32 +818,44 @@ class _SaleDashState extends State<SaleDash> {
       print('Error fetching fetchPHICTransmittalTODAY: $e');
     }
   }
+
   List<TransMonthData> _chartMonthTransData = [];
-  final List<String> dayTransNames =
-      List.generate(31, (index) => (index + 1).toString());
+  final List<String> dayTransNames = List.generate(31, (index) => (index + 1).toString());
 
   Future<void> fetchPHICTransmittalMONTH() async {
     try {
-      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/fin/phic_transmittal/month');
-      var response = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<TransMonthData> transMonthData  = List.generate(data['data'].length, (index) {
-          String dayName = dayNames[data['data'][index]['day'] - 1];
-          return TransMonthData(
+        List<TransMonthData> transMonthData = [];
+        for (var dayData in data['data'][0]) {
+          String dayName = dayNames[dayData['day'] - 1];
+          transMonthData.add(TransMonthData(
             dayName,
-            double.parse(data['data'][index]['amount'].toString()),
-          );
-        });
+            double.parse(dayData['amount'].toString()),
+          ));
+        }
         transMonthData.sort((a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
 
         setState(() {
-          _chartMonthTransData  = transMonthData;
+          _chartMonthTransData = transMonthData;
         });
       } else {
         throw Exception('Failed to load fetchPHICTransmittalMONTH');
@@ -624,24 +863,47 @@ class _SaleDashState extends State<SaleDash> {
     } catch (e) {
       print('Error fetching fetchPHICTransmittalMONTH: $e');
       setState(() {
-        // Handle error state if needed
       });
     }
   }
 
-  String formattedCurrentDate =
-      DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
-  String formattedCurrentMonth =
-      DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
-  String formattedCurrentYear =
-      DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
+  String formattedCurrentDate = DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
+  String formattedCurrentMonth = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
+  String formattedCurrentYear = DateFormat('yyyy').format(DateTime.now()).toUpperCase();
+
+  String avatarUrl = '';
   String username = '';
-
   Future<void> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
-    setState(() {}); // Update the UI with retrieved data
+
+    // Fetch the avatar URL
+    final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+    if (apiUrl == null) {
+      throw Exception('API_URL environment variable is not defined');
+    }
+    var url = Uri.parse('$apiUrl/med/hospital/me');
+    final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+    if (token == null) {
+      throw Exception('Token not found.');
+    }
+    var response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token', // Include the token in the Authorization header
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      setState(() {
+        avatarUrl = data['avatar']; // Store the avatar URL
+      });
+    } else {
+      print('Failed to load user data');
+    }
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -668,19 +930,66 @@ class _SaleDashState extends State<SaleDash> {
           },
         ),
         actions: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white, // Border color
-                width: 2, // Border width
+          GestureDetector(
+            onTap: () async {
+              if (avatarUrl.isNotEmpty) {
+                await showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                icon: Icon(Icons.close_rounded),
+                                color: Colors.redAccent,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 220,
+                          height: 200,
+                          child: Image.network(
+                            avatarUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white, // Border color
+                  width: 2, // Border width
+                ),
               ),
-            ),
-            child: ClipOval(
-              child: RandomAvatar(
-                username,
-                height: 40,
-                width: 40,
+              child: ClipOval(
+                child: avatarUrl.isNotEmpty
+                    ? Image.network(
+                  avatarUrl,
+                  height: 40,
+                  width: 40,
+                  fit: BoxFit.cover,
+                )
+                    : Container(), // Removed the fallback to RandomAvatar
               ),
             ),
           ),
@@ -736,8 +1045,10 @@ class _SaleDashState extends State<SaleDash> {
                   ],
                 ),
               ),
-              SizedBox(height: 30),
-              // Sales of the day
+              SizedBox(height: 15),
+              Divider(color: Theme.of(context).colorScheme.secondary,),
+              SizedBox(height: 15),
+              // Sales of the day--------------------------
               Row(
                 children: [
                   Expanded(
@@ -781,16 +1092,16 @@ class _SaleDashState extends State<SaleDash> {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        '$percentSales% Increase than before',
-                                        style: SafeGoogleFont(
-                                          'Urbanist',
-                                          fontSize: 11 * size,
-                                          height: 1.2 * size / sizeAxis,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                      // SizedBox(height: 10),
+                                      // Text(
+                                      //   '$percentSales% Increase than before',
+                                      //   style: SafeGoogleFont(
+                                      //     'Urbanist',
+                                      //     fontSize: 11 * size,
+                                      //     height: 1.2 * size / sizeAxis,
+                                      //     color: Colors.white,
+                                      //   ),
+                                      // ),
                                   ],
                                 ),
                               ),
@@ -803,174 +1114,170 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Cheque and Cash of the day
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  elevation: 5,
-                  color: Theme.of(context).colorScheme.secondary,
-                  child: Stack(
-                    children: [
-                      // Image.asset(
-                      //   'assets/images/bgg16.jpg',
-                      //   fit: BoxFit.cover,
-                      //   width: 500,
-                      //   height: 600,
-                      // ),
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Today's Collection",
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    color: Theme.of(context).colorScheme.secondary,
-                                    child: Stack(
-                                      children: [
-                                        // Image.asset(
-                                        //   'assets/images/bgg15.jpg',
-                                        //   fit: BoxFit.cover,
-                                        //   width: 175,
-                                        //   height: 95,
-                                        // ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(0.0),
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            // Set horizontal scroll direction
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Cash',
-                                                  style: SafeGoogleFont(
-                                                    'Inter',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  '₱ ${NumberFormat('#,##0.00').format(totalCash)}',
-                                                  style: SafeGoogleFont(
-                                                    'Inter',
-                                                    fontSize: 17 * size,
-                                                    fontWeight: FontWeight.w600,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                // Text Content
-                                                Text(
-                                                  '$percentCash% Increase than before',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 11 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    color: Theme.of(context).colorScheme.secondary,
-                                    child: Stack(
-                                      children: [
-                                        // Image.asset(
-                                        //   'assets/images/bgg15.jpg',
-                                        //   fit: BoxFit.cover,
-                                        //   width: 175,
-                                        //   height: 95,
-                                        // ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(0.0),
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            // Set horizontal scroll direction
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Cheque',
-                                                  style: SafeGoogleFont(
-                                                    'Inter',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  '₱ ${NumberFormat('#,##0.00').format(totalCheque)}',
-                                                  style: SafeGoogleFont(
-                                                    'Inter',
-                                                    fontSize: 17 * size,
-                                                    fontWeight: FontWeight.w600,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                // Text Content
-                                                Text(
-                                                  '$percentCheque% Increase than before',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 11 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // Add Extra here
-                          ],
-                        ),
+              // -------------------------------------
+              Container(
+                margin: EdgeInsets.fromLTRB(
+                    5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Today's Collection",
+                      style: SafeGoogleFont(
+                        'Urbanist',
+                        fontSize: 15 * size,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2 * size / sizeAxis,
+                        color: const Color(0xFF13A4FF),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 10),
-              // Sales BarChart Month
+              // Cash and Cheque--------------------------
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.secondary,
+                      child: Stack(
+                        children: [
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Cash',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '₱ ${NumberFormat('#,##0.00').format(totalCash)}',
+                                          style: SafeGoogleFont(
+                                            'Inter',
+                                            fontSize: 17 * size,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1.2 * size / sizeAxis,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // SizedBox(height: 10),
+                                  // Text Content
+                                  // Text(
+                                  //   '$percentCash% Increase than before',
+                                  //   style: SafeGoogleFont(
+                                  //     'Urbanist',
+                                  //     fontSize: 11 * size,
+                                  //     height: 1.2 * size / sizeAxis,
+                                  //     color: Colors.white,
+                                  //   ),
+                                  // ),
+                                ],
+                              ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      color: Theme.of(context).colorScheme.secondary,
+                      child: Stack(
+                        children: [
+                          // Image.asset(
+                          //   'assets/images/bgg15.jpg',
+                          //   fit: BoxFit.cover,
+                          //   width: 175,
+                          //   height: 95,
+                          // ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Cheque',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            '₱ ${NumberFormat('#,##0.00').format(totalCheque)}',
+                                            style: SafeGoogleFont(
+                                              'Inter',
+                                              fontSize: 17 * size,
+                                              fontWeight: FontWeight.w600,
+                                              height: 1.2 * size / sizeAxis,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // SizedBox(height: 10),
+                                  // Text Content
+                                  // Text(
+                                  //   '$percentCheque% Increase than before',
+                                  //   style: SafeGoogleFont(
+                                  //     'Urbanist',
+                                  //     fontSize: 11 * size,
+                                  //     height: 1.2 * size / sizeAxis,
+                                  //     color: Colors.white,
+                                  //   ),
+                                  // ),
+                                ],
+                              ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              // Sales BarChart Month--------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -1045,7 +1352,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
-              // Expense and Disbursement of the day
+              // Expense and Disbursement of the day--------------------------
               Row(
                 children: [
                   // Expense
@@ -1163,7 +1470,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Sales of the year
+              // Sales of the year--------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -1238,7 +1545,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 20),
-              // -------
+              // --------------------------------------
               Container(
                 margin: EdgeInsets.fromLTRB(
                     5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
@@ -1250,7 +1557,7 @@ class _SaleDashState extends State<SaleDash> {
                       "Today's Patient Data",
                       style: SafeGoogleFont(
                         'Urbanist',
-                        fontSize: 18 * size,
+                        fontSize: 15 * size,
                         fontWeight: FontWeight.bold,
                         height: 1.2 * size / sizeAxis,
                         color: const Color(0xFF13A4FF),
@@ -1260,7 +1567,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
-              // IPD and OPD
+              // IPD and OPD--------------------------
               Row(
                 children: [
                   Expanded(
@@ -1375,7 +1682,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // PHIC and HMO
+              // PHIC and HMO--------------------------
               Row(
                 children: [
                   Expanded(
@@ -1490,7 +1797,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Company and Senior
+              // Company and Senior--------------------------
               Row(
                 children: [
                   Expanded(
@@ -1516,7 +1823,7 @@ class _SaleDashState extends State<SaleDash> {
                                 Row(
                                   children: [
                                     Text(
-                                      'CO. ',
+                                      'Company',
                                       style: SafeGoogleFont(
                                         'Urbanist',
                                         fontSize: 15 * size,
@@ -1570,7 +1877,7 @@ class _SaleDashState extends State<SaleDash> {
                                 Row(
                                   children: [
                                     Text(
-                                      'SNR ',
+                                      'Senior PWD',
                                       style: SafeGoogleFont(
                                         'Urbanist',
                                         fontSize: 15 * size,
@@ -1604,7 +1911,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Insurance of the Day and Month
+              // Insurance of the Day and Month--------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -1627,7 +1934,7 @@ class _SaleDashState extends State<SaleDash> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Insurance of $formattedCurrentDate',
+                              'Insurance of The Day',
                               style: SafeGoogleFont(
                                 'Urbanist',
                                 fontSize: 15 * size,
@@ -1692,8 +1999,8 @@ class _SaleDashState extends State<SaleDash> {
                                 },
                               ),
                             ),
+                            // New Content
                             SizedBox(height: 10),
-                            // Divider(),
                             // Insurance of the Month
                             Row(
                               children: [
@@ -1705,60 +2012,59 @@ class _SaleDashState extends State<SaleDash> {
                                     color: Theme.of(context).colorScheme.secondary,
                                     child: Stack(
                                         children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 360,
-                                      //   height: 125,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Insurance Month',
-                                              style: SafeGoogleFont(
-                                                'Urbanist',
-                                                fontSize: 15 * size,
-                                                height: 1.2 * size / sizeAxis,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SizedBox(height: 15),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '₱ ${NumberFormat('#,##0.00').format(totalInsuranceMONTH)}',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize: 17 * size,
-                                                      fontWeight: FontWeight.bold,
-                                                      height: 1.2 * size / sizeAxis,
-                                                      color: Colors.white,
-                                                    ),
+                                          // Image.asset(
+                                          //   'assets/images/bgg15.jpg',
+                                          //   fit: BoxFit.cover,
+                                          //   width: 360,
+                                          //   height: 125,
+                                          // ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(15.0),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Insurance of $formattedCurrentMonth',
+                                                  style: SafeGoogleFont(
+                                                    'Urbanist',
+                                                    fontSize: 15 * size,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
                                                   ),
-                                                  SizedBox(height: 10),
-                                                  Text(
-                                                    '$percentInsurance% than before',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize: 11 * size,
-                                                      fontWeight: FontWeight.bold,
-                                                      height: 1.2 * size / sizeAxis,
-                                                      color: Colors.white,
-                                                    ),
+                                                ),
+                                                SizedBox(height: 15),
+                                                Align(
+                                                  alignment: Alignment.centerRight,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        '₱ ${NumberFormat('#,##0.00').format(totalInsuranceMONTH)}',
+                                                        style: SafeGoogleFont(
+                                                          'Inter',
+                                                          fontSize: 17 * size,
+                                                          fontWeight: FontWeight.bold,
+                                                          height: 1.2 * size / sizeAxis,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 10),
+                                                      // Text(
+                                                      //   '$percentInsurance% than before',
+                                                      //   style: SafeGoogleFont(
+                                                      //     'Inter',
+                                                      //     fontSize: 11 * size,
+                                                      //     height: 1.2 * size / sizeAxis,
+                                                      //     color: Colors.white,
+                                                      //   ),
+                                                      // ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ]),
+                                          ),
+                                        ]),
                                   ),
                                 ),
                               ],
@@ -1771,7 +2077,76 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
-              // Transmittal of the day
+              // Insurance of the Month
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      color: Theme.of(context).colorScheme.secondary,
+                      child: Stack(
+                          children: [
+                            // Image.asset(
+                            //   'assets/images/bgg15.jpg',
+                            //   fit: BoxFit.cover,
+                            //   width: 360,
+                            //   height: 125,
+                            // ),
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Insurance of $formattedCurrentMonth',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 15),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '₱ ${NumberFormat('#,##0.00').format(totalInsuranceMONTH)}',
+                                          style: SafeGoogleFont(
+                                            'Inter',
+                                            fontSize: 17 * size,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1.2 * size / sizeAxis,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        // Text(
+                                        //   '$percentInsurance% than before',
+                                        //   style: SafeGoogleFont(
+                                        //     'Inter',
+                                        //     fontSize: 11 * size,
+                                        //     height: 1.2 * size / sizeAxis,
+                                        //     color: Colors.white,
+                                        //   ),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ]),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              // Transmittal of the day--------------------------
               Row(
                 children: [
                   Expanded(
@@ -1803,26 +2178,52 @@ class _SaleDashState extends State<SaleDash> {
                                 ),
                               ),
                               SizedBox(height: 15),
-                              Text(
-                                'Total Claims: $totalClaimCount',
-                                style: SafeGoogleFont(
-                                  'Inter',
-                                  fontSize: 17 * size,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.2 * size / sizeAxis,
-                                  color: Colors.white,
-                                ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Total Claims: ',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$totalClaimCount',
+                                    style: SafeGoogleFont(
+                                      'Inter',
+                                      fontSize: 17 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                               SizedBox(height: 5),
-                              Text(
-                                'Amount: ₱ ${NumberFormat('#,##0.00').format(totalClaimAmount)}',
-                                style: SafeGoogleFont(
-                                  'Inter',
-                                  fontSize: 17 * size,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.2 * size / sizeAxis,
-                                  color: Colors.white,
-                                ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Amount: ',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    '₱ ${NumberFormat('#,##0.00').format(totalClaimAmount)}',
+                                    style: SafeGoogleFont(
+                                      'Inter',
+                                      fontSize: 17 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -1833,7 +2234,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 5),
-              // Transmittal Month
+              // Transmittal Month--------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(

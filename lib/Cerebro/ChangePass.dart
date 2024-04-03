@@ -116,12 +116,38 @@ class _ChangePassState extends State<ChangePass> {
     return result ?? false;
   }
 
+  String avatarUrl = '';
   String username = '';
   Future<void> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
-    // Generate avatar URL based on username
-    setState(() {}); // Update the UI with retrieved data
+
+    // Fetch the avatar URL
+    final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+    if (apiUrl == null) {
+      throw Exception('API_URL environment variable is not defined');
+    }
+    var url = Uri.parse('$apiUrl/med/hospital/me');
+    final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+    if (token == null) {
+      throw Exception('Token not found.');
+    }
+    var response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token', // Include the token in the Authorization header
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      setState(() {
+        avatarUrl = data['avatar']; // Store the avatar URL
+      });
+    } else {
+      print('Failed to load user data');
+    }
   }
 
   @override
@@ -146,19 +172,66 @@ class _ChangePassState extends State<ChangePass> {
           },
         ),
         actions: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white, // Border color
-                width: 2, // Border width
+          GestureDetector(
+            onTap: () async {
+              if (avatarUrl.isNotEmpty) {
+                await showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                icon: Icon(Icons.close_rounded),
+                                color: Colors.redAccent,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 220,
+                          height: 200,
+                          child: Image.network(
+                            avatarUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white, // Border color
+                  width: 2, // Border width
+                ),
               ),
-            ),
-            child: ClipOval(
-              child: RandomAvatar(
-                username,
-                height: 40,
-                width: 40,
+              child: ClipOval(
+                child: avatarUrl.isNotEmpty
+                    ? Image.network(
+                  avatarUrl,
+                  height: 40,
+                  width: 40,
+                  fit: BoxFit.cover,
+                )
+                    : Container(), // Removed the fallback to RandomAvatar
               ),
             ),
           ),
