@@ -12,6 +12,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
 import 'package:http/http.dart' as http;
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class SaleDash extends StatefulWidget {
   const SaleDash({Key? key}) : super(key: key);
@@ -40,6 +41,7 @@ class _SaleDashState extends State<SaleDash> {
   late int percentCheque = 0;
   late int percentCash = 0;
   late int percentInsurance = 0;
+  late List<KPI> kpiData  = [];
 
   final StreamController<bool> _streamController = StreamController<bool>();
   bool _isQuickAlertShown = false;
@@ -52,7 +54,8 @@ class _SaleDashState extends State<SaleDash> {
     //-----------------------------------------------------------------------
     fetchTotalSalesToday();
     fetchTotalExpense();
-    fetchTotalCollection();
+    fetchCashCollection();
+    fetchChequeCollection();
     fetchTotalDisbursement();
     fetchSalesMonthChart();
     fetchSalesYearChart();
@@ -66,9 +69,10 @@ class _SaleDashState extends State<SaleDash> {
     fetchInsuranceMONTH();
     fetchPHICTransmittalTODAY();
     fetchPHICTransmittalMONTH();
-    fetchPercentSalesToday();
-    fetchPercentCollection();
-    fetchPercentInsuranceTODAY();
+    // fetchPercentSalesToday();
+    // fetchPercentCollection();
+    // fetchPercentInsuranceTODAY();
+    fetchKPI();
     //-----------------------------------------------------------------------
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -195,8 +199,7 @@ class _SaleDashState extends State<SaleDash> {
       setState(() {});
     }
   }
-
-  Future<void> fetchTotalCollection() async {
+  Future<void> fetchCashCollection() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
@@ -227,23 +230,57 @@ class _SaleDashState extends State<SaleDash> {
         } else if (cashTotal is double) {
           totalCash = cashTotal;
         } else {
-          throw Exception('Total value is neither int nor double');
+          throw Exception('totalCash value is neither int nor double');
         }
+        setState(() {});
+      } else {
+        throw Exception('Failed to load fetchCashCollection');
+      }
+    } catch (e) {
+      print('Error fetching fetchCashCollection: $e');
+      setState(() {});
+    }
+  }
 
+  Future<void> fetchChequeCollection() async {
+    try {
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+
+      var url = Uri.parse('$apiUrl/fin/cashier/collection/today');
+
+      // Retrieve the token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
         var chequeTotal = data['data'][0]['cheque'];
         if (chequeTotal is int) {
           totalCheque = chequeTotal.toDouble();
         } else if (chequeTotal is double) {
           totalCheque = chequeTotal;
         } else {
-          throw Exception('Total value is neither int nor double');
+          throw Exception('totalCheque value is neither int nor double');
         }
         setState(() {});
       } else {
-        throw Exception('Failed to load fetchTotalCollection');
+        throw Exception('Failed to load fetchChequeCollection');
       }
     } catch (e) {
-      print('Error fetching fetchTotalCollection: $e');
+      print('Error fetching fetchChequeCollection: $e');
       setState(() {});
     }
   }
@@ -867,6 +904,42 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  Future<void> fetchKPI() async {
+    try {
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/hospital/kpi');
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        List<KPI> fetchedKPIs = List.generate(data['data'].length, (index) {
+          return KPI.fromJson(data['data'][index]);
+        });
+
+        setState(() {
+          kpiData = fetchedKPIs; // Assuming kpiData is a state variable to store the KPI data
+        });
+      } else {
+        throw Exception('Failed to load KPI data');
+      }
+    } catch (e) {
+      print('Error fetching KPI data: $e');
+    }
+  }
 
   String formattedCurrentDate = DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
   String formattedCurrentMonth = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
@@ -960,11 +1033,9 @@ class _SaleDashState extends State<SaleDash> {
                           ),
                         ),
                         Container(
-                          width: 220,
-                          height: 200,
                           child: Image.network(
                             avatarUrl,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                           ),
                         ),
                       ],
@@ -1034,7 +1105,7 @@ class _SaleDashState extends State<SaleDash> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      'latest update for the last 7 days.',
+                      'latest update $formattedCurrentDate',
                       style: SafeGoogleFont(
                         'Urbanist',
                         fontSize: 12 * size,
@@ -1132,10 +1203,10 @@ class _SaleDashState extends State<SaleDash> {
                         color: const Color(0xFF13A4FF),
                       ),
                     ),
+                    SizedBox(height: 10),
                   ],
                 ),
               ),
-              SizedBox(height: 10),
               // Cash and Cheque--------------------------
               Row(
                 children: [
@@ -1353,6 +1424,27 @@ class _SaleDashState extends State<SaleDash> {
               ),
               SizedBox(height: 10),
               // Expense and Disbursement of the day--------------------------
+              Container(
+                margin: EdgeInsets.fromLTRB(
+                    5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Today's Expense and Disbursement",
+                      style: SafeGoogleFont(
+                        'Urbanist',
+                        fontSize: 15 * size,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2 * size / sizeAxis,
+                        color: const Color(0xFF13A4FF),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
+              ),
               Row(
                 children: [
                   // Expense
@@ -1918,7 +2010,7 @@ class _SaleDashState extends State<SaleDash> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  elevation: 5,
+                  elevation: 0,
                   color: Theme.of(context).colorScheme.secondary,
                   child: Stack(
                     children: [
@@ -1966,6 +2058,7 @@ class _SaleDashState extends State<SaleDash> {
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                       elevation: 3,
+                                      color: Theme.of(context).colorScheme.primary,
                                       child: ListTile(
                                         title: Text(
                                           todayInsurance.name,
@@ -1973,7 +2066,7 @@ class _SaleDashState extends State<SaleDash> {
                                             'Urbanist',
                                             fontSize: 15 * size,
                                             height: 1.2 * size / sizeAxis,
-                                            color: const Color(0xff0272bc),
+                                            color: Theme.of(context).colorScheme.tertiary,
                                           ),
                                         ),
                                         subtitle: Column(
@@ -1987,7 +2080,7 @@ class _SaleDashState extends State<SaleDash> {
                                                 'Inter',
                                                 fontSize: 17 * size,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.black,
+                                                color: Theme.of(context).colorScheme.tertiary,
                                                 height: 1.2 * size / sizeAxis,
                                               ),
                                             ),
@@ -2009,7 +2102,7 @@ class _SaleDashState extends State<SaleDash> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(15),
                                     ),
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color: Theme.of(context).colorScheme.primary,
                                     child: Stack(
                                         children: [
                                           // Image.asset(
@@ -2029,7 +2122,7 @@ class _SaleDashState extends State<SaleDash> {
                                                     'Urbanist',
                                                     fontSize: 15 * size,
                                                     height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
+                                                    color: Theme.of(context).colorScheme.tertiary,
                                                   ),
                                                 ),
                                                 SizedBox(height: 15),
@@ -2045,7 +2138,7 @@ class _SaleDashState extends State<SaleDash> {
                                                           fontSize: 17 * size,
                                                           fontWeight: FontWeight.bold,
                                                           height: 1.2 * size / sizeAxis,
-                                                          color: Colors.white,
+                                                          color: Theme.of(context).colorScheme.tertiary,
                                                         ),
                                                       ),
                                                       SizedBox(height: 10),
@@ -2075,75 +2168,6 @@ class _SaleDashState extends State<SaleDash> {
                     ],
                   ),
                 ),
-              ),
-              SizedBox(height: 10),
-              // Insurance of the Month
-              Row(
-                children: [
-                  Expanded(
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      color: Theme.of(context).colorScheme.secondary,
-                      child: Stack(
-                          children: [
-                            // Image.asset(
-                            //   'assets/images/bgg15.jpg',
-                            //   fit: BoxFit.cover,
-                            //   width: 360,
-                            //   height: 125,
-                            // ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Insurance of $formattedCurrentMonth',
-                                    style: SafeGoogleFont(
-                                      'Urbanist',
-                                      fontSize: 15 * size,
-                                      height: 1.2 * size / sizeAxis,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(height: 15),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '₱ ${NumberFormat('#,##0.00').format(totalInsuranceMONTH)}',
-                                          style: SafeGoogleFont(
-                                            'Inter',
-                                            fontSize: 17 * size,
-                                            fontWeight: FontWeight.bold,
-                                            height: 1.2 * size / sizeAxis,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(height: 10),
-                                        // Text(
-                                        //   '$percentInsurance% than before',
-                                        //   style: SafeGoogleFont(
-                                        //     'Inter',
-                                        //     fontSize: 11 * size,
-                                        //     height: 1.2 * size / sizeAxis,
-                                        //     color: Colors.white,
-                                        //   ),
-                                        // ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ]),
-                    ),
-                  ),
-                ],
               ),
               SizedBox(height: 10),
               // Transmittal of the day--------------------------
@@ -2307,6 +2331,166 @@ class _SaleDashState extends State<SaleDash> {
                   ),
                 ),
               ),
+              SizedBox(height: 10),
+              // KPI --------------------------
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 0,
+                  color: Theme.of(context).colorScheme.secondary,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Key Performance Indicator',
+                              style: SafeGoogleFont(
+                                'Urbanist',
+                                fontSize: 15 * size,
+                                height: 1.2 * size / sizeAxis,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              height: 450, // Adjust the height as needed
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: kpiData.length,
+                                itemBuilder: (context, index) {
+                                  KPI kpi = kpiData[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      // Navigate to the next page when a list item is tapped
+                                      // Navigator.of(context).push(
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) => Details(),
+                                      //   ),
+                                      // );
+                                    },
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      elevation: 5,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      child: ListTile(
+                                        title: Text(
+                                          kpi.statusType,
+                                          style: SafeGoogleFont(
+                                            'Urbanist',
+                                            fontSize: 15 * size,
+                                            height: 1.2 * size / sizeAxis,
+                                            color: Theme.of(context).colorScheme.tertiary,
+                                          ),
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 10),
+                                            // Text(
+                                            //   '${kpi.value}',
+                                            //   style: SafeGoogleFont(
+                                            //     'Inter',
+                                            //     fontSize: 17 * size,
+                                            //     fontWeight: FontWeight.bold,
+                                            //     color: Theme.of(context).colorScheme.tertiary,
+                                            //     height: 1.2 * size / sizeAxis,
+                                            //   ),
+                                            // ),
+                                            Center(
+                                              child: Container(
+                                                width: 260,
+                                                height: 260,
+                                                child: SfRadialGauge(
+                                                  axes: <RadialAxis>[
+                                                    RadialAxis(
+                                                      minimum: 0,
+                                                      maximum: 100, // Adjust the maximum value as needed
+                                                      showLabels: true,
+                                                      showTicks: true,
+                                                      ticksPosition: ElementsPosition.outside,
+                                                      labelsPosition: ElementsPosition.outside, // Move labels outside the axis line
+                                                      axisLineStyle: AxisLineStyle(
+                                                        thickness: 0.0,
+                                                        color: Theme.of(context).colorScheme.tertiary,
+                                                        thicknessUnit: GaugeSizeUnit.factor,
+                                                      ),
+                                                      ranges: <GaugeRange>[
+                                                        GaugeRange(
+                                                            startValue: 0,
+                                                            endValue: 30,
+                                                            color: Colors.greenAccent,
+                                                            startWidth: 5,
+                                                            endWidth:25
+                                                        ),
+                                                        GaugeRange(
+                                                            startValue: 30,
+                                                            endValue: 70,
+                                                            color: Colors.orangeAccent,
+                                                            startWidth: 5,
+                                                            endWidth:25
+                                                        ),
+                                                        GaugeRange(
+                                                            startValue: 70,
+                                                            endValue: 100,
+                                                            color: Colors.redAccent,
+                                                            startWidth: 5,
+                                                            endWidth:25
+                                                        ),
+                                                      ],
+                                                      pointers: <GaugePointer>[
+                                                        NeedlePointer(
+                                                          value: kpi.value.toDouble(), // Assuming kpi.value is accessible here
+                                                          needleColor: Theme.of(context).colorScheme.tertiary, // Use the defined color
+                                                          lengthUnit: GaugeSizeUnit.factor,
+                                                          needleStartWidth: 0.1,
+                                                          needleEndWidth: 7,
+                                                          needleLength: 0.7,
+                                                        ),
+                                                      ],
+                                                      annotations: <GaugeAnnotation>[
+                                                        GaugeAnnotation(
+                                                          positionFactor: 0.5,
+                                                          angle: 90,
+                                                          widget: Text(
+                                                            '${kpi.value}',
+                                                            style: TextStyle(
+                                                              fontSize: 25,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Theme.of(context).colorScheme.tertiary,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            // Additional content can be added here
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               SizedBox(height: 30),
             ],
           ),
@@ -2353,3 +2537,20 @@ class Insurance {
     );
   }
 }
+
+class KPI {
+  final double value; // Change the type to double
+  final String statusType;
+
+  KPI({required this.value, required this.statusType});
+
+  factory KPI.fromJson(Map<String, dynamic> json) {
+    // Convert the value to a double
+    double value = double.parse(json['value'].toString());
+    return KPI(
+      value: value,
+      statusType: json['status_type'],
+    );
+  }
+}
+

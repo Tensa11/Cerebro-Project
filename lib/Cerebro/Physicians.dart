@@ -212,11 +212,9 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                           ),
                         ),
                         Container(
-                          width: 220,
-                          height: 200,
                           child: Image.network(
                             avatarUrl,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                           ),
                         ),
                       ],
