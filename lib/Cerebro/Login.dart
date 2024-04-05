@@ -84,6 +84,13 @@ class _LoginState extends State<Login> {
           await prefs.setString('email', data['email'] ?? ''); // Handle null email
           await prefs.setString('token', token);
 
+          // Extract and save the refresh token from the Set-Cookie header
+          final setCookieHeader = response.headers['set-cookie'];
+          if (setCookieHeader != null) {
+            final refreshToken = setCookieHeader.split(';')[0]; // Assuming the refresh token is the first part of the Set-Cookie header
+            await prefs.setString('refreshToken', refreshToken);
+          }
+
           // Navigate to the main dashboard or home screen
           Navigator.of(context).push(
             MaterialPageRoute(

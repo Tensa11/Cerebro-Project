@@ -54,22 +54,22 @@ class _SaleDashState extends State<SaleDash> {
     //-----------------------------------------------------------------------
     fetchTotalSalesToday();
     fetchCashCollection();
-    // fetchChequeCollection();
-    // fetchTotalExpense();
-    // fetchTotalDisbursement();
-    // fetchSalesMonthChart();
-    // fetchSalesYearChart();
-    // fetchTotalIPD();
-    // fetchTotalOPD();
-    // fetchTotalPHIC();
-    // fetchTotalHMO();
-    // fetchTotalCOMPANY();
-    // fetchTotalSENIOR();
-    // fetchInsuranceTODAY();
-    // fetchInsuranceMONTH();
-    // fetchPHICTransmittalTODAY();
-    // fetchPHICTransmittalMONTH();
-    // fetchKPI();
+    fetchChequeCollection();
+    fetchTotalExpense();
+    fetchTotalDisbursement();
+    fetchSalesMonthChart();
+    fetchSalesYearChart();
+    fetchTotalIPD();
+    fetchTotalOPD();
+    fetchTotalPHIC();
+    fetchTotalHMO();
+    fetchTotalCOMPANY();
+    fetchTotalSENIOR();
+    fetchInsuranceTODAY();
+    fetchInsuranceMONTH();
+    fetchPHICTransmittalTODAY();
+    fetchPHICTransmittalMONTH();
+    fetchKPI();
     //-----------------------------------------------------------------------
     // fetchPercentSalesToday();
     // fetchPercentCollection();
@@ -144,17 +144,20 @@ class _SaleDashState extends State<SaleDash> {
       }
       var url = Uri.parse('$apiUrl/fin/sales/total/today');
 
-      // Retrieve the token from SharedPreferences
+      // Retrieve the token and refresh token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
-      if (token == null) {
-        throw Exception('Token not found.');
+      if (token == null || refreshToken == null) {
+        throw Exception('Token or refresh token not found.');
       }
+
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
         },
       );
 
@@ -169,8 +172,32 @@ class _SaleDashState extends State<SaleDash> {
           throw Exception('Total value is neither int nor double');
         }
         setState(() {});
+      } else if (response.statusCode == 401 && response.body.contains('You are not logged in')) {
+        // Handle expired token scenario
+        print('Your access token might be expired. Trying to refresh.');
+
+        // Implement logic to refresh token using the refresh token here (replace with your API call)
+        // This is a placeholder, replace with your actual refresh API call
+        final refreshResponse = await http.post(
+            Uri.parse('$apiUrl/auth/refresh'),
+            body: jsonEncode({'refreshToken': refreshToken}));
+
+        if (refreshResponse.statusCode == 200) {
+          final refreshedData = json.decode(refreshResponse.body);
+          final newToken = refreshedData['token'];
+          // Update the access token in SharedPreferences
+          await prefs.setString('token', newToken);
+
+          // Retry the original API call with the new token
+          print('Access token refreshed. Retrying fetchTotalSalesToday.');
+          return fetchTotalSalesToday(); // Recursive call to retry
+        } else {
+          // Handle refresh token failure
+          print('Failed to refresh token. Login required.');
+          throw Exception('Failed to refresh token. Login required.');
+        }
       } else {
-        // Print the status code and the response body to get more details about the error
+        // Handle other errors (e.g., server error)
         print('Failed to load fetchTotalSalesToday. Status code: ${response.statusCode}, Response body: ${response.body}');
         throw Exception('Failed to load fetchTotalSalesToday');
       }
@@ -215,6 +242,7 @@ class _SaleDashState extends State<SaleDash> {
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -222,7 +250,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
         },
       );
 
@@ -259,6 +288,8 @@ class _SaleDashState extends State<SaleDash> {
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -266,7 +297,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
         },
       );
 
@@ -328,6 +360,8 @@ class _SaleDashState extends State<SaleDash> {
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -335,7 +369,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -374,6 +409,8 @@ class _SaleDashState extends State<SaleDash> {
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -381,7 +418,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -417,6 +455,8 @@ class _SaleDashState extends State<SaleDash> {
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -424,7 +464,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -475,6 +516,8 @@ class _SaleDashState extends State<SaleDash> {
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -482,7 +525,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -520,6 +564,8 @@ class _SaleDashState extends State<SaleDash> {
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -527,7 +573,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -554,6 +601,8 @@ class _SaleDashState extends State<SaleDash> {
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -561,7 +610,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -587,6 +637,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/med/patients/phic');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -594,7 +646,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -620,6 +673,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/med/patients/hmo');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -627,7 +682,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -653,6 +709,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/med/patients/company');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -660,7 +718,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
       if (response.statusCode == 200) {
@@ -685,6 +744,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/med/patients/srpwd');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -692,7 +753,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
       if (response.statusCode == 200) {
@@ -717,6 +779,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/fin/insurance/today');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -724,7 +788,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -755,6 +820,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/fin/insurance/today/percentage');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -762,7 +829,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -788,6 +856,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/fin/insurance/month');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -795,7 +865,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -828,6 +899,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/fin/phic_transmittal/today');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -835,7 +908,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -873,6 +947,7 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/fin/phic_transmittal/month');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -881,6 +956,7 @@ class _SaleDashState extends State<SaleDash> {
         url,
         headers: {
           'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
         },
       );
 
@@ -918,6 +994,8 @@ class _SaleDashState extends State<SaleDash> {
       var url = Uri.parse('$apiUrl/med/hospital/kpi');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -925,7 +1003,8 @@ class _SaleDashState extends State<SaleDash> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
@@ -965,6 +1044,8 @@ class _SaleDashState extends State<SaleDash> {
     }
     var url = Uri.parse('$apiUrl/med/hospital/me');
     final token = prefs.getString('token'); // Assuming you saved the token with this key
+    final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
     if (token == null) {
       throw Exception('Token not found.');
@@ -972,7 +1053,8 @@ class _SaleDashState extends State<SaleDash> {
     var response = await http.get(
       url,
       headers: {
-        'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        'Authorization': 'Bearer $token',
+        'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
       },
     );
 
@@ -981,6 +1063,7 @@ class _SaleDashState extends State<SaleDash> {
       setState(() {
         avatarUrl = data['avatar']; // Store the avatar URL
         hospitalName = data['data'][0]['hospital_name']; // Store the hospital name
+
       });
     } else {
       print('Failed to load user data');

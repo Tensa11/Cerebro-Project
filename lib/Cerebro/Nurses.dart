@@ -59,6 +59,7 @@ class _ManageNursesState extends State<ManageNurses> {
     }
     var url = Uri.parse('$apiUrl/med/hospital/me');
     final token = prefs.getString('token'); // Assuming you saved the token with this key
+    final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
     if (token == null) {
       throw Exception('Token not found.');
@@ -67,6 +68,7 @@ class _ManageNursesState extends State<ManageNurses> {
       url,
       headers: {
         'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
       },
     );
 
@@ -89,6 +91,7 @@ class _ManageNursesState extends State<ManageNurses> {
       var url = Uri.parse('$apiUrl/med/nurses');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -96,7 +99,8 @@ class _ManageNursesState extends State<ManageNurses> {
       var response = await http.get(
         url,
         headers: {
-          'Authorization': 'Bearer $token', // Include the token in the Authorization header
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
         },
       );
 
