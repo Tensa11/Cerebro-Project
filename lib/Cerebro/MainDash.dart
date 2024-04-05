@@ -53,27 +53,28 @@ class _SaleDashState extends State<SaleDash> {
     // startListeningToChanges();
     //-----------------------------------------------------------------------
     fetchTotalSalesToday();
-    fetchTotalExpense();
     fetchCashCollection();
-    fetchChequeCollection();
-    fetchTotalDisbursement();
-    fetchSalesMonthChart();
-    fetchSalesYearChart();
-    fetchTotalIPD();
-    fetchTotalOPD();
-    fetchTotalPHIC();
-    fetchTotalHMO();
-    fetchTotalCOMPANY();
-    fetchTotalSENIOR();
-    fetchInsuranceTODAY();
-    fetchInsuranceMONTH();
-    fetchPHICTransmittalTODAY();
-    fetchPHICTransmittalMONTH();
+    // fetchChequeCollection();
+    // fetchTotalExpense();
+    // fetchTotalDisbursement();
+    // fetchSalesMonthChart();
+    // fetchSalesYearChart();
+    // fetchTotalIPD();
+    // fetchTotalOPD();
+    // fetchTotalPHIC();
+    // fetchTotalHMO();
+    // fetchTotalCOMPANY();
+    // fetchTotalSENIOR();
+    // fetchInsuranceTODAY();
+    // fetchInsuranceMONTH();
+    // fetchPHICTransmittalTODAY();
+    // fetchPHICTransmittalMONTH();
+    // fetchKPI();
+    //-----------------------------------------------------------------------
     // fetchPercentSalesToday();
     // fetchPercentCollection();
     // fetchPercentInsuranceTODAY();
-    fetchKPI();
-    //-----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool hasShownAlert = prefs.getBool('hasShownQuickAlert') ?? false;
@@ -167,12 +168,14 @@ class _SaleDashState extends State<SaleDash> {
         } else {
           throw Exception('Total value is neither int nor double');
         }
-        // Update the UI to reflect the fetched total sales
         setState(() {});
       } else {
+        // Print the status code and the response body to get more details about the error
+        print('Failed to load fetchTotalSalesToday. Status code: ${response.statusCode}, Response body: ${response.body}');
         throw Exception('Failed to load fetchTotalSalesToday');
       }
     } catch (e) {
+      // Print the error message
       print('Error fetching fetchTotalSalesToday: $e');
       setState(() {});
     }
@@ -199,6 +202,7 @@ class _SaleDashState extends State<SaleDash> {
       setState(() {});
     }
   }
+
   Future<void> fetchCashCollection() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -234,6 +238,7 @@ class _SaleDashState extends State<SaleDash> {
         }
         setState(() {});
       } else {
+        print('Failed to load fetchCashCollection. Status code: ${response.statusCode}, Response body: ${response.body}');
         throw Exception('Failed to load fetchCashCollection');
       }
     } catch (e) {
@@ -947,6 +952,8 @@ class _SaleDashState extends State<SaleDash> {
 
   String avatarUrl = '';
   String username = '';
+  String hospitalName = '';
+
   Future<void> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
@@ -973,6 +980,7 @@ class _SaleDashState extends State<SaleDash> {
       var data = json.decode(response.body);
       setState(() {
         avatarUrl = data['avatar']; // Store the avatar URL
+        hospitalName = data['data'][0]['hospital_name']; // Store the hospital name
       });
     } else {
       print('Failed to load user data');
@@ -1105,7 +1113,7 @@ class _SaleDashState extends State<SaleDash> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      'latest update $formattedCurrentDate',
+                      'latest update of $hospitalName | $formattedCurrentDate',
                       style: SafeGoogleFont(
                         'Urbanist',
                         fontSize: 12 * size,
@@ -2413,7 +2421,7 @@ class _SaleDashState extends State<SaleDash> {
                                                   axes: <RadialAxis>[
                                                     RadialAxis(
                                                       minimum: 0,
-                                                      maximum: 100, // Adjust the maximum value as needed
+                                                      maximum: 500, // Adjust the maximum value as needed
                                                       showLabels: true,
                                                       showTicks: true,
                                                       ticksPosition: ElementsPosition.outside,
@@ -2426,24 +2434,24 @@ class _SaleDashState extends State<SaleDash> {
                                                       ranges: <GaugeRange>[
                                                         GaugeRange(
                                                             startValue: 0,
-                                                            endValue: 30,
+                                                            endValue: 150,
                                                             color: Colors.greenAccent,
                                                             startWidth: 5,
-                                                            endWidth:25
+                                                            endWidth:30
                                                         ),
                                                         GaugeRange(
-                                                            startValue: 30,
-                                                            endValue: 70,
+                                                            startValue: 150,
+                                                            endValue: 350,
                                                             color: Colors.orangeAccent,
                                                             startWidth: 5,
-                                                            endWidth:25
+                                                            endWidth:30
                                                         ),
                                                         GaugeRange(
-                                                            startValue: 70,
-                                                            endValue: 100,
+                                                            startValue: 350,
+                                                            endValue: 500,
                                                             color: Colors.redAccent,
                                                             startWidth: 5,
-                                                            endWidth:25
+                                                            endWidth:30
                                                         ),
                                                       ],
                                                       pointers: <GaugePointer>[
@@ -2461,9 +2469,9 @@ class _SaleDashState extends State<SaleDash> {
                                                           positionFactor: 0.5,
                                                           angle: 90,
                                                           widget: Text(
-                                                            '${kpi.value}',
+                                                            '${kpi.value} ${kpi.units}',
                                                             style: TextStyle(
-                                                              fontSize: 25,
+                                                              fontSize: 13,
                                                               fontWeight: FontWeight.bold,
                                                               color: Theme.of(context).colorScheme.tertiary,
                                                             ),
@@ -2539,18 +2547,24 @@ class Insurance {
 }
 
 class KPI {
-  final double value; // Change the type to double
+  final int value; // Change the type to int
   final String statusType;
+  final String units;
 
-  KPI({required this.value, required this.statusType});
+  KPI({
+    required this.value,
+    required this.statusType,
+    required this.units
+  });
 
   factory KPI.fromJson(Map<String, dynamic> json) {
-    // Convert the value to a double
-    double value = double.parse(json['value'].toString());
+    int value = json['value'];
     return KPI(
       value: value,
       statusType: json['status_type'],
+      units: json['unit'],
     );
   }
 }
+
 
