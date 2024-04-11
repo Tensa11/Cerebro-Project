@@ -61,9 +61,16 @@ class _LoginState extends State<Login> {
         throw Exception('API_URL environment variable is not defined');
       }
 
+      // Retrieve the refresh token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
       final response = await http.post(
         Uri.parse('$apiUrl/auth/signin'), // Use the retrieved API URL
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': 'refreshToken=$refreshToken', // Include the refresh token in the Cookie header
+        },
         body: jsonEncode({
           "username": username,
           "password": convertedPassword,
@@ -79,17 +86,9 @@ class _LoginState extends State<Login> {
           print('Token: $token'); // Print token in the console
 
           // Save token or handle it as needed
-          final prefs = await SharedPreferences.getInstance();
           await prefs.setString('username', username);
           await prefs.setString('email', data['email'] ?? ''); // Handle null email
           await prefs.setString('token', token);
-
-          // Extract and save the refresh token from the Set-Cookie header
-          final setCookieHeader = response.headers['set-cookie'];
-          if (setCookieHeader != null) {
-            final refreshToken = setCookieHeader.split(';')[0]; // Assuming the refresh token is the first part of the Set-Cookie header
-            await prefs.setString('refreshToken', refreshToken);
-          }
 
           // Navigate to the main dashboard or home screen
           Navigator.of(context).push(
@@ -397,10 +396,36 @@ class LoginSplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       backgroundColor: Theme.of(context).colorScheme.background,
-      splash: Lottie.asset('assets/lottie/LoadingWater.json'),
+      splash: Stack(
+        children: [
+          // Lottie animation in the back
+          Center(
+            child: Container(
+              width: 500,
+              height: 500,
+              child: Lottie.asset('assets/lottie/Logo.json'),
+            ),
+          ),
+          // Image on top
+          Center(
+            child: Container(
+              width: 160, // Specify the width of the image
+              height: 160, // Specify the height of the image
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white, // Set the background color to white
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(90), // Adjust the radius as needed
+                child: Image.asset('assets/logo/applogo.png'), // Replace with your image asset path
+              ),
+            ),
+          ),
+        ],
+      ),
       nextScreen: const SaleDash(),
       splashIconSize: 900,
-      duration: 4500,
+      duration: 3000,
       splashTransition: SplashTransition.fadeTransition,
     );
   }

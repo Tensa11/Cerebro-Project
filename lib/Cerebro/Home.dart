@@ -35,10 +35,8 @@ class _CereDashState extends State<CereDash> {
                 'trans_date': transaction['trans_date'] as String,
               })
           .toList();
-
       // Sort the list based on the trans_date in descending order
       data.sort((a, b) => b['trans_date'].compareTo(a['trans_date']));
-
       print('Total transactions: $data');
       return data;
     } else {

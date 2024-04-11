@@ -1,15 +1,14 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
 
 class Advisory extends StatefulWidget {
   const Advisory({Key? key}) : super(key: key);
@@ -26,7 +25,6 @@ class _AdvisoryState extends State<Advisory> {
     super.initState();
     fetchAdvisory();
     _getUserData();
-
   }
 
   Future<void> fetchAdvisory() async {
@@ -56,7 +54,8 @@ class _AdvisoryState extends State<Advisory> {
           'imageSrc': item['IMAGESRC']
         });
       });
-
+      // Sort the advisories by the advisory number
+      parsedData.sort((b, a) => int.parse(a['id']!).compareTo(int.parse(b['id']!)));
       setState(() {
         advisories = parsedData;
       });
@@ -78,6 +77,7 @@ class _AdvisoryState extends State<Advisory> {
     }
     var url = Uri.parse('$apiUrl/med/hospital/me');
     final token = prefs.getString('token'); // Assuming you saved the token with this key
+    final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
     if (token == null) {
       throw Exception('Token not found.');
@@ -86,6 +86,7 @@ class _AdvisoryState extends State<Advisory> {
       url,
       headers: {
         'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        'Cookie': 'refreshToken=$refreshToken',
       },
     );
 
@@ -228,7 +229,9 @@ class _AdvisoryState extends State<Advisory> {
                       'Get informed! This Advisory page offers essential updates and guidance to optimize your experience within Cerebro',
                       style: SafeGoogleFont(
                         'Urbanist',
-                        fontSize: 12 * size,
+                        fontSize: 12 *
+
+                            size,
                         height: 1.2 * size / sizeAxis,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
@@ -350,7 +353,6 @@ class _AdvisoryState extends State<Advisory> {
           ),
         ));
       }
-
       textSpans.add(TextSpan(
         text: text,
         style: SafeGoogleFont(
@@ -366,10 +368,8 @@ class _AdvisoryState extends State<Advisory> {
             await _launchURL(link);
           },
       ));
-
       prevIndex = match.end;
     });
-
     if (prevIndex < description.length) {
       textSpans.add(TextSpan(
         text: description.substring(prevIndex),
@@ -411,5 +411,4 @@ class _AdvisoryState extends State<Advisory> {
       throw 'Could not launch $url';
     }
   }
-
 }

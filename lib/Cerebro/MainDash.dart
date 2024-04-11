@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
-import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../util/utils.dart';
@@ -22,26 +22,6 @@ class SaleDash extends StatefulWidget {
 }
 
 class _SaleDashState extends State<SaleDash> {
-  late double totalCash = 0;
-  late double totalCheque = 0;
-  late double totalSales = 0;
-  late double totalExpense = 0;
-  late double totalDisbursement = 0;
-  late int totalIPD = 0;
-  late int totalOPD = 0;
-  late int totalPHIC = 0;
-  late int totalHMO = 0;
-  late int totalCOMPANY = 0;
-  late int totalSENIOR = 0;
-  late List<Insurance> insuranceTODAY = [];
-  late double totalInsuranceMONTH = 0;
-  late int totalClaimCount = 0;
-  late double totalClaimAmount = 0;
-  late int percentSales = 0;
-  late int percentCheque = 0;
-  late int percentCash = 0;
-  late int percentInsurance = 0;
-  late List<KPI> kpiData  = [];
 
   final StreamController<bool> _streamController = StreamController<bool>();
   bool _isQuickAlertShown = false;
@@ -67,6 +47,7 @@ class _SaleDashState extends State<SaleDash> {
     fetchTotalSENIOR();
     fetchInsuranceTODAY();
     fetchInsuranceMONTH();
+    fetchPFtoday();
     fetchPHICTransmittalTODAY();
     fetchPHICTransmittalMONTH();
     fetchKPI();
@@ -136,6 +117,7 @@ class _SaleDashState extends State<SaleDash> {
   //   }
   // }
 
+  late double totalSales = 0;
   Future<void> fetchTotalSalesToday() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -208,6 +190,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int percentSales = 0;
   Future<void> fetchPercentSalesToday() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -230,6 +213,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late double totalCash = 0;
   Future<void> fetchCashCollection() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -276,6 +260,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late double totalCheque = 0;
   Future<void> fetchChequeCollection() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -322,6 +307,8 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int percentCash = 0;
+  late int percentCheque = 0;
   Future<void> fetchPercentCollection() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -347,7 +334,6 @@ class _SaleDashState extends State<SaleDash> {
 
   List<SalesMonthData> _chartMonthData = [];
   final List<String> dayNames = List.generate(31, (index) => (index + 1).toString());
-
   Future<void> fetchSalesMonthChart() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -399,6 +385,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late double totalExpense = 0;
   Future<void> fetchTotalExpense() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -445,6 +432,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late double totalDisbursement = 0;
   Future<void> fetchTotalDisbursement() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -505,7 +493,6 @@ class _SaleDashState extends State<SaleDash> {
     'Nov',
     'Dec'
   ];
-
   Future<void> fetchSalesYearChart() async {
     try {
       final apiUrl = dotenv.env['API_URL'];
@@ -554,6 +541,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int totalIPD = 0;
   Future<void> fetchTotalIPD() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -591,6 +579,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int totalOPD = 0;
   Future<void> fetchTotalOPD() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -628,6 +617,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int totalPHIC = 0;
   Future<void> fetchTotalPHIC() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -664,6 +654,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int totalHMO = 0;
   Future<void> fetchTotalHMO() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -700,6 +691,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int totalCOMPANY = 0;
   Future<void> fetchTotalCOMPANY() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -735,6 +727,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int totalSENIOR = 0;
   Future<void> fetchTotalSENIOR() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -770,6 +763,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late List<Insurance> insuranceTODAY = [];
   Future<void> fetchInsuranceTODAY() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -811,6 +805,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int percentInsurance = 0;
   Future<void> fetchPercentInsuranceTODAY() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -847,6 +842,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late double totalInsuranceMONTH = 0;
   Future<void> fetchInsuranceMONTH() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -890,6 +886,8 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late int totalClaimCount = 0;
+  late double totalClaimAmount = 0;
   Future<void> fetchPHICTransmittalTODAY() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -934,10 +932,54 @@ class _SaleDashState extends State<SaleDash> {
       print('Error fetching fetchPHICTransmittalTODAY: $e');
     }
   }
+  double calculateMaxValue(List<ChartData> dataSource) {
+    return dataSource.map((data) => data.value).reduce(max);
+  }
+  late double totalPF = 0;
+  Future<void> fetchPFtoday() async {
+    try {
+      final apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/fin/phic_transmittal/today/pf');
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken');
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        var claimPFTotal = data['data'][0]['amount'];
+        if (claimPFTotal is int || claimPFTotal is double) {
+          totalPF = claimPFTotal.toDouble();
+          print('Total PF: $totalPF'); // Debugging print statement
+        } else {
+          throw Exception('Total value is neither int nor double');
+        }
+        setState(() {}); // Update the UI if necessary
+      } else {
+        throw Exception('Failed to load fetchPFtoday');
+      }
+    } catch (e) {
+      print('Error fetching fetchPFtoday: $e');
+    }
+  }
 
   List<TransMonthData> _chartMonthTransData = [];
   final List<String> dayTransNames = List.generate(31, (index) => (index + 1).toString());
-
   Future<void> fetchPHICTransmittalMONTH() async {
     try {
       final apiUrl = dotenv.env['API_URL'];
@@ -985,6 +1027,7 @@ class _SaleDashState extends State<SaleDash> {
     }
   }
 
+  late List<KPI> kpiData  = [];
   Future<void> fetchKPI() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -1032,7 +1075,6 @@ class _SaleDashState extends State<SaleDash> {
   String avatarUrl = '';
   String username = '';
   String hospitalName = '';
-
   Future<void> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
@@ -1045,7 +1087,6 @@ class _SaleDashState extends State<SaleDash> {
     var url = Uri.parse('$apiUrl/med/hospital/me');
     final token = prefs.getString('token'); // Assuming you saved the token with this key
     final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
-
 
     if (token == null) {
       throw Exception('Token not found.');
@@ -1063,7 +1104,6 @@ class _SaleDashState extends State<SaleDash> {
       setState(() {
         avatarUrl = data['avatar']; // Store the avatar URL
         hospitalName = data['data'][0]['hospital_name']; // Store the hospital name
-
       });
     } else {
       print('Failed to load user data');
@@ -1195,14 +1235,37 @@ class _SaleDashState extends State<SaleDash> {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Text(
-                      'latest update of $hospitalName | $formattedCurrentDate',
-                      style: SafeGoogleFont(
-                        'Urbanist',
-                        fontSize: 12 * size,
-                        height: 1.2 * size / sizeAxis,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'latest update of ',
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 12 * size,
+                            height: 1.2 * size / sizeAxis,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                        ),
+                        Text(
+                          '$hospitalName ',
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 12 * size,
+                            height: 1.2 * size / sizeAxis,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                        ),
+                        Text(
+                          '$formattedCurrentDate',
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 12 * size,
+                            height: 1.2 * size / sizeAxis,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -1210,7 +1273,7 @@ class _SaleDashState extends State<SaleDash> {
               SizedBox(height: 15),
               Divider(color: Theme.of(context).colorScheme.secondary,),
               SizedBox(height: 15),
-              // Sales of the day--------------------------
+              // Sales of the day-----------------------------------------------
               Row(
                 children: [
                   Expanded(
@@ -1276,7 +1339,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // -------------------------------------
+              // Cash and Cheque------------------------------------------------
               Container(
                 margin: EdgeInsets.fromLTRB(
                     5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
@@ -1298,7 +1361,6 @@ class _SaleDashState extends State<SaleDash> {
                   ],
                 ),
               ),
-              // Cash and Cheque--------------------------
               Row(
                 children: [
                   Expanded(
@@ -1439,7 +1501,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Sales BarChart Month--------------------------
+              // Sales BarChart Month-------------------------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -1514,7 +1576,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
-              // Expense and Disbursement of the day--------------------------
+              // Expense and Disbursement of the day----------------------------
               Container(
                 margin: EdgeInsets.fromLTRB(
                     5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
@@ -1653,7 +1715,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Sales of the year--------------------------
+              // Sales of the year----------------------------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -1728,7 +1790,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 20),
-              // --------------------------------------
+              // Patients Data--------------------------------------------------
               Container(
                 margin: EdgeInsets.fromLTRB(
                     5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
@@ -1750,7 +1812,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
-              // IPD and OPD--------------------------
+              // IPD and OPD----------------------------------------------------
               Row(
                 children: [
                   Expanded(
@@ -1865,7 +1927,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // PHIC and HMO--------------------------
+              // PHIC and HMO---------------------------------------------------
               Row(
                 children: [
                   Expanded(
@@ -1980,7 +2042,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Company and Senior--------------------------
+              // Company and Senior---------------------------------------------
               Row(
                 children: [
                   Expanded(
@@ -2094,7 +2156,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 10),
-              // Insurance of the Day and Month--------------------------
+              // Insurance of the Day and Month---------------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -2261,7 +2323,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
-              // Transmittal of the day--------------------------
+              // Transmittal of the day-----------------------------------------
               Row(
                 children: [
                   Expanded(
@@ -2292,11 +2354,92 @@ class _SaleDashState extends State<SaleDash> {
                                   color: Colors.white,
                                 ),
                               ),
-                              SizedBox(height: 15),
+                              SizedBox(height: 12),
+                              Divider(color: Colors.white),
+                              SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.square,
+                                    color: Colors.redAccent,
+                                    size: 15 * size,
+                                  ),
+                                  Text(
+                                    ' Claim Amount',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.square,
+                                    color: Colors.amber,
+                                    size: 15 * size,
+                                  ),
+                                  Text(
+                                    ' PF',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Center(
+                                child: Container(
+                                  width: 250,
+                                  height: 250,
+                                  child: SfCircularChart(
+                                    palette: <Color>[Colors.redAccent, Colors.amber],
+                                    series: <CircularSeries>[
+                                      PieSeries<ChartData, String>(
+                                        strokeWidth: 5,
+                                        strokeColor: Colors.white,
+                                        dataSource: <ChartData>[
+                                          ChartData('Total Claim Amount', totalClaimAmount),
+                                          ChartData('PF', totalPF),
+                                        ],
+                                        xValueMapper: (ChartData data, _) => data.name,
+                                        yValueMapper: (ChartData data, _) => data.value,
+                                        // Dynamically set the radius based on the highest data value
+                                        pointRadiusMapper: (ChartData data, _) {
+                                          double maxValue = calculateMaxValue([
+                                            ChartData('Total Claim Amount', totalClaimAmount),
+                                            ChartData('PF', totalPF),
+                                          ]);
+                                          double radiusPercentage = 40 + ((data.value / maxValue) * 40);
+                                          return radiusPercentage.toString() + '%';
+                                        },
+                                        // Customize the appearance of the labels
+                                        dataLabelSettings: DataLabelSettings(
+                                          isVisible: true,
+                                          textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12 * size,
+                                            height: 1.2 * size / sizeAxis,
+                                            fontFamily: 'Urbanist',
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        enableTooltip: true,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 13),
                               Row(
                                 children: [
                                   Text(
-                                    'Total Claims: ',
+                                    'Total Claim Counts: ',
                                     style: SafeGoogleFont(
                                       'Urbanist',
                                       fontSize: 15 * size,
@@ -2320,7 +2463,7 @@ class _SaleDashState extends State<SaleDash> {
                               Row(
                                 children: [
                                   Text(
-                                    'Amount: ',
+                                    'Total Claim Amount: ',
                                     style: SafeGoogleFont(
                                       'Urbanist',
                                       fontSize: 15 * size,
@@ -2340,6 +2483,30 @@ class _SaleDashState extends State<SaleDash> {
                                   ),
                                 ],
                               ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Text(
+                                    'PF: ',
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    '₱ ${NumberFormat('#,##0.00').format(totalPF)}',
+                                    style: SafeGoogleFont(
+                                      'Inter',
+                                      fontSize: 17 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -2349,7 +2516,7 @@ class _SaleDashState extends State<SaleDash> {
                 ],
               ),
               SizedBox(height: 5),
-              // Transmittal Month--------------------------
+              // Transmittal Month----------------------------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -2423,7 +2590,7 @@ class _SaleDashState extends State<SaleDash> {
                 ),
               ),
               SizedBox(height: 10),
-              // KPI --------------------------
+              // KPI -----------------------------------------------------------
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Card(
@@ -2525,7 +2692,7 @@ class _SaleDashState extends State<SaleDash> {
                                                         GaugeRange(
                                                             startValue: 150,
                                                             endValue: 350,
-                                                            color: Colors.orangeAccent,
+                                                            color: Colors.amber,
                                                             startWidth: 5,
                                                             endWidth:30
                                                         ),
@@ -2627,6 +2794,13 @@ class Insurance {
       amount: json['amount'].toString(), // Parse the amount as a string
     );
   }
+}
+
+class ChartData {
+  ChartData(this.name, this.value);
+
+  final String name;
+  final double value;
 }
 
 class KPI {

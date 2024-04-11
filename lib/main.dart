@@ -11,6 +11,8 @@ import 'Cerebro/Example.dart';
 import 'Cerebro/LandV2.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'Cerebro/TestDash.dart';
+
 late SharedPreferences _prefs;
 
 Future<void> main() async {
@@ -49,7 +51,34 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       backgroundColor: Theme.of(context).colorScheme.background,
-      splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
+      // splash: Lottie.asset('assets/lottie/LottieAnimIntro.json'),
+      splash: Stack(
+        children: [
+          // Lottie animation in the back
+          Center(
+            child: Container(
+              width: 500,
+              height: 500,
+              child: Lottie.asset('assets/lottie/Logo.json'),
+            ),
+          ),
+          // Image on top
+          Center(
+            child: Container(
+              width: 160, // Specify the width of the image
+              height: 160, // Specify the height of the image
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white, // Set the background color to white
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(90), // Adjust the radius as needed
+                child: Image.asset('assets/logo/applogo.png'), // Replace with your image asset path
+              ),
+            ),
+          ),
+        ],
+      ),
       nextScreen: const LandingPage(),
       splashIconSize: 900,
       duration: 2900,

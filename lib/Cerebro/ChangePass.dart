@@ -129,6 +129,7 @@ class _ChangePassState extends State<ChangePass> {
     }
     var url = Uri.parse('$apiUrl/med/hospital/me');
     final token = prefs.getString('token'); // Assuming you saved the token with this key
+    final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
     if (token == null) {
       throw Exception('Token not found.');
@@ -137,6 +138,7 @@ class _ChangePassState extends State<ChangePass> {
       url,
       headers: {
         'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        'Cookie': 'refreshToken=$refreshToken',
       },
     );
 
