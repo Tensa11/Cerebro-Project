@@ -30,7 +30,8 @@ class _SaleDashState extends State<SaleDash> {
   void initState() {
     super.initState();
     _getUserData();
-    // startListeningToChanges();
+    _getHospitalData();
+    startListeningToChanges();
     //-----------------------------------------------------------------------
     fetchTotalSalesToday();
     fetchCashCollection();
@@ -83,39 +84,47 @@ class _SaleDashState extends State<SaleDash> {
     super.dispose();
   }
 
-  // void startListeningToChanges() {
-  //   Timer.periodic(Duration(seconds: 50.0), (timer) {
-  //     // Check for database changes periodically
-  //     fetchDataAndNotify(); // Fetch data and notify listeners
-  //   });
-  // }
+  void startListeningToChanges() {
+    Timer.periodic(Duration(seconds: 60), (timer) {
+      // Check for database changes periodically
+      fetchDataAndNotify(); // Fetch data and notify listeners
+    });
+  }
 
-  // void fetchDataAndNotify() async {
-  //   try {
-  //     await fetchTotalSalesToday();
-  //     await fetchTotalExpense();
-  //     await fetchTotalCollection();
-  //     await fetchTotalDisbursement();
-  //     await fetchSalesMonthChart();
-  //     await fetchSalesYearChart();
-  //     await fetchTotalIPD();
-  //     await fetchTotalOPD();
-  //     await fetchTotalPHIC();
-  //     await fetchTotalHMO();
-  //     await fetchTotalCOMPANY();
-  //     await fetchTotalSENIOR();
-  //     await fetchInsuranceTODAY();
-  //     await fetchInsuranceMONTH();
-  //     await fetchPHICTransmittalTODAY();
-  //     await fetchPHICTransmittalMONTH();
-  //     await fetchPercentSalesToday();
-  //     await fetchPercentCollection();
-  //     await fetchPercentInsuranceTODAY();
-  //     _streamController.add(true); // Notify listeners about the change
-  //   } catch (e) {
-  //     print('Error fetching data: $e');
-  //   }
-  // }
+  void fetchDataAndNotify() async {
+    try {
+      await _getUserData();
+      await _getHospitalData();
+      //-----------------------------------------------------------------------
+      await fetchTotalSalesToday();
+      await fetchCashCollection();
+      await fetchChequeCollection();
+      await fetchTotalExpense();
+      await fetchTotalDisbursement();
+      await fetchSalesMonthChart();
+      await fetchSalesYearChart();
+      await fetchTotalIPD();
+      await fetchTotalOPD();
+      await fetchTotalPHIC();
+      await fetchTotalHMO();
+      await fetchTotalCOMPANY();
+      await fetchTotalSENIOR();
+      await fetchInsuranceTODAY();
+      await fetchInsuranceMONTH();
+      await fetchPFtoday();
+      await fetchPHICTransmittalTODAY();
+      await fetchPHICTransmittalMONTH();
+      await fetchKPI();
+      //-----------------------------------------------------------------------
+      // await fetchPercentSalesToday();
+      // await fetchPercentCollection();
+      // await fetchPercentInsuranceTODAY();
+      // -----------------------------------------------------------------------
+      _streamController.add(true); // Notify listeners about the change
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
 
   late double totalSales = 0;
   Future<void> fetchTotalSalesToday() async {
@@ -124,17 +133,17 @@ class _SaleDashState extends State<SaleDash> {
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
+
       var url = Uri.parse('$apiUrl/fin/sales/total/today');
 
-      // Retrieve the token and refresh token from SharedPreferences
+      // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
-      if (token == null || refreshToken == null) {
-        throw Exception('Token or refresh token not found.');
+      if (token == null) {
+        throw Exception('Token not found.');
       }
-
       var response = await http.get(
         url,
         headers: {
@@ -145,46 +154,20 @@ class _SaleDashState extends State<SaleDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        var totalValue = data['data'][0]['total'];
-        if (totalValue is int) {
-          totalSales = totalValue.toDouble();
-        } else if (totalValue is double) {
-          totalSales = totalValue;
+        var cashTotal = data['data'][0]['total'];
+        if (cashTotal is int) {
+          totalSales = cashTotal.toDouble();
+        } else if (cashTotal is double) {
+          totalSales = cashTotal;
         } else {
-          throw Exception('Total value is neither int nor double');
+          throw Exception('totalSales value is neither int nor double');
         }
         setState(() {});
-      } else if (response.statusCode == 401 && response.body.contains('You are not logged in')) {
-        // Handle expired token scenario
-        print('Your access token might be expired. Trying to refresh.');
-
-        // Implement logic to refresh token using the refresh token here (replace with your API call)
-        // This is a placeholder, replace with your actual refresh API call
-        final refreshResponse = await http.post(
-            Uri.parse('$apiUrl/auth/refresh'),
-            body: jsonEncode({'refreshToken': refreshToken}));
-
-        if (refreshResponse.statusCode == 200) {
-          final refreshedData = json.decode(refreshResponse.body);
-          final newToken = refreshedData['token'];
-          // Update the access token in SharedPreferences
-          await prefs.setString('token', newToken);
-
-          // Retry the original API call with the new token
-          print('Access token refreshed. Retrying fetchTotalSalesToday.');
-          return fetchTotalSalesToday(); // Recursive call to retry
-        } else {
-          // Handle refresh token failure
-          print('Failed to refresh token. Login required.');
-          throw Exception('Failed to refresh token. Login required.');
-        }
       } else {
-        // Handle other errors (e.g., server error)
         print('Failed to load fetchTotalSalesToday. Status code: ${response.statusCode}, Response body: ${response.body}');
         throw Exception('Failed to load fetchTotalSalesToday');
       }
     } catch (e) {
-      // Print the error message
       print('Error fetching fetchTotalSalesToday: $e');
       setState(() {});
     }
@@ -1072,44 +1055,53 @@ class _SaleDashState extends State<SaleDash> {
   String formattedCurrentMonth = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
   String formattedCurrentYear = DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
-  String avatarUrl = '';
-  String username = '';
-  String hospitalName = '';
+  late String avatarUrl = '';
+  late String username = '';
+  late String hospitalName = '';
   Future<void> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
+    setState(() {}); // Update the UI with retrieved data
+  }
+  Future<void> _getHospitalData() async {
+    try {
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/hospital/me');
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
-    // Fetch the avatar URL
-    final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
-    if (apiUrl == null) {
-      throw Exception('API_URL environment variable is not defined');
-    }
-    var url = Uri.parse('$apiUrl/med/hospital/me');
-    final token = prefs.getString('token'); // Assuming you saved the token with this key
-    final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
 
-    if (token == null) {
-      throw Exception('Token not found.');
-    }
-    var response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
-      },
-    );
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        String? avatar = data['avatar']; // Store the avatar URL
+        String? hospital = data['data'][0]['hospital_name']; // Store the hospital name
 
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      setState(() {
-        avatarUrl = data['avatar']; // Store the avatar URL
-        hospitalName = data['data'][0]['hospital_name']; // Store the hospital name
-      });
-    } else {
-      print('Failed to load user data');
+        setState(() {
+          avatarUrl = avatar ?? ''; // If avatar is null, assign an empty string
+          hospitalName = hospital ?? ''; // If hospital name is null, assign an empty string
+        });
+      } else {
+        throw Exception('Failed to load total _getHospitalData');
+      }
+    } catch (e) {
+      print('Error fetching total _getHospitalData: $e');
+      setState(() {});
     }
   }
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -2749,7 +2741,7 @@ class _SaleDashState extends State<SaleDash> {
                   ),
                 ),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 20),
             ],
           ),
         ),
@@ -2790,7 +2782,7 @@ class Insurance {
 
   factory Insurance.fromJson(Map<String, dynamic> json) {
     return Insurance(
-      name: json['name'],
+      name: json['name'] ?? 'No Name',
       amount: json['amount'].toString(), // Parse the amount as a string
     );
   }

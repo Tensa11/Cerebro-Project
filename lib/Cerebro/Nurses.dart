@@ -324,11 +324,11 @@ class _ManageNursesState extends State<ManageNurses> {
                       return GestureDetector(
                         onTap: () {
                           // Navigate to the next page when a list item is tapped
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => Details(),
-                            ),
-                          );
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //     builder: (context) => Details(),
+                          //   ),
+                          // );
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -391,6 +391,7 @@ class _ManageNursesState extends State<ManageNurses> {
                 ),
               ),
             ),
+            SizedBox(height: 20),
           ],
         ),
       ),

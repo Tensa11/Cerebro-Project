@@ -385,11 +385,11 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                       return GestureDetector(
                         onTap: () {
                           // Navigate to the next page when a list item is tapped
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => Details(),
-                            ),
-                          );
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //     builder: (context) => Details(),
+                          //   ),
+                          // );
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -450,9 +450,9 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
                     }
                   },
                 ),
-
               ),
             ),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -499,14 +499,14 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
 
 class Physician {
   final String id;
-  final int pin;
+  final int token;
   final String doctorName;
   final String specialty;
-  final int isActive; // Change the type to int
+  final int isActive;
 
   Physician({
     required this.id,
-    required this.pin,
+    required this.token,
     required this.doctorName,
     required this.specialty,
     required this.isActive,
@@ -514,11 +514,11 @@ class Physician {
 
   factory Physician.fromJson(Map<String, dynamic> json) {
     return Physician(
-      id: json['id'],
-      pin: json['pin'],
-      doctorName: json['doctor_name'],
-      specialty: json['specialty'],
-      isActive: json['is_active'], // Update the type here
+      id: json['id'] ?? '', // Assuming id cannot be null, if it can, handle accordingly
+      token: json['token'] ?? 0, // Provide a default value for token
+      doctorName: json['doctor_name'] ?? '', // Provide a default value for doctorName
+      specialty: json['specialty'] ?? '', // Provide a default value for specialty
+      isActive: json['is_active'] ?? 0, // Provide a default value for isActive
     );
   }
 }

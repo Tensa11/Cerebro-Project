@@ -1,3 +1,4 @@
+import 'package:Cerebro/Cerebro/AI.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -229,9 +230,7 @@ class _AdvisoryState extends State<Advisory> {
                       'Get informed! This Advisory page offers essential updates and guidance to optimize your experience within Cerebro',
                       style: SafeGoogleFont(
                         'Urbanist',
-                        fontSize: 12 *
-
-                            size,
+                        fontSize: 12 * size,
                         height: 1.2 * size / sizeAxis,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
@@ -253,6 +252,18 @@ class _AdvisoryState extends State<Advisory> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AiChat()),
+          );
+        },
+        child: Icon(
+          Icons.chat,
+          color: Theme.of(context).colorScheme.tertiary),
       ),
     );
   }

@@ -42,6 +42,7 @@ class _CereDrawerState extends State<CereDrawer> {
     setState(() {}); // Update the UI with retrieved data
   }
 
+  String avatarUrl = '';
   Future<void> _getHospitalData() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -66,8 +67,12 @@ class _CereDrawerState extends State<CereDrawer> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
+        String? avatar = data['avatar']; // Store the avatar URL
+        String? hospital = data['data'][0]['hospital_name']; // Store the hospital name
+
         setState(() {
-          hospitalName = data['data'][0]['hospital_name']; // Store the hospital name
+          avatarUrl = avatar ?? ''; // If avatar is null, assign an empty string
+          hospitalName = hospital ?? ''; // If hospital name is null, assign an empty string
         });
       } else {
         throw Exception('Failed to load total _getHospitalData');
@@ -283,25 +288,18 @@ class _CereDrawerState extends State<CereDrawer> {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.clear();
 
-                      // Navigate to Login screen and pop the drawer
+                      // Navigate to the login screen
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const Login(),
-                        ),
+                        MaterialPageRoute(builder: (context) => Login()),
                       );
-                      Navigator.pop(context); // Close the drawer
-
-                      SystemNavigator.pop(); // Disable back button (optional)
                     } catch (e) {
-                      print('Error logging out: $e');
-                      // Handle errors (optional)
-                    } finally {
-                      // Hide loading indicator after logout is complete
-                      Navigator.of(context, rootNavigator: true).pop();
+                      // Handle any errors
+                      print(e);
                     }
                   },
                 );
               },
+
             ),
           ],
         ),

@@ -18,7 +18,6 @@ late SharedPreferences _prefs;
 Future<void> main() async {
   // Load environment variables
   await dotenv.load();
-
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
