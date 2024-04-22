@@ -45,7 +45,6 @@ class _HistoryPageState extends State<HistoryPage> {
     super.dispose();
   }
 
-
   void startListeningToChanges() {
     Timer.periodic(Duration(seconds: 3), (timer) {
       // Check for database changes periodically

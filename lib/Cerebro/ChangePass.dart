@@ -53,7 +53,6 @@ class _ChangePassState extends State<ChangePass> {
         return;
       }
 
-
       if (newPassword != confirmPassword) {
         setState(() {
           _errorMessage = 'New password and Confirm password do not match.';

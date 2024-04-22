@@ -10,7 +10,6 @@ class GetStarted extends StatefulWidget {
   _GetStartedState createState() => _GetStartedState();
 }
 
-
 class _GetStartedState extends State<GetStarted> {
   @override
   Widget build(BuildContext context) {

@@ -12,7 +12,6 @@ class ManageAdmin extends StatefulWidget {
 }
 
 class _ManageAdminState extends State<ManageAdmin> {
-
   @override
   Widget build(BuildContext context) {
     double baseWidth = 375;

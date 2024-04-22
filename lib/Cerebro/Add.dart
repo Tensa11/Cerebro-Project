@@ -19,7 +19,6 @@ class _CereAddState extends State<CereAdd> {
   TextEditingController dateTimeController = TextEditingController();
   TextEditingController amountController = TextEditingController();
 
-
   String generateRandomItem() {
     List<String> items = [
       'Coffee Mug',

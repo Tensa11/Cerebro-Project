@@ -398,7 +398,6 @@ class _LoginState extends State<Login> {
   }
 }
 
-
 class LoginSplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

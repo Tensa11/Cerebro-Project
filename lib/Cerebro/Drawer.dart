@@ -36,7 +36,6 @@ class _CereDrawerState extends State<CereDrawer> {
     _getHospitalData();
   }
 
-
   Future<void> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';

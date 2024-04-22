@@ -277,7 +277,6 @@ class _TestDashState extends State<TestDash> {
     ];
   }
 
-
   Widget _generateBadge(String type) {
     IconData iconData = type == 'Admins' ? Icons.person : Icons.work;
     Color iconColor = type == 'Admins' ? Colors.blue : Colors.green;

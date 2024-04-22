@@ -22,7 +22,6 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
   late List<Physician> physicians = [];
   late String dropdownValue = 'Filter';
 
-
   late List<Physician> filteredPhysicians;
   TextEditingController searchController = TextEditingController();
 

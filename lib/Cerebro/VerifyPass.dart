@@ -23,7 +23,6 @@ class _VerifyPassState extends State<VerifyPass> {
     double baseWidth = 400;
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;// Check if the user is already authenticated and their role
-
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Remove debug banner
       home: Scaffold(

@@ -271,7 +271,6 @@ class _AdvisoryState extends State<Advisory> {
     );
   }
 
-
   Widget buildAdvisoryCard(Map<String, String> advisory, double size, double sizeAxis) {
     return Card(
       clipBehavior: Clip.antiAlias,
