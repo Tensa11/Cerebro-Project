@@ -41,6 +41,7 @@ class _ManageNursesState extends State<ManageNurses> {
     filteredNurses = List.from(nurses); // Initialize with all nurses
   }
 
+
   @override
   void dispose() {
     _scrollController.dispose(); // Dispose scroll controller

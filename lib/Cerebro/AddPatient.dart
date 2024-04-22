@@ -18,6 +18,7 @@ class _AddPatientState extends State<AddPatient> {
   late TextEditingController dobController;
   String? selectedGender;
 
+
   TextEditingController firstNameController =
       TextEditingController(); // Add a TextEditingController for the reference input
   TextEditingController lastNameController = TextEditingController();

@@ -17,6 +17,7 @@ class _VerifyPassState extends State<VerifyPass> {
 
   bool _isObscure = true;
 
+
   @override
   Widget build(BuildContext context) {
     double baseWidth = 400;

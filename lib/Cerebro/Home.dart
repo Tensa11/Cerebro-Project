@@ -21,6 +21,7 @@ class _CereDashState extends State<CereDash> {
     fetchData(); // Fetch data when the widget is initialized
   }
 
+
   Future<List<Map<String, dynamic>>> fetchData() async {
     var url = Uri.parse('http://192.168.18.58:3000');
     var response = await http.get(url);

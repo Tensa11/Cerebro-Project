@@ -7,6 +7,7 @@ class CustomAppBar extends StatelessWidget {
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     // double size = sizeAxis * 0.97;
 
+
     return Container(
       margin: EdgeInsets.fromLTRB(
           0 * sizeAxis, 30 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
