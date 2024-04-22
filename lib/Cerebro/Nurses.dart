@@ -288,15 +288,7 @@ class _ManageNursesState extends State<ManageNurses> {
               width: 331 * sizeAxis,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: Theme.of(context).colorScheme.primary,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 1,
-                    blurRadius: 2,
-                    offset: Offset(0, 1), // changes position of shadow
-                  ),
-                ],
+                color: Theme.of(context).colorScheme.secondary,
               ),
               child: TextField(
                 controller: searchController,
@@ -304,7 +296,9 @@ class _ManageNursesState extends State<ManageNurses> {
                 decoration: InputDecoration(
                   labelText: "Search",
                   hintText: "Search for Nurses",
-                  prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary,),
+                  labelStyle: TextStyle(color: Colors.white),
+                  hintStyle: TextStyle(color: Colors.white),
+                  prefixIcon: Icon(Icons.search, color: Colors.white,),
                   border: InputBorder.none, // Remove the underline
                 ),
               ),

@@ -1,5 +1,4 @@
 import 'package:Cerebro/Cerebro/AI.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +25,7 @@ class _AdvisoryState extends State<Advisory> {
   void initState() {
     super.initState();
     fetchAdvisory();
-    _getAvatarData();
+    _getUserData();
   }
 
   Future<void> fetchAdvisory() async {
@@ -68,41 +67,37 @@ class _AdvisoryState extends State<Advisory> {
 
   String avatarUrl = '';
   String username = '';
-  Future<void> _getAvatarData() async {
-    try {
-      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
-      if (apiUrl == null) {
-        throw Exception('API_URL environment variable is not defined');
-      }
-      var url = Uri.parse('$apiUrl/med/hospital/me');
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); // Assuming you saved the token with this key
-      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
 
-      if (token == null) {
-        throw Exception('Token not found.');
-      }
-      var response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Cookie': 'refreshToken=$refreshToken',
-        },
-      );
+    // Fetch the avatar URL
+    final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+    if (apiUrl == null) {
+      throw Exception('API_URL environment variable is not defined');
+    }
+    var url = Uri.parse('$apiUrl/med/hospital/me');
+    final token = prefs.getString('token'); // Assuming you saved the token with this key
+    final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        String? avatar = data['avatar']; // Store the avatar URL
+    if (token == null) {
+      throw Exception('Token not found.');
+    }
+    var response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token', // Include the token in the Authorization header
+        'Cookie': 'refreshToken=$refreshToken',
+      },
+    );
 
-        setState(() {
-          avatarUrl = avatar ?? ''; // If avatar is null, assign an empty string
-        });
-      } else {
-        throw Exception('Failed to load total _getHospitalData');
-      }
-    } catch (e) {
-      print('Error fetching total _getHospitalData: $e');
-      setState(() {});
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      setState(() {
+        avatarUrl = data['avatar']; // Store the avatar URL
+      });
+    } else {
+      print('Failed to load user data');
     }
   }
 
@@ -181,13 +176,13 @@ class _AdvisoryState extends State<Advisory> {
               ),
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                  imageUrl: avatarUrl,
+                    ? Image.network(
+                  avatarUrl,
                   height: 40,
                   width: 40,
                   fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
-                ) : Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl is empty
+                )
+                    : Container(), // Removed the fallback to RandomAvatar
               ),
             ),
           ),
@@ -245,12 +240,15 @@ class _AdvisoryState extends State<Advisory> {
               ),
               SizedBox(height: 30),
               // List of advisories
-              ListView.builder(
+              ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: advisories.length,
                 itemBuilder: (context, index) {
                   return buildAdvisoryCard(advisories[index], size, sizeAxis);
+                },
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 10); // Adjust the height as needed
                 },
               ),
               SizedBox(height: 30),
@@ -258,18 +256,18 @@ class _AdvisoryState extends State<Advisory> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AiChat()),
-          );
-        },
-        child: Icon(
-          Icons.chat,
-          color: Theme.of(context).colorScheme.tertiary),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: Theme.of(context).colorScheme.secondary,
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (context) => AiChat()),
+      //     );
+      //   },
+      //   child: Icon(
+      //       Icons.chat,
+      //       color: Theme.of(context).colorScheme.tertiary),
+      // ),
     );
   }
 

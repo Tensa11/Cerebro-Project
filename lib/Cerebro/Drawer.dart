@@ -11,11 +11,11 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Advisory.dart';
+import 'History.dart';
 import 'Login.dart';
 import '../util/utils.dart';
 import 'Nurses.dart';
 import 'package:http/http.dart' as http;
-
 
 class CereDrawer extends StatefulWidget {
   const CereDrawer({Key? key}) : super(key: key);
@@ -156,7 +156,29 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => SaleDash(),
+                    builder: (context) => MainDash(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.history_edu,
+                color: const Color(0xffe33924), // Changed icon color
+              ),
+              title: Text(
+                'History',
+                style: SafeGoogleFont(
+                  'Urbanist',
+                  fontSize: 13 * size,
+                  height: 1.2 * size / sizeAxis,
+                  color: const Color(0xFF13A4FF),
+                ),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => HistoryPage(),
                   ),
                 );
               },
@@ -272,7 +294,8 @@ class _CereDrawerState extends State<CereDrawer> {
                   text: 'Are you sure you want to log out?',
                   confirmBtnText: 'Logout',
                   cancelBtnText: 'Cancel',
-                  confirmBtnColor: Theme.of(context).primaryColor, // Optional: Set button color
+                  headerBackgroundColor: Color(0xFF13A4FF),
+                  confirmBtnColor: Colors.black, // Optional: Set button color
                   onConfirmBtnTap: () async {
                     try {
                       // Show loading indicator while logging out

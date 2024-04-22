@@ -430,7 +430,7 @@ class LoginSplashScreen extends StatelessWidget {
           ),
         ],
       ),
-      nextScreen: const SaleDash(),
+      nextScreen: const MainDash(),
       splashIconSize: 900,
       duration: 3000,
       splashTransition: SplashTransition.fadeTransition,

@@ -14,7 +14,7 @@ ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
       background: Color(0xFF010D23),
-      primary: Color(0xFF041648),
+      primary: Color(0xFF081E65),
       secondary: Color(0xFF081E65),
       tertiary: Color(0xFFFFFFFF)
   ),

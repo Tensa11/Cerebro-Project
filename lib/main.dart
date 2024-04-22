@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Cerebro/Advisory.dart';
 import 'Cerebro/Example.dart';
 import 'Cerebro/LandV2.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -84,7 +83,7 @@ class SplashScreen extends StatelessWidget {
             splashTransition: SplashTransition.fadeTransition,
           );
         } else if (snapshot.hasData && snapshot.data == true) {
-          return SaleDash(); // If the user is logged in, navigate to the LandV2 (Landing Page)
+          return MainDash(); // If the user is logged in, navigate to the LandV2 (Landing Page)
         } else {
           return LandingPage(); // If the user is not logged in, navigate to the LoginPage
         }
