@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -36,7 +37,7 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
     super.initState();
     _scrollController = ScrollController(); // Initialize scroll controller
     fetchPhysicians();
-    _getUserData();
+    _getAvatarData();
     filteredPhysicians = List.from(physicians); // Initialize with all physicians
   }
 
@@ -121,37 +122,41 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
 
   String avatarUrl = '';
   String username = '';
-  Future<void> _getUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    username = prefs.getString('username') ?? '';
+  Future<void> _getAvatarData() async {
+    try {
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/hospital/me');
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
-    // Fetch the avatar URL
-    final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
-    if (apiUrl == null) {
-      throw Exception('API_URL environment variable is not defined');
-    }
-    var url = Uri.parse('$apiUrl/med/hospital/me');
-    final token = prefs.getString('token'); // Assuming you saved the token with this key
-    final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
 
-    if (token == null) {
-      throw Exception('Token not found.');
-    }
-    var response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token', // Include the token in the Authorization header
-        'Cookie': 'refreshToken=$refreshToken',
-      },
-    );
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        String? avatar = data['avatar']; // Store the avatar URL
 
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      setState(() {
-        avatarUrl = data['avatar']; // Store the avatar URL
-      });
-    } else {
-      print('Failed to load user data');
+        setState(() {
+          avatarUrl = avatar ?? ''; // If avatar is null, assign an empty string
+        });
+      } else {
+        throw Exception('Failed to load total _getHospitalData');
+      }
+    } catch (e) {
+      print('Error fetching total _getHospitalData: $e');
+      setState(() {});
     }
   }
 
@@ -236,13 +241,13 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
               ),
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
-                    ? Image.network(
-                  avatarUrl,
+                    ? CachedNetworkImage(
+                  imageUrl: avatarUrl,
                   height: 40,
                   width: 40,
                   fit: BoxFit.cover,
-                )
-                    : Container(), // Removed the fallback to RandomAvatar
+                  errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
+                ) : Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl is empty
               ),
             ),
           ),
