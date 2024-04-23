@@ -1,4 +1,3 @@
-import 'package:Cerebro/Cerebro/AI.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +24,7 @@ class _AdvisoryState extends State<Advisory> {
   void initState() {
     super.initState();
     fetchAdvisory();
+    _getAvatarData();
     _getUserData();
   }
 
@@ -67,7 +67,7 @@ class _AdvisoryState extends State<Advisory> {
 
   String avatarUrl = '';
   String username = '';
-  Future<void> _getUserData() async {
+  Future<void> _getAvatarData() async {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
 
@@ -99,6 +99,11 @@ class _AdvisoryState extends State<Advisory> {
     } else {
       print('Failed to load user data');
     }
+  }
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    setState(() {}); // Update the UI with retrieved data
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();

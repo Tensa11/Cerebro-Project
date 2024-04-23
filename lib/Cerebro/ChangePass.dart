@@ -33,6 +33,7 @@ class _ChangePassState extends State<ChangePass> {
   void initState() {
     super.initState();
     _getAvatarData();
+    _getUserData();
   }
 
   Future<void> changePassword() async {
@@ -156,6 +157,12 @@ class _ChangePassState extends State<ChangePass> {
       setState(() {});
     }
   }
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    setState(() {}); // Update the UI with retrieved data
+  }
+
 
   @override
   Widget build(BuildContext context) {

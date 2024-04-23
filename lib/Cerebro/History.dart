@@ -11,7 +11,6 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
 import 'package:http/http.dart' as http;
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({Key? key}) : super(key: key);
@@ -22,6 +21,7 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   final StreamController<bool> _streamController = StreamController<bool>();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -445,6 +445,23 @@ class _HistoryPageState extends State<HistoryPage> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.secondary, // Header and selected day background color
+              onPrimary: Theme.of(context).colorScheme.tertiary, // Titles and selected day text color
+              onSurface: Theme.of(context).colorScheme.background, // Month days and years text color
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.secondary, // OK and Cancel buttons text color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (pickedDate != null) {
       _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
@@ -571,6 +588,16 @@ class _HistoryPageState extends State<HistoryPage> {
                           color: const Color(0xFFFFFFFF),
                         ),
                       ),
+                      SizedBox(height: 5),
+                      Text(
+                        "If nothing happens just wait for 5 seconds",
+                        style: SafeGoogleFont(
+                          'Urbanist',
+                          fontSize: 14 * size,
+                          height: 1.2 * size / sizeAxis,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                      ),
                       SizedBox(height: 30),
                       Container(
                         margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
@@ -610,6 +637,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       child: Column(
                         children: [
                           SizedBox(height: 30),
+                          // Sales
                           Row(
                             children: [
                               Expanded(
@@ -702,6 +730,7 @@ class _HistoryPageState extends State<HistoryPage> {
                               ],
                             ),
                           ),
+                          // Cash
                           Row(
                             children: [
                               Expanded(
@@ -805,6 +834,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             ],
                           ),
                           SizedBox(height: 10),
+                          // Cheque
                           Row(
                             children: [
                               Expanded(
@@ -876,6 +906,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             ],
                           ),
                           SizedBox(height: 10),
+                          // PHIC
                           Row(
                             children: [
                               Expanded(

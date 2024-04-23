@@ -211,7 +211,7 @@ class _CereDrawerState extends State<CereDrawer> {
                 color: const Color(0xffe33924), // Changed icon color
               ),
               title: Text(
-                'Nurses',
+                'List of Nurses',
                 style: SafeGoogleFont(
                   'Urbanist',
                   fontSize: 13 * size,
@@ -233,7 +233,7 @@ class _CereDrawerState extends State<CereDrawer> {
                 color: const Color(0xffe33924), // Changed icon color
               ),
               title: Text(
-                'Physicians',
+                'List of Physicians',
                 style: SafeGoogleFont(
                   'Urbanist',
                   fontSize: 13 * size,

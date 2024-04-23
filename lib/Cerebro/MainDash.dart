@@ -11,7 +11,6 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../util/utils.dart';
-import 'History.dart';
 import 'Drawer.dart';
 import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -64,7 +63,7 @@ class _MainDashState extends State<MainDash> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: "Welcome $username",
+          title: "Welcome back $username",
           text: "This are the Data for today. If Data's are not appearing try to re-login",
           confirmBtnColor: Color(0xFF13A4FF),
           headerBackgroundColor: Color(0xFF13A4FF),
@@ -84,7 +83,7 @@ class _MainDashState extends State<MainDash> {
   }
 
   void startListeningToChanges() {
-    Timer.periodic(Duration(seconds: 60), (timer) {
+    Timer.periodic(Duration(seconds: 10), (timer) {
       // Check for database changes periodically
       fetchDataAndNotify(); // Fetch data and notify listeners
     });
@@ -93,8 +92,8 @@ class _MainDashState extends State<MainDash> {
   void fetchDataAndNotify() async {
     try {
       await _getUserData();
-      _getHospitalNameData();
-      _getAvatarData();
+      await _getHospitalNameData();
+      await _getAvatarData();
       //-----------------------------------------------------------------------
       await fetchTotalSalesToday();
       await fetchCashCollection();
@@ -1160,7 +1159,7 @@ class _MainDashState extends State<MainDash> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Welcome Back! $username',
+                        '$hospitalName: $username',
                         style: SafeGoogleFont(
                           'Urbanist',
                           fontSize: 18 * size,
@@ -1182,21 +1181,12 @@ class _MainDashState extends State<MainDash> {
                             ),
                           ),
                           Text(
-                            '$hospitalName ',
+                            '$formattedCurrentDate ',
                             style: SafeGoogleFont(
                               'Urbanist',
                               fontSize: 14 * size,
                               height: 1.2 * size / sizeAxis,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                          ),
-                          Text(
-                            '$formattedCurrentDate',
-                            style: SafeGoogleFont(
-                              'Urbanist',
-                              fontSize: 14 * size,
-                              height: 1.2 * size / sizeAxis,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
@@ -1207,7 +1197,6 @@ class _MainDashState extends State<MainDash> {
                         style: SafeGoogleFont(
                           'Urbanist',
                           fontSize: 14 * size,
-                          fontWeight: FontWeight.bold,
                           height: 1.2 * size / sizeAxis,
                           color: const Color(0xFFFFFFFF),
                         ),

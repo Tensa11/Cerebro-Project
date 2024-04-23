@@ -8,7 +8,6 @@ import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../util/utils.dart';
-import 'Details.dart';
 import 'Drawer.dart';
 
 class ManageNurses extends StatefulWidget {
@@ -38,6 +37,8 @@ class _ManageNursesState extends State<ManageNurses> {
     _scrollController = ScrollController(); // Initialize scroll controller
     fetchNurses();
     _getAvatarData();
+    _getHospitalNameData();
+    _getUserData();
     filteredNurses = List.from(nurses); // Initialize with all nurses
   }
 
@@ -86,7 +87,49 @@ class _ManageNursesState extends State<ManageNurses> {
       setState(() {});
     }
   }
+  late String hospitalName = '';
+  Future<void> _getHospitalNameData() async {
+    try {
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/hospital/me');
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
 
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        String? hospital = data['data'][0]['hospital_name']; // Store the hospital name
+
+        setState(() {
+          hospitalName = hospital ?? ''; // If hospital name is null, assign an empty string
+        });
+      } else {
+        throw Exception('Failed to load total _getHospitalData');
+      }
+    } catch (e) {
+      print('Error fetching total _getHospitalData: $e');
+      setState(() {});
+    }
+  }
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    setState(() {}); // Update the UI with retrieved data
+  }
   Future<void> fetchNurses() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
@@ -270,7 +313,7 @@ class _ManageNursesState extends State<ManageNurses> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'These are the list of Nurses in the database.',
+                    'These are the list of Nurses in the $hospitalName',
                     style: SafeGoogleFont(
                       'Urbanist',
                       fontSize: 12 * size,
