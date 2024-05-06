@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../util/utils.dart';
@@ -205,75 +206,79 @@ class _AdvisoryState extends State<Advisory> {
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       drawer: CereDrawer(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              // CustomAppBar(),
-              // WELCOME Text
-              Container(
-                margin: EdgeInsets.fromLTRB(
-                    0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'News Advisory!',
-                      style: SafeGoogleFont(
-                        'Urbanist',
-                        fontSize: 18 * size,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2 * size / sizeAxis,
-                        color: const Color(0xFF13A4FF),
+      body: LiquidPullToRefresh(
+        onRefresh: _handleRefresh,
+        color: Color(0xFF1497E8),
+        height: 100,
+        backgroundColor: Colors.redAccent,
+        animSpeedFactor: 2,
+        showChildOpacityTransition: false,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                // CustomAppBar(),
+                // WELCOME Text
+                Container(
+                  margin: EdgeInsets.fromLTRB(
+                      0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                  width: double.infinity,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'News Advisory!',
+                        style: SafeGoogleFont(
+                          'Urbanist',
+                          fontSize: 18 * size,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2 * size / sizeAxis,
+                          color: const Color(0xFF13A4FF),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Get informed! This Advisory page offers essential updates and guidance to optimize your experience within Cerebro',
-                      style: SafeGoogleFont(
-                        'Urbanist',
-                        fontSize: 12 * size,
-                        height: 1.2 * size / sizeAxis,
-                        color: Theme.of(context).colorScheme.tertiary,
+                      SizedBox(height: 10),
+                      Text(
+                        'Get informed! This Advisory page offers essential updates and guidance to optimize your experience within Cerebro',
+                        style: SafeGoogleFont(
+                          'Urbanist',
+                          fontSize: 12 * size,
+                          height: 1.2 * size / sizeAxis,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 30),
-              // List of advisories
-              ListView.separated(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: advisories.length,
-                itemBuilder: (context, index) {
-                  return buildAdvisoryCard(advisories[index], size, sizeAxis);
-                },
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 10); // Adjust the height as needed
-                },
-              ),
-              SizedBox(height: 30),
-            ],
+                SizedBox(height: 30),
+                // List of advisories
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: advisories.length,
+                  itemBuilder: (context, index) {
+                    return buildAdvisoryCard(advisories[index], size, sizeAxis);
+                  },
+                  separatorBuilder: (context, index) {
+                    return SizedBox(height: 10); // Adjust the height as needed
+                  },
+                ),
+                SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Theme.of(context).colorScheme.secondary,
-      //   onPressed: () {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => AiChat()),
-      //     );
-      //   },
-      //   child: Icon(
-      //       Icons.chat,
-      //       color: Theme.of(context).colorScheme.tertiary),
-      // ),
     );
+  }
+
+  Future<void> _handleRefresh() async {
+    await fetchAdvisory();
+    await _getAvatarData();
+    await _getUserData();
+    setState(() {});
+    return await Future.delayed(Duration(seconds: 2));
   }
 
   Widget buildAdvisoryCard(Map<String, String> advisory, double size, double sizeAxis) {

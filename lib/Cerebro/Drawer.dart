@@ -90,7 +90,7 @@ class _CereDrawerState extends State<CereDrawer> {
     double size = sizeAxis * 0.97;
 
     return Drawer(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Color(0xFFFFFFFF),
       child: Container(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -133,10 +133,7 @@ class _CereDrawerState extends State<CereDrawer> {
                 ),
               ),
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/images/bgg15.jpg"),
-                  fit: BoxFit.fill,
-                ),
+                color: const Color(0xFF1497E8),
               ),
             ),
             ListTile(
@@ -222,7 +219,7 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ManageNurses(),
+                    builder: (context) => NursesPage(),
                   ),
                 );
               },
@@ -244,7 +241,7 @@ class _CereDrawerState extends State<CereDrawer> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ManagePhysicians(),
+                    builder: (context) => PhysiciansPage(),
                   ),
                 );
               },

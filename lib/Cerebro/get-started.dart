@@ -162,3 +162,4 @@ class _GetStartedState extends State<GetStarted> {
     );
   }
 }
+

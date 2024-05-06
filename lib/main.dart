@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:Cerebro/util/theme.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:lottie/lottie.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Cerebro/Example.dart';
-import 'Cerebro/LandV2.dart';
+import 'Cerebro/LandingPage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'Cerebro/TestDash.dart';
 
@@ -37,7 +38,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: lightMode,
-      darkTheme: darkMode,
       home: SplashScreen(),
     );
   }

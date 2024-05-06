@@ -4,60 +4,108 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../util/utils.dart';
 import 'Drawer.dart';
+import 'package:crypto/crypto.dart' as crypto;
+import 'package:cryptography/cryptography.dart' as cryptography;
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-class ManagePhysicians extends StatefulWidget {
-  const ManagePhysicians({Key? key}) : super(key: key);
+class PhysiciansPage extends StatefulWidget {
+  const PhysiciansPage({Key? key}) : super(key: key);
 
   @override
-  _ManagePhysiciansState createState() => _ManagePhysiciansState();
+  _PhysiciansPageState createState() => _PhysiciansPageState();
 }
 
-class _ManagePhysiciansState extends State<ManagePhysicians> {
+class _PhysiciansPageState extends State<PhysiciansPage> {
   late List<Physician> physicians = [];
-  late String dropdownValue = 'Filter';
-
   late List<Physician> filteredPhysicians;
   TextEditingController searchController = TextEditingController();
+  List<String> specialties = [];
 
-  int itemCountToShow = 6; // Number of items to show initially
-  int currentItemCount = 0;
-  late bool canLoadMore = true; // Flag to indicate if more items can be loaded
-
-  // Added scroll controller to maintain scroll position
-  late ScrollController _scrollController;
+  final _pagingController = PagingController<int, Physician>(
+    firstPageKey: 1,
+  );
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController(); // Initialize scroll controller
-    fetchPhysicians();
     _getAvatarData();
     _getHospitalNameData();
     _getUserData();
-    filteredPhysicians = List.from(physicians); // Initialize with all physicians
+    fetchSpecialtiesForDropdown();
+
+    filteredPhysicians = List.from(physicians);
+    _pagingController.addPageRequestListener((pageKey) {
+      if (searchController.text.isEmpty) {
+        fetchPhysicians(page: pageKey, specialty: '');
+      } else {
+        searchPhysiciansWithQuery(page: pageKey, query: searchController.text);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose(); // Dispose scroll controller
+    _pagingController.dispose(); // Dispose scroll controller
     super.dispose();
   }
 
-  Future<void> fetchPhysicians() async {
+  Future<String> decryptData(String encryptedData) async {
     try {
-      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      await dotenv.load();
+
+      final String aesKey = dotenv.env['AES_KEY']!;
+
+      List<int> buffer = base64.decode(encryptedData);
+
+      List<int> salt = buffer.sublist(0, 64);
+      List<int> iv = buffer.sublist(64, 80);
+      List<int> data = buffer.sublist(96);
+      cryptography.Mac tag = new cryptography.Mac(buffer.sublist(80, 96));
+
+      cryptography.Pbkdf2 pbkdf2 = cryptography.Pbkdf2(
+        macAlgorithm: cryptography.Hmac.sha512(),
+        iterations:2122,
+        bits: 256,
+      );
+
+      final KEY = crypto.sha512.convert(utf8.encode(aesKey)).toString().substring(0, 32);
+
+      cryptography.SecretKey key = await pbkdf2.deriveKeyFromPassword(password: KEY, nonce: salt);
+
+      List<int> decrypted = await cryptography.AesGcm.with256bits().decrypt(
+          cryptography.SecretBox(data, nonce: iv, mac: tag), secretKey: new cryptography.SecretKey(await key.extractBytes())
+      );
+
+      return utf8.decode(decrypted);
+    } catch (e) {
+      print('Error decrypting data: $e');
+      throw Exception('Error decrypting data');
+    }
+  }
+
+  int page = 1; // Initialize page number
+
+  Future<void> fetchPhysicians({int page = 1, String? query, String? specialty}) async {
+    try {
+      final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/physicians');
+      var url = Uri.parse('$apiUrl/med/physicians?page=$page');
+
+      if (specialty != null && specialty.isNotEmpty) {
+        url = Uri.parse('$apiUrl/med/physicians/specialty?page=$page&specialty=$specialty');
+      }
+
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); // Assuming you saved the token with this key
-      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+      final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken');
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -71,52 +119,126 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
       );
 
       if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        List<Physician> fetchedPhysicians = List.generate(data['data'].length, (index) {
-          return Physician.fromJson(data['data'][index]);
+        var encryptedData = jsonDecode(response.body)['data'];
+        var decryptedData = await decryptData(encryptedData);
+
+        var data = json.decode(decryptedData);
+        print(data);
+
+        List<Physician> fetchedPhysicians = List.generate(data.length, (index) {
+          return Physician.fromJson(data[index]);
         });
 
-        setState(() {
-          physicians = fetchedPhysicians;
-          // Update the filtered list with initial items
-          filteredPhysicians = physicians.take(itemCountToShow).toList();
-          currentItemCount = itemCountToShow;
-          canLoadMore = true; // Reset canLoadMore flag
-        });
+        // Filter physicians based on the selected specialty
+        if (specialty != null && specialty.isNotEmpty) {
+          fetchedPhysicians = fetchedPhysicians.where((physician) => physician.specialty == specialty).toList();
+        }
+
+        final isLastPage = fetchedPhysicians.isEmpty;
+        if (isLastPage) {
+          _pagingController.appendLastPage(fetchedPhysicians);
+        } else {
+          final nextPageKey = page + 1;
+          _pagingController.appendPage(fetchedPhysicians, nextPageKey);
+        }
       } else {
-        throw Exception('Failed to load physicians');
+        _pagingController.error = Exception('Failed to load physicians');
       }
     } catch (e) {
-      print('Error fetching physicians: $e');
+      _pagingController.error = e;
     }
   }
 
-  Future<void>  filterSearchResults(String query) async {
-    List<Physician> searchResults = physicians.where((physician) {
-      return physician.doctorName.toLowerCase().contains(query.toLowerCase()) ||
-          physician.specialty.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+  Future<void> searchPhysiciansWithQuery({int page = 1, required String query}) async {
+    try {
+      final apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/physicians/search?page=$page&name=$query');
 
-    setState(() {
-      filteredPhysicians = searchResults;
-    });
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken');
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var encryptedData = jsonDecode(response.body)['data'];
+        var decryptedData = await decryptData(encryptedData);
+
+        var data = json.decode(decryptedData);
+        print(data);
+
+        List<Physician> fetchedPhysicians = List.generate(data.length, (index) {
+          return Physician.fromJson(data[index]);
+        });
+
+        final isLastPage = fetchedPhysicians.isEmpty;
+        if (isLastPage) {
+          _pagingController.appendLastPage(fetchedPhysicians);
+        } else {
+          final nextPageKey = page + 1;
+          _pagingController.appendPage(fetchedPhysicians, nextPageKey);
+        }
+      } else {
+        _pagingController.error = Exception('Failed to load physicians');
+      }
+    } catch (e) {
+      _pagingController.error = e;
+    }
   }
 
-  void applySorting(String selectedSpecialty) {
-    if (selectedSpecialty == 'Filter') {
-      // If 'Specialty' is selected, show all physicians
+  Future<void> searchPhysicianResults(String query) async {
+    _pagingController.refresh();
+  }
+
+  Future<void> fetchSpecialtiesForDropdown() async {
+    final apiUrl = dotenv.env['API_URL'];
+    if (apiUrl == null) {
+      throw Exception('API_URL environment variable is not defined');
+    }
+    var url = Uri.parse('$apiUrl/med/physicians/specialty/list');
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final refreshToken = prefs.getString('refreshToken');
+
+    if (token == null) {
+      throw Exception('Token not found.');
+    }
+    var response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Cookie': 'refreshToken=$refreshToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
       setState(() {
-        physicians.sort((a, b) => a.doctorName.compareTo(b.doctorName));
+        specialties = List<String>.from(data['data'].map((item) => item['specialty']));
       });
     } else {
-      // Filter physicians by the selected specialty
-      List<Physician> specialtyFiltered = physicians.where((physician) {
-        return physician.specialty == selectedSpecialty;
-      }).toList();
-      setState(() {
-        filteredPhysicians = specialtyFiltered;
-      });
+      throw Exception('Failed to load specialties');
     }
+  }
+
+  String selectedSpecialty = '';
+
+  void fetchPhysiciansBySpecialty({required String specialty}) {
+    _pagingController.refresh();
+    fetchPhysicians(specialty: specialty);
   }
 
   String avatarUrl = '';
@@ -307,235 +429,214 @@ class _ManagePhysiciansState extends State<ManagePhysicians> {
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       drawer: CereDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: Column(
-          children: [
-            SizedBox(height: 30,),
-            Container(
-              margin: EdgeInsets.fromLTRB(
-                  0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Physicians',
-                    style: SafeGoogleFont(
-                      'Urbanist',
-                      fontSize: 18 * size,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2 * size / sizeAxis,
-                      color: const Color(0xFF13A4FF),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'These are the list of Physicians in the $hospitalName.',
-                    style: SafeGoogleFont(
-                      'Urbanist',
-                      fontSize: 12 * size,
-                      height: 1.2 * size / sizeAxis,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 15),
-            Container(
-              margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                  0 * sizeAxis, 15 * sizeAxis),
-              width: 331 * sizeAxis,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              child: TextField(
-                controller: searchController,
-                onChanged: filterSearchResults,
-                decoration: InputDecoration(
-                  labelText: "Search",
-                  hintText: "Search for Physicians",
-                  labelStyle: TextStyle(color: Colors.white),
-                  hintStyle: TextStyle(color: Colors.white),
-                  prefixIcon: Icon(Icons.search, color: Colors.white,),
-                  border: InputBorder.none, // Remove the underlinehe underline
-                ),
-              ),
-            ),
-            // Sort the ListView
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+      body: LiquidPullToRefresh(
+        onRefresh: _handleRefresh,
+        color: Color(0xFF1497E8),
+        height: 200,
+        backgroundColor: Colors.redAccent,
+        animSpeedFactor: 2,
+        showChildOpacityTransition: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Column(
+            children: [
+              SizedBox(height: 30,),
+              Container(
+                margin: EdgeInsets.fromLTRB(
+                    0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Sort",
+                      'Physicians',
                       style: SafeGoogleFont(
                         'Urbanist',
-                        fontSize: 13 * size,
+                        fontSize: 18 * size,
+                        fontWeight: FontWeight.bold,
                         height: 1.2 * size / sizeAxis,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        fontStyle: FontStyle.italic,
+                        color: const Color(0xFF13A4FF),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'These are the list of Physicians in the $hospitalName',
+                      style: SafeGoogleFont(
+                        'Urbanist',
+                        fontSize: 12 * size,
+                        height: 1.2 * size / sizeAxis,
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    DropdownButton<String>(
-                      value: dropdownValue,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          dropdownValue = newValue!;
-                          applySorting(newValue); // Apply sorting when dropdown value changes
-                        });
-                      },
-                      items: <String>['Filter', ...physicians.map((physician) => physician.specialty).toSet().toList()]
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+              ),
+              SizedBox(height: 15),
+              Container(
+                margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                    0 * sizeAxis, 15 * sizeAxis),
+                width: 331 * sizeAxis,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scrollInfo) {
-                  if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                    // Reached the bottom of the ListView
-                    loadMoreItems();
-                  }
-                  return true;
-                },
-                child: ListView.builder(
-                  itemCount: filteredPhysicians.length + (isLoading ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == filteredPhysicians.length) {
-                      return _buildLoadingIndicator(); // Show loading indicator at the end
-                    } else {
-                      Physician physician = filteredPhysicians[index];
-                      return GestureDetector(
-                        onTap: () {
-                          // Navigate to the next page when a list item is tapped
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //     builder: (context) => Details(),
-                          //   ),
-                          // );
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) => searchPhysicianResults(value),
+                  decoration: InputDecoration(
+                    labelText: "Search",
+                    hintText: "Search for Physicians",
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white),
+                    prefixIcon: Icon(Icons.search, color: Colors.white,),
+                    border: InputBorder.none, // Remove the underline
+                  ),
+                ),
+              ),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        "Sort",
+                        style: SafeGoogleFont(
+                          'Urbanist',
+                          fontSize: 13 * size,
+                          height: 1.2 * size / sizeAxis,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      DropdownButton<String>(
+                        items: specialties.map((String specialty) {
+                          return DropdownMenuItem<String>(
+                            value: specialty,
+                            child: Text(specialty),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedSpecialty = newValue ?? '';
+                          });
+                          fetchPhysiciansBySpecialty(specialty: selectedSpecialty);
                         },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
+                      )
+
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Expanded(
+                child: PagedListView<int, Physician>(
+                  pagingController: _pagingController,
+                  builderDelegate: PagedChildBuilderDelegate<Physician>(
+                    itemBuilder: (context, physician, index) => Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      color: physician.isActive == 1 ? Colors.green : Colors.red, // Set the color based on nurse.isActive
+                      child: ListTile(
+                        leading: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white, // Border color
+                              width: 2, // Border width
+                            ),
                           ),
-                          elevation: 3,
-                          color: Theme.of(context).colorScheme.secondary,
-                          child: ListTile(
-                            leading: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white, // Border color
-                                  width: 2, // Border width
-                                ),
-                              ),
-                              child: ClipOval(
-                                child: RandomAvatar(
-                                  physician.doctorName,
-                                  height: 50,
-                                  width: 50,
-                                ),
-                              ),
-                            ),
-                            title: Text(
+                          child: ClipOval(
+                            child: RandomAvatar(
                               physician.doctorName,
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 13 * size,
-                                height: 1.2 * size / sizeAxis,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 5),
-                                Text(
-                                  physician.specialty,
-                                  style: SafeGoogleFont(
-                                    'Inter',
-                                    fontSize: 11 * size,
-                                    height: 1.2 * size / sizeAxis,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: Icon(
-                              physician.isActive == 1 ? Icons.check_circle : Icons.cancel, // Update the comparison here
-                              color: physician.isActive == 1 ? Colors.green : Colors.red, // Update the comparison here
+                              height: 50,
+                              width: 50,
                             ),
                           ),
                         ),
-                      );
-                    }
-                  },
+                        title: Text(
+                          physician.doctorName,
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 13 * size,
+                            height: 1.2 * size / sizeAxis,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 5),
+                            Text(
+                              physician.specialty,
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 11 * size,
+                                height: 1.2 * size / sizeAxis,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        trailing: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white, // Set the border color to white
+                              width: 2, // Set the border width
+                            ),
+                          ),
+                          child: Icon(
+                            physician.isActive == 1 ? Icons.check_circle : Icons.cancel,
+                            color: physician.isActive == 1 ? Colors.white : Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    noItemsFoundIndicatorBuilder: (context) => Center(
+                      child: Text('No physicians found.'),
+                    ),
+                    firstPageErrorIndicatorBuilder: (context) => Center(
+                      child: Text('Error loading physicians.'),
+                    ),
+                    newPageErrorIndicatorBuilder: (context) => Center(
+                      child: Text('Error loading more physicians.'),
+                    ),
+                    firstPageProgressIndicatorBuilder: (context) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.tertiary,), // Show CircularProgressIndicator while loading
+                      ),
+                    ),
+                    newPageProgressIndicatorBuilder: (context) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.tertiary,), // Show CircularProgressIndicator while loading
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-          ],
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
   }
-
-  Widget _buildLoadingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(
-        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.tertiary,), // Show CircularProgressIndicator while loading
-      ),
-    );
+  Future<void> _handleRefresh() async {
+    _pagingController.refresh();
+    return await Future.delayed(Duration(seconds: 2));
   }
-
-  bool isLoading = false; // Add isLoading flag
-
-  void loadMoreItems() {
-    setState(() {
-      isLoading = true; // Set isLoading flag to true
-    });
-
-    if (currentItemCount < physicians.length) {
-      int itemsToAdd = itemCountToShow;
-      if (currentItemCount + itemCountToShow > physicians.length) {
-        itemsToAdd = physicians.length - currentItemCount;
-      }
-      // Simulate a delay for loading more items
-      Future.delayed(Duration(seconds: 3), () {
-        setState(() {
-          filteredPhysicians.addAll(physicians.getRange(currentItemCount, currentItemCount + itemsToAdd));
-          currentItemCount += itemsToAdd;
-          isLoading = false; // Set isLoading flag to false after loading
-        });
-      });
-    } else {
-      setState(() {
-        isLoading = false; // Set isLoading flag to false if no more items to load
-      });
-    }
-  }
-
 }
 
 class Physician {

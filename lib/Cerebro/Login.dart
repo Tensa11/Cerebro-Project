@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'package:http/http.dart' as http;
+import 'Dec.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -130,9 +131,7 @@ class _LoginState extends State<Login> {
     double size = sizeAxis * 0.97;
 
     return WillPopScope(
-      // Intercept back button press event
       onWillPop: () async {
-        // Return false to prevent exiting the current screen
         return false;
       },
       child: MaterialApp(
@@ -147,14 +146,14 @@ class _LoginState extends State<Login> {
                     22 * sizeAxis, 110 * sizeAxis, 22 * sizeAxis, 90 * sizeAxis),
                 width: double.infinity,
                 // Background Image
-                // decoration: const BoxDecoration(
-                //   image: DecorationImage(
-                //     fit: BoxFit.cover,
-                //     image: AssetImage(
-                //       'assets/images/bgg9.jpg',
-                //     ),
-                //   ),
-                // ),
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage(
+                      'assets/images/bgg9.jpg',
+                    ),
+                  ),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -190,15 +189,8 @@ class _LoginState extends State<Login> {
                       width: 331 * sizeAxis,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8 * sizeAxis),
-                        color: Theme.of(context).colorScheme.primary,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: Offset(0, 1), // changes position of shadow
-                          ),
-                        ],
+                        border: Border.all(color: const Color(0xffe8ecf4)),
+                        color: const Color(0xfff7f8f9),
                       ),
                       child: TextFormField(
                         controller: _usernameTextController,
@@ -236,15 +228,8 @@ class _LoginState extends State<Login> {
                       width: 331 * sizeAxis,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8 * sizeAxis),
-                        color: Theme.of(context).colorScheme.primary,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: Offset(0, 1), // changes position of shadow
-                          ),
-                        ],
+                        border: Border.all(color: const Color(0xffe8ecf4)),
+                        color: const Color(0xfff7f8f9),
                       ),
                       child: TextField(
                         controller: _passwordTextController,

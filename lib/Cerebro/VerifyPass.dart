@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../util/utils.dart';
-import 'Home.dart';
 import 'Login.dart';
 
 class VerifyPass extends StatefulWidget {

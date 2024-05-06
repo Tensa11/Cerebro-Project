@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:random_avatar/random_avatar.dart';
@@ -261,281 +262,276 @@ class _ChangePassState extends State<ChangePass> {
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       drawer: CereDrawer(),
-      body: Stack(
-        children: [
-          // Background image
-          // Image.asset(
-          //   'assets/images/bgg9.jpg',
-          //   fit: BoxFit.cover,
-          //   width: double.infinity,
-          //   height: double.infinity,
-          // ),
-          SingleChildScrollView(
-            child: SizedBox(
-              width: double.infinity,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(
-                    22 * sizeAxis, 80 * sizeAxis, 21 * sizeAxis, 0 * sizeAxis),
+      body: LiquidPullToRefresh(
+        onRefresh: _handleRefresh,
+        color: Color(0xFF1497E8),
+        height: 100,
+        backgroundColor: Colors.redAccent,
+        animSpeedFactor: 2,
+        showChildOpacityTransition: false,
+        child: Stack(
+          children: [
+            // Background image
+            // Image.asset(
+            //   'assets/images/bgg9.jpg',
+            //   fit: BoxFit.cover,
+            //   width: double.infinity,
+            //   height: double.infinity,
+            // ),
+            SingleChildScrollView(
+              child: SizedBox(
                 width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
-                          50 * sizeAxis, 20 * sizeAxis),
-                      child: Text(
-                        'Change Password?!',
-                        style: GoogleFonts.urbanist(
-                          fontSize: 30 * size,
-                          fontWeight: FontWeight.w700,
-                          height: 1.3 * size / sizeAxis,
-                          letterSpacing: -0.3 * sizeAxis,
-                          color: const Color(0xFF13A4FF),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
-                          20 * sizeAxis, 32 * sizeAxis),
-                      constraints: BoxConstraints(
-                        maxWidth: 307 * sizeAxis,
-                      ),
-                      child: Text(
-                        "Need to reset your password? Enter your new password and make sure its a strong password.",
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 13 * size,
-                          fontWeight: FontWeight.w400,
-                          height: 1.3 * size / sizeAxis,
-                          letterSpacing: -0.3 * sizeAxis,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ),
-                    // Enter current password and must match
-                    Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                          0 * sizeAxis, 15 * sizeAxis),
-                      width: 331 * sizeAxis,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8 * sizeAxis),
-                        color: Theme.of(context).colorScheme.primary,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: Offset(0, 1), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _currentPasswordController,
-                        // Assign the text controller
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
-                              18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
-                          hintText: 'Enter The Current Password',
-                          hintStyle: const TextStyle(color: Color(0xff8390a1)),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _hideCurrentPass
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _hideCurrentPass = !_hideCurrentPass;
-                              });
-                            },
-                          ),
-                        ),
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 15 * size,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25 * size / sizeAxis,
-                          color: const Color(0xff0272bc),
-                        ),
-                        keyboardType: TextInputType.text,
-                        obscureText: _hideCurrentPass, // Toggle password visibility
-                      ),
-                    ),
-                    // Enter the newly created password
-                    Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                          0 * sizeAxis, 15 * sizeAxis),
-                      width: 331 * sizeAxis,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8 * sizeAxis),
-                        color: Theme.of(context).colorScheme.primary,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: Offset(0, 1), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _newPasswordController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
-                              18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
-                          hintText: 'Enter The New Password',
-                          hintStyle: const TextStyle(color: Color(0xff8390a1)),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _hideNewPass
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _hideNewPass = !_hideNewPass;
-                              });
-                            },
-                          ),
-                        ),
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 15 * size,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25 * size / sizeAxis,
-                          color: const Color(0xff0272bc),
-                        ),
-                        keyboardType: TextInputType.text,
-                        obscureText:
-                            _hideNewPass // Toggle password visibility
-                      ),
-                    ),
-                    // Re enter the newly created password for confirmation
-                    Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                          0 * sizeAxis, 15 * sizeAxis),
-                      width: 331 * sizeAxis,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8 * sizeAxis),
-                        color: Theme.of(context).colorScheme.primary,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: Offset(0, 1), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _confirmPasswordController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
-                              18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
-                          hintText: 'Retype The New Password',
-                          hintStyle: const TextStyle(color: Color(0xff8390a1)),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _hideConfirmPass
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _hideConfirmPass = !_hideConfirmPass;
-                              });
-                            },
-                          ),
-                        ),
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 15 * size,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25 * size / sizeAxis,
-                          color: const Color(0xff0272bc),
-                        ),
-                        keyboardType: TextInputType.text,
-                        obscureText:
-                            _hideConfirmPass, // Toggle password visibility
-                      ),
-                    ),
-                    if (_errorMessage.isNotEmpty)
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(
+                      22 * sizeAxis, 80 * sizeAxis, 21 * sizeAxis, 0 * sizeAxis),
+                  width: double.infinity,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(13 * sizeAxis,
-                            10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                            50 * sizeAxis, 20 * sizeAxis),
                         child: Text(
-                          _errorMessage,
+                          'Change Password?!',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 30 * size,
+                            fontWeight: FontWeight.w700,
+                            height: 1.3 * size / sizeAxis,
+                            letterSpacing: -0.3 * sizeAxis,
+                            color: const Color(0xFF13A4FF),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
+                            20 * sizeAxis, 32 * sizeAxis),
+                        constraints: BoxConstraints(
+                          maxWidth: 307 * sizeAxis,
+                        ),
+                        child: Text(
+                          "Need to reset your password? Enter your new password and make sure its a strong password.",
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 13 * size,
+                            fontWeight: FontWeight.w400,
+                            height: 1.3 * size / sizeAxis,
+                            letterSpacing: -0.3 * sizeAxis,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                        ),
+                      ),
+                      // Enter current password and must match
+                      Container(
+                        margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                            0 * sizeAxis, 15 * sizeAxis),
+                        width: 331 * sizeAxis,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8 * sizeAxis),
+                          border: Border.all(color: const Color(0xffe8ecf4)),
+                          color: const Color(0xfff7f8f9),
+                        ),
+                        child: TextField(
+                          controller: _currentPasswordController,
+                          // Assign the text controller
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                                18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                            hintText: 'Enter The Current Password',
+                            hintStyle: const TextStyle(color: Color(0xff8390a1)),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _hideCurrentPass
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _hideCurrentPass = !_hideCurrentPass;
+                                });
+                              },
+                            ),
+                          ),
                           style: SafeGoogleFont(
                             'Urbanist',
                             fontSize: 15 * size,
                             fontWeight: FontWeight.w500,
-                            height: 1.4 * size / sizeAxis,
-                            letterSpacing: 0.15 * sizeAxis,
-                            color: const Color(0xffe74c3c),
+                            height: 1.25 * size / sizeAxis,
+                            color: const Color(0xff0272bc),
                           ),
+                          keyboardType: TextInputType.text,
+                          obscureText: _hideCurrentPass, // Toggle password visibility
                         ),
                       ),
-                    // Button
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
-                          0 * sizeAxis, 150 * sizeAxis),
-                      child: TextButton(
-                        onPressed: () async {
-                          if (await confirmPasswordChange()) {
-                            changePassword();
-                          }
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
+                      // Enter the newly created password
+                      Container(
+                        margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                            0 * sizeAxis, 15 * sizeAxis),
+                        width: 331 * sizeAxis,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8 * sizeAxis),
+                          border: Border.all(color: const Color(0xffe8ecf4)),
+                          color: const Color(0xfff7f8f9),
                         ),
-                        child: Container(
-                          width: 331 * sizeAxis,
-                          height: 56 * sizeAxis,
-                          decoration: BoxDecoration(
-                            color: const Color(0xffe33924),
-                            borderRadius: BorderRadius.circular(8 * sizeAxis),
+                        child: TextField(
+                            controller: _newPasswordController,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                                  18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                              hintText: 'Enter The New Password',
+                              hintStyle: const TextStyle(color: Color(0xff8390a1)),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _hideNewPass
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _hideNewPass = !_hideNewPass;
+                                  });
+                                },
+                              ),
+                            ),
+                            style: SafeGoogleFont(
+                              'Urbanist',
+                              fontSize: 15 * size,
+                              fontWeight: FontWeight.w500,
+                              height: 1.25 * size / sizeAxis,
+                              color: const Color(0xff0272bc),
+                            ),
+                            keyboardType: TextInputType.text,
+                            obscureText:
+                            _hideNewPass // Toggle password visibility
+                        ),
+                      ),
+                      // Re enter the newly created password for confirmation
+                      Container(
+                        margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                            0 * sizeAxis, 15 * sizeAxis),
+                        width: 331 * sizeAxis,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8 * sizeAxis),
+                          border: Border.all(color: const Color(0xffe8ecf4)),
+                          color: const Color(0xfff7f8f9),
+                        ),
+                        child: TextField(
+                          controller: _confirmPasswordController,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                                18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                            hintText: 'Retype The New Password',
+                            hintStyle: const TextStyle(color: Color(0xff8390a1)),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _hideConfirmPass
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _hideConfirmPass = !_hideConfirmPass;
+                                });
+                              },
+                            ),
                           ),
-                          child: Center(
-                            child: Text(
-                              'Confirm',
-                              textAlign: TextAlign.center,
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                fontWeight: FontWeight.w600,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xffffffff),
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 15 * size,
+                            fontWeight: FontWeight.w500,
+                            height: 1.25 * size / sizeAxis,
+                            color: const Color(0xff0272bc),
+                          ),
+                          keyboardType: TextInputType.text,
+                          obscureText:
+                          _hideConfirmPass, // Toggle password visibility
+                        ),
+                      ),
+                      if (_errorMessage.isNotEmpty)
+                        Container(
+                          margin: EdgeInsets.fromLTRB(13 * sizeAxis,
+                              10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                          child: Text(
+                            _errorMessage,
+                            style: SafeGoogleFont(
+                              'Urbanist',
+                              fontSize: 15 * size,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4 * size / sizeAxis,
+                              letterSpacing: 0.15 * sizeAxis,
+                              color: const Color(0xffe74c3c),
+                            ),
+                          ),
+                        ),
+                      // Button
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
+                            0 * sizeAxis, 150 * sizeAxis),
+                        child: TextButton(
+                          onPressed: () async {
+                            if (await confirmPasswordChange()) {
+                              changePassword();
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Container(
+                            width: 331 * sizeAxis,
+                            height: 56 * sizeAxis,
+                            decoration: BoxDecoration(
+                              color: const Color(0xffe33924),
+                              borderRadius: BorderRadius.circular(8 * sizeAxis),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Confirm',
+                                textAlign: TextAlign.center,
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 15 * size,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2 * size / sizeAxis,
+                                  color: const Color(0xffffffff),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  Future<void> _handleRefresh() async {
+    await _getAvatarData();
+    await _getUserData();
+    setState(() {});
+    return await Future.delayed(Duration(seconds: 2));
+  }
+
 }

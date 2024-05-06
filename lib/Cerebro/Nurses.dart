@@ -9,42 +9,46 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../util/utils.dart';
 import 'Drawer.dart';
+import 'package:crypto/crypto.dart' as crypto;
+import 'package:cryptography/cryptography.dart' as cryptography;
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
-class ManageNurses extends StatefulWidget {
-  const ManageNurses({Key? key}) : super(key: key);
+class NursesPage extends StatefulWidget {
+  const NursesPage({Key? key}) : super(key: key);
 
   @override
-  _ManageNursesState createState() => _ManageNursesState();
+  _NursesPageState createState() => _NursesPageState();
 }
 
-class _ManageNursesState extends State<ManageNurses> {
+class _NursesPageState extends State<NursesPage> {
   late List<Nurse> nurses = [];
-  late String dropdownValue = 'Filter';
-
   late List<Nurse> filteredNurses;
   TextEditingController searchController = TextEditingController();
 
-  int itemCountToShow = 6; // Number of items to show initially
-  int currentItemCount = 0;
-  late bool canLoadMore = true; // Flag to indicate if more items can be loaded
-
-  // Added scroll controller to maintain scroll position
-  late ScrollController _scrollController;
+  final _pagingController = PagingController<int, Nurse>(
+    firstPageKey: 1,
+  );
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController(); // Initialize scroll controller
-    fetchNurses();
     _getAvatarData();
     _getHospitalNameData();
     _getUserData();
-    filteredNurses = List.from(nurses); // Initialize with all nurses
+    filteredNurses = List.from(nurses);
+    _pagingController.addPageRequestListener((pageKey) {
+      if (searchController.text.isEmpty) {
+        fetchNurses(page: pageKey);
+      } else {
+        fetchNursesWithQuery(page: pageKey, query: searchController.text);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose(); // Dispose scroll controller
+    _pagingController.dispose();
     super.dispose();
   }
 
@@ -130,16 +134,54 @@ class _ManageNursesState extends State<ManageNurses> {
     username = prefs.getString('username') ?? '';
     setState(() {}); // Update the UI with retrieved data
   }
-  Future<void> fetchNurses() async {
+
+  Future<String> decryptData(String encryptedData) async {
     try {
-      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      await dotenv.load();
+
+      final String aesKey = dotenv.env['AES_KEY']!;
+
+      List<int> buffer = base64.decode(encryptedData);
+
+      List<int> salt = buffer.sublist(0, 64);
+      List<int> iv = buffer.sublist(64, 80);
+      List<int> data = buffer.sublist(96);
+      cryptography.Mac tag = new cryptography.Mac(buffer.sublist(80, 96));
+
+      cryptography.Pbkdf2 pbkdf2 = cryptography.Pbkdf2(
+        macAlgorithm: cryptography.Hmac.sha512(),
+        iterations:2122,
+        bits: 256,
+      );
+
+      final KEY = crypto.sha512.convert(utf8.encode(aesKey)).toString().substring(0, 32);
+
+      cryptography.SecretKey key = await pbkdf2.deriveKeyFromPassword(password: KEY, nonce: salt);
+
+      List<int> decrypted = await cryptography.AesGcm.with256bits().decrypt(
+          cryptography.SecretBox(data, nonce: iv, mac: tag), secretKey: new cryptography.SecretKey(await key.extractBytes())
+      );
+
+      return utf8.decode(decrypted);
+    } catch (e) {
+      print('Error decrypting data: $e');
+      throw Exception('Error decrypting data');
+    }
+  }
+
+  int page = 1; // Initialize page number
+
+  Future<void> fetchNurses({int page = 1, String? query}) async {
+    try {
+      final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/nurses');
+      var url = Uri.parse('$apiUrl/med/nurses?page=$page');
+
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); // Assuming you saved the token with this key
-      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+      final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken');
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -153,35 +195,82 @@ class _ManageNursesState extends State<ManageNurses> {
       );
 
       if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        List<Nurse> fetchedNurses = List.generate(data['data'].length, (index) {
-          return Nurse.fromJson(data['data'][index]);
+        var encryptedData = jsonDecode(response.body)['data'];
+        var decryptedData = await decryptData(encryptedData);
+
+        var data = json.decode(decryptedData);
+        print(data);
+
+        List<Nurse> fetchedNurses = List.generate(data.length, (index) {
+          return Nurse.fromJson(data[index]);
         });
 
-        setState(() {
-          nurses = fetchedNurses;
-          // Update the filtered list with initial items
-          filteredNurses = nurses.take(itemCountToShow).toList();
-          currentItemCount = itemCountToShow;
-          canLoadMore = true; // Reset canLoadMore flag
-        });
+        final isLastPage = fetchedNurses.isEmpty;
+        if (isLastPage) {
+          _pagingController.appendLastPage(fetchedNurses);
+        } else {
+          final nextPageKey = page + 1;
+          _pagingController.appendPage(fetchedNurses, nextPageKey);
+        }
       } else {
-        throw Exception('Failed to load nurses');
+        _pagingController.error = Exception('Failed to load nurses');
       }
     } catch (e) {
-      print('Error fetching nurses: $e');
+      _pagingController.error = e;
     }
   }
 
-  Future<void>  filterSearchResults(String query) async {
-    List<Nurse> searchResults = nurses.where((nurse) {
-      return nurse.nurseName.toLowerCase().contains(query.toLowerCase()) ||
-          nurse.license_number.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+  Future<void> fetchNursesWithQuery({int page = 1, required String query}) async {
+    try {
+      final apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/nurses/search?page=$page&name=$query');
 
-    setState(() {
-      filteredNurses = searchResults;
-    });
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken');
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var encryptedData = jsonDecode(response.body)['data'];
+        var decryptedData = await decryptData(encryptedData);
+
+        var data = json.decode(decryptedData);
+        print(data);
+
+        List<Nurse> fetchedNurses = List.generate(data.length, (index) {
+          return Nurse.fromJson(data[index]);
+        });
+
+        final isLastPage = fetchedNurses.isEmpty;
+        if (isLastPage) {
+          _pagingController.appendLastPage(fetchedNurses);
+        } else {
+          final nextPageKey = page + 1;
+          _pagingController.appendPage(fetchedNurses, nextPageKey);
+        }
+      } else {
+        _pagingController.error = Exception('Failed to load nurses');
+      }
+    } catch (e) {
+      _pagingController.error = e;
+    }
+  }
+
+  Future<void> filterSearchResults(String query) async {
+    _pagingController.refresh();
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -192,14 +281,8 @@ class _ManageNursesState extends State<ManageNurses> {
     double sizeAxis = MediaQuery.of(context).size.width / baseWidth;
     double size = sizeAxis * 0.97;
 
-    nurses.sort((a, b) => a.nurseName.compareTo(b.nurseName));
-
-    if (nurses.isNotEmpty && filteredNurses.isEmpty) {
-      filteredNurses = List.from(nurses); // Initialize with all nurses
-    }
-
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Color(0xFFFFFFFF),
       key: _scaffoldKey,
       appBar: AppBar(
         // Set a custom height for the app bar
@@ -208,7 +291,7 @@ class _ManageNursesState extends State<ManageNurses> {
         backgroundColor: Colors.transparent,
         elevation: 15,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
+          icon: Icon(Icons.menu, color: Colors.black),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
@@ -279,7 +362,7 @@ class _ManageNursesState extends State<ManageNurses> {
         ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
+            color: Color(0xFFFFFFFF),
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -289,205 +372,188 @@ class _ManageNursesState extends State<ManageNurses> {
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       drawer: CereDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: Column(
-          children: [
-            SizedBox(height: 30,),
-            Container(
-              margin: EdgeInsets.fromLTRB(
-                  0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Nurses',
-                    style: SafeGoogleFont(
-                      'Urbanist',
-                      fontSize: 18 * size,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2 * size / sizeAxis,
-                      color: const Color(0xFF13A4FF),
+      body: LiquidPullToRefresh(
+        onRefresh: _handleRefresh,
+        color: Color(0xFF1497E8),
+        height: 200,
+        backgroundColor: Colors.redAccent,
+        animSpeedFactor: 2,
+        showChildOpacityTransition: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Column(
+            children: [
+              SizedBox(height: 30,),
+              Container(
+                margin: EdgeInsets.fromLTRB(
+                    0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nurses',
+                      style: SafeGoogleFont(
+                        'Urbanist',
+                        fontSize: 18 * size,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2 * size / sizeAxis,
+                        color: const Color(0xFF13A4FF),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'These are the list of Nurses in the $hospitalName',
-                    style: SafeGoogleFont(
-                      'Urbanist',
-                      fontSize: 12 * size,
-                      height: 1.2 * size / sizeAxis,
-                      color: Theme.of(context).colorScheme.tertiary,
+                    SizedBox(height: 10),
+                    Text(
+                      'These are the list of Nurses in the $hospitalName',
+                      style: SafeGoogleFont(
+                        'Urbanist',
+                        fontSize: 12 * size,
+                        height: 1.2 * size / sizeAxis,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 15),
-            Container(
-              margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                  0 * sizeAxis, 15 * sizeAxis),
-              width: 331 * sizeAxis,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              child: TextField(
-                controller: searchController,
-                onChanged: filterSearchResults,
-                decoration: InputDecoration(
-                  labelText: "Search",
-                  hintText: "Search for Nurses",
-                  labelStyle: TextStyle(color: Colors.white),
-                  hintStyle: TextStyle(color: Colors.white),
-                  prefixIcon: Icon(Icons.search, color: Colors.white,),
-                  border: InputBorder.none, // Remove the underline
+                  ],
                 ),
               ),
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scrollInfo) {
-                  if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                    // Reached the bottom of the ListView
-                    loadMoreItems();
-                  }
-                  return true;
-                },
-                child: ListView.builder(
-                  itemCount: filteredNurses.length + (isLoading ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == filteredNurses.length) {
-                      return _buildLoadingIndicator(); // Show loading indicator at the end
-                    } else {
-                      Nurse nurse = filteredNurses[index];
-                      return GestureDetector(
-                        onTap: () {
-                          // Navigate to the next page when a list item is tapped
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //     builder: (context) => Details(),
-                          //   ),
-                          // );
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
+              SizedBox(height: 15),
+              Container(
+                margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                    0 * sizeAxis, 15 * sizeAxis),
+                width: 331 * sizeAxis,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) => filterSearchResults(value),
+                  decoration: InputDecoration(
+                    labelText: "Search",
+                    hintText: "Search for Nurses",
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white),
+                    prefixIcon: Icon(Icons.search, color: Colors.white,),
+                    border: InputBorder.none, // Remove the underline
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Expanded(
+                child: PagedListView<int, Nurse>(
+                  pagingController: _pagingController,
+                  builderDelegate: PagedChildBuilderDelegate<Nurse>(
+                    itemBuilder: (context, nurse, index) => Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      // color: Color(0xFF1497E8),
+                      color: nurse.isActive == 1 ? Colors.green : Colors.red,
+                      child: ListTile(
+                        leading: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white, // Border color
+                              width: 2, // Border width
+                            ),
                           ),
-                          elevation: 3,
-                          color: Theme.of(context).colorScheme.secondary,
-                          child: ListTile(
-                            leading: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white, // Border color
-                                  width: 2, // Border width
-                                ),
-                              ),
-                              child: ClipOval(
-                                child: RandomAvatar(
-                                  nurse.nurseName,
-                                  height: 50,
-                                  width: 50,
-                                ),
-                              ),
-                            ),
-                            title: Text(
+                          child: ClipOval(
+                            child: RandomAvatar(
                               nurse.nurseName,
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 13 * size,
-                                height: 1.2 * size / sizeAxis,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 5),
-                                Text(
-                                  nurse.license_number,
-                                  style: SafeGoogleFont(
-                                    'Inter',
-                                    fontSize: 11 * size,
-                                    height: 1.2 * size / sizeAxis,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: Icon(
-                              nurse.isActive == 1 ? Icons.check_circle : Icons.cancel, // Update the comparison here
-                              color: nurse.isActive == 1 ? Colors.green : Colors.red, // Update the comparison here
+                              height: 50,
+                              width: 50,
                             ),
                           ),
                         ),
-                      );
-                    }
-                  },
+                        title: Text(
+                          nurse.nurseName,
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 13 * size,
+                            height: 1.2 * size / sizeAxis,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 5),
+                            Text(
+                              nurse.license_number,
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 11 * size,
+                                height: 1.2 * size / sizeAxis,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        trailing: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white, // Set the border color to white
+                              width: 2, // Set the border width
+                            ),
+                          ),
+                          child: Icon(
+                            nurse.isActive == 1 ? Icons.check_circle : Icons.cancel,
+                            color: nurse.isActive == 1 ? Colors.white : Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    noItemsFoundIndicatorBuilder: (context) => Center(
+                      child: Text('No nurses found.'),
+                    ),
+                    firstPageErrorIndicatorBuilder: (context) => Center(
+                      child: Text('Error loading nurses.'),
+                    ),
+                    newPageErrorIndicatorBuilder: (context) => Center(
+                      child: Text('Error loading more nurses.'),
+                    ),
+                    firstPageProgressIndicatorBuilder: (context) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.black,), // Show CircularProgressIndicator while loading
+                      ),
+                    ),
+                    newPageProgressIndicatorBuilder: (context) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.black,), // Show CircularProgressIndicator while loading
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-          ],
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildLoadingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(
-        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.tertiary,), // Show CircularProgressIndicator while loading
-      ),
-    );
+  Future<void> _handleRefresh() async {
+    _pagingController.refresh();
+    return await Future.delayed(Duration(seconds: 2));
   }
-
-  bool isLoading = false; // Add isLoading flag
-
-  void loadMoreItems() {
-    setState(() {
-      isLoading = true; // Set isLoading flag to true
-    });
-
-    if (currentItemCount < nurses.length) {
-      int itemsToAdd = itemCountToShow;
-      if (currentItemCount + itemCountToShow > nurses.length) {
-        itemsToAdd = nurses.length - currentItemCount;
-      }
-      // Simulate a delay for loading more items
-      Future.delayed(Duration(seconds: 3), () {
-        setState(() {
-          filteredNurses.addAll(nurses.getRange(currentItemCount, currentItemCount + itemsToAdd));
-          currentItemCount += itemsToAdd;
-          isLoading = false; // Set isLoading flag to false after loading
-        });
-      });
-    } else {
-      setState(() {
-        isLoading = false; // Set isLoading flag to false if no more items to load
-      });
-    }
-  }
-
 }
 
 class Nurse {
   final String id;
-  final int pin;
+  final int token;
   final String nurseName;
   final String license_number;
   final int isActive; // Change the type to int
 
   Nurse({
     required this.id,
-    required this.pin,
+    required this.token,
     required this.nurseName,
     required this.license_number,
     required this.isActive,
@@ -496,7 +562,7 @@ class Nurse {
   factory Nurse.fromJson(Map<String, dynamic> json) {
     return Nurse(
       id: json['id'] ?? '',
-      pin: json['pin'] ?? 0,
+      token: json['pin'] ?? 0,
       nurseName: json['nurse_name'],
       license_number: json['license_number'] ?? 'N/A',
       isActive: json['is_active'], // Update the type here

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,7 +34,6 @@ class _MainDashState extends State<MainDash> {
     _getUserData();
     _getHospitalNameData();
     _getAvatarData();
-    startListeningToChanges();
     //-----------------------------------------------------------------------
     fetchTotalSalesToday();
     fetchCashCollection();
@@ -80,45 +80,6 @@ class _MainDashState extends State<MainDash> {
   void dispose() {
     _streamController.close();
     super.dispose();
-  }
-
-  void startListeningToChanges() {
-    Timer.periodic(Duration(seconds: 10), (timer) {
-      // Check for database changes periodically
-      fetchDataAndNotify(); // Fetch data and notify listeners
-    });
-  }
-
-  void fetchDataAndNotify() async {
-    try {
-      await _getUserData();
-      await _getHospitalNameData();
-      await _getAvatarData();
-      //-----------------------------------------------------------------------
-      await fetchTotalSalesToday();
-      await fetchCashCollection();
-      await fetchChequeCollection();
-      await fetchTotalExpense();
-      await fetchTotalDisbursement();
-      await fetchSalesMonthChart();
-      await fetchSalesYearChart();
-      await fetchTotalIPD();
-      await fetchTotalOPD();
-      await fetchTotalPHIC();
-      await fetchTotalHMO();
-      await fetchTotalCOMPANY();
-      await fetchTotalSENIOR();
-      await fetchInsuranceTODAY();
-      await fetchInsuranceMONTH();
-      await fetchPFtoday();
-      await fetchPHICTransmittalTODAY();
-      await fetchPHICTransmittalMONTH();
-      await fetchKPI();
-      // -----------------------------------------------------------------------
-      _streamController.add(true); // Notify listeners about the change
-    } catch (e) {
-      print('Error fetching data: $e');
-    }
   }
 
   late double totalSales = 0;
@@ -1059,7 +1020,7 @@ class _MainDashState extends State<MainDash> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Color(0xFF1497E8),
       key: _scaffoldKey,
       drawer: CereDrawer(),
       appBar: AppBar(
@@ -1069,7 +1030,7 @@ class _MainDashState extends State<MainDash> {
         backgroundColor: Colors.transparent,
         elevation: 15,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
+          icon: Icon(Icons.menu, color: Color(0xFFFFFFFF)),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
@@ -1127,12 +1088,12 @@ class _MainDashState extends State<MainDash> {
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
                     ? CachedNetworkImage(
-                  imageUrl: avatarUrl,
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
-                ) : Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl is empty
+                      imageUrl: avatarUrl,
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40),
+                ) : Icon(Icons.local_hospital, size: 40, color: Colors.white),
               ),
             ),
           ),
@@ -1140,185 +1101,192 @@ class _MainDashState extends State<MainDash> {
         ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
+            color: Color(0xFF1497E8),
           ),
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
-      body: ListView(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(top: 15.0),
-            child: Column(
-              children: [
-                SizedBox(height: 10,),
-                // WELCOME! ----------------------------------------------------
-                Padding(
-                  padding: EdgeInsets.only(left: 40.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$hospitalName: $username',
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 18 * size,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2 * size / sizeAxis,
-                          color: const Color(0xFFFFFFFF),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Text(
-                            'latest update of ',
-                            style: SafeGoogleFont(
-                              'Urbanist',
-                              fontSize: 14 * size,
-                              height: 1.2 * size / sizeAxis,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
+      body: LiquidPullToRefresh(
+        onRefresh: _handleRefresh,
+        color: Color(0xFF1497E8),
+        height: 100,
+        backgroundColor: Colors.redAccent,
+        animSpeedFactor: 2,
+        showChildOpacityTransition: false,
+        child: ListView(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 15.0),
+              child: Column(
+                children: [
+                  SizedBox(height: 10,),
+                  // WELCOME! ----------------------------------------------------
+                  Padding(
+                    padding: EdgeInsets.only(left: 40.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$hospitalName: $username',
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 18 * size,
+                            fontWeight: FontWeight.bold,
+                            height: 1.2 * size / sizeAxis,
+                            color: const Color(0xFFFFFFFF),
                           ),
-                          Text(
-                            '$formattedCurrentDate ',
-                            style: SafeGoogleFont(
-                              'Urbanist',
-                              fontSize: 14 * size,
-                              height: 1.2 * size / sizeAxis,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        'If nothing is loading in try to Login again.',
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 14 * size,
-                          height: 1.2 * size / sizeAxis,
-                          color: const Color(0xFFFFFFFF),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Text(
+                              'latest update of ',
+                              style: SafeGoogleFont(
+                                'Urbanist',
+                                fontSize: 14 * size,
+                                height: 1.2 * size / sizeAxis,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              '$formattedCurrentDate ',
+                              style: SafeGoogleFont(
+                                'Urbanist',
+                                fontSize: 14 * size,
+                                height: 1.2 * size / sizeAxis,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'If nothing is loading in try to Login again.',
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 14 * size,
+                            height: 1.2 * size / sizeAxis,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 30.0),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(75.0)),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 30.0, right: 30.0),
-                    child: SingleChildScrollView( // Wrap the Column in a SingleChildScrollView
-                      child: Column(
-                        children: [
-                          SizedBox(height: 30),
-                          // Sales of the day-----------------------------------------------
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Card(
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        bottomRight: Radius.circular(40),
-                                        topLeft: Radius.circular(40)
-                                    ),
-                                  ),
-                                  child: Stack(children: [
-                                    // Image.asset(
-                                    //   'assets/images/bgg15.jpg',
-                                    //   fit: BoxFit.cover,
-                                    //   width: 360,
-                                    //   height: 123,
-                                    // ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Today's Total Sales",
-                                            style: SafeGoogleFont(
-                                              'Urbanist',
-                                              fontSize: 15 * size,
-                                              height: 1.2 * size / sizeAxis,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(height: 15),
-                                          Align(
-                                            alignment: Alignment.centerRight,
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  '₱ ${NumberFormat('#,##0.00').format(totalSales)}',
-                                                  style: SafeGoogleFont(
-                                                    'Inter',
-                                                    fontSize: 17 * size,
-                                                    fontWeight: FontWeight.w600,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                // SizedBox(height: 10),
-                                                // Text(
-                                                //   '$percentSales% Increase than before',
-                                                //   style: SafeGoogleFont(
-                                                //     'Urbanist',
-                                                //     fontSize: 11 * size,
-                                                //     height: 1.2 * size / sizeAxis,
-                                                //     color: Colors.white,
-                                                //   ),
-                                                // ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                  SizedBox(height: 30.0),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFFFFF),
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(75.0)),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                      child: SingleChildScrollView( // Wrap the Column in a SingleChildScrollView
+                        child: Column(
+                          children: [
+                            SizedBox(height: 30),
+                            // Sales of the day-----------------------------------------------
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Card(
+                                    elevation: 5,
+                                    color: Color(0xFF1497E8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                          bottomRight: Radius.circular(40),
+                                          topLeft: Radius.circular(40)
                                       ),
                                     ),
-                                  ]),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          // Cash and Cheque------------------------------------------------
-                          Container(
-                            margin: EdgeInsets.fromLTRB(
-                                5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Today's Collection",
-                                  style: SafeGoogleFont(
-                                    'Urbanist',
-                                    fontSize: 15 * size,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.2 * size / sizeAxis,
-                                    color: const Color(0xFF13A4FF),
+                                    child: Stack(children: [
+                                      // Image.asset(
+                                      //   'assets/images/bgg15.jpg',
+                                      //   fit: BoxFit.cover,
+                                      //   width: 360,
+                                      //   height: 123,
+                                      // ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Today's Total Sales",
+                                              style: SafeGoogleFont(
+                                                'Urbanist',
+                                                fontSize: 15 * size,
+                                                height: 1.2 * size / sizeAxis,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            SizedBox(height: 15),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '₱ ${NumberFormat('#,##0.00').format(totalSales)}',
+                                                    style: SafeGoogleFont(
+                                                      'Inter',
+                                                      fontSize: 17 * size,
+                                                      fontWeight: FontWeight.w600,
+                                                      height: 1.2 * size / sizeAxis,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  // SizedBox(height: 10),
+                                                  // Text(
+                                                  //   '$percentSales% Increase than before',
+                                                  //   style: SafeGoogleFont(
+                                                  //     'Urbanist',
+                                                  //     fontSize: 11 * size,
+                                                  //     height: 1.2 * size / sizeAxis,
+                                                  //     color: Colors.white,
+                                                  //   ),
+                                                  // ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]),
                                   ),
                                 ),
-                                SizedBox(height: 10),
                               ],
                             ),
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
+                            SizedBox(height: 10),
+                            // Cash and Cheque------------------------------------------------
+                            Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Today's Collection",
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: const Color(0xFF13A4FF),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
                                   child: Card(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                     elevation: 5,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color: Color(0xFF1497E8),
                                     child: Stack(
                                       children: [
                                         Padding(
@@ -1360,14 +1328,14 @@ class _MainDashState extends State<MainDash> {
                                       ],
                                     ),
                                   ),
-                              ),
-                              Expanded(
+                                ),
+                                Expanded(
                                   child: Card(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                     elevation: 5,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color: Color(0xFF1497E8),
                                     child: Stack(
                                       children: [
                                         Padding(
@@ -1409,893 +1377,29 @@ class _MainDashState extends State<MainDash> {
                                       ],
                                     ),
                                   ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          // Sales BarChart Month-------------------------------------------
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(40),
-                                    topLeft: Radius.circular(40)
-                                ),
-                              ),
-                              elevation: 5,
-                              color: Theme.of(context).colorScheme.secondary,
-                              child: Stack(
-                                children: [
-                                  // Image.asset(
-                                  //   'assets/images/bgg16.jpg',
-                                  //   fit: BoxFit.cover,
-                                  //   width: 500,
-                                  //   height: 410,
-                                  // ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Sales of $formattedCurrentMonth",
-                                          style: SafeGoogleFont(
-                                            'Urbanist',
-                                            fontSize: 15 * size,
-                                            height: 1.2 * size / sizeAxis,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(height: 20),
-                                        // BarChart
-                                        SfCartesianChart(
-                                          primaryXAxis: CategoryAxis(
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          primaryYAxis: NumericAxis(
-                                            isVisible: false,
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          series: <CartesianSeries>[
-                                            ColumnSeries<SalesMonthData, String>(
-                                              dataSource: _chartMonthData,
-                                              xValueMapper: (SalesMonthData sales, _) => sales.dayName,
-                                              yValueMapper: (SalesMonthData sales, _) => sales.amount,
-                                              color: Colors.white,
-                                              dataLabelSettings: DataLabelSettings(
-                                                color: Colors.white,
-                                                isVisible: true,
-                                                textStyle: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 8,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            SizedBox(width: 5),
-                                            Text(
-                                              'Days',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          // Expense and Disbursement of the day----------------------------
-                          Container(
-                            margin: EdgeInsets.fromLTRB(
-                                5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Today's Expense and Disbursement",
-                                  style: SafeGoogleFont(
-                                    'Urbanist',
-                                    fontSize: 15 * size,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.2 * size / sizeAxis,
-                                    color: const Color(0xFF13A4FF),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              // Expense
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Expense',
-                                              style: SafeGoogleFont(
-                                                'Urbanist',
-                                                fontSize: 15 * size,
-                                                height: 1.2 * size / sizeAxis,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SizedBox(height: 10),
-                                            SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '₱ ${NumberFormat('#,##0.00').format(totalExpense)}',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize: 17 * size,
-                                                      fontWeight: FontWeight.w600,
-                                                      height: 1.2 * size / sizeAxis,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // Disbursement
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Disbursement',
-                                              style: SafeGoogleFont(
-                                                'Urbanist',
-                                                fontSize: 15 * size,
-                                                height: 1.2 * size / sizeAxis,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SizedBox(height: 10),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  SingleChildScrollView(
-                                                    scrollDirection: Axis.horizontal,
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text(
-                                                          '₱ ${NumberFormat('#,##0.00').format(totalDisbursement)}',
-                                                          style: SafeGoogleFont(
-                                                            'Inter',
-                                                            fontSize: 17 * size,
-                                                            fontWeight: FontWeight.w600,
-                                                            height: 1.2 * size / sizeAxis,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          // Sales of the year----------------------------------------------
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(40),
-                                    topLeft: Radius.circular(40)
-                                ),
-                              ),
-                              elevation: 5,
-                              color: Theme.of(context).colorScheme.secondary,
-                              child: Stack(
-                                children: [
-                                  // Image.asset(
-                                  //   'assets/images/bgg16.jpg',
-                                  //   fit: BoxFit.cover,
-                                  //   width: 500,
-                                  //   height: 390,
-                                  // ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Sales of $formattedCurrentYear",
-                                          style: SafeGoogleFont(
-                                            'Urbanist',
-                                            fontSize: 15 * size,
-                                            height: 1.2 * size / sizeAxis,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(height: 20),
-                                        // LineChart with curved line and data labels
-                                        SfCartesianChart(
-                                          primaryXAxis: CategoryAxis(
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          primaryYAxis: NumericAxis(
-                                            isVisible: false, // This line hides the YAxis label
-                                            labelStyle: TextStyle(
-                                              color: Colors.white, // Set the color of the labels to white
-                                            ),
-                                            numberFormat: NumberFormat.currency(locale: 'en_PH', symbol: '₱ '), // Set currency format
-                                          ),
-                                          series: <CartesianSeries>[
-                                            ColumnSeries<SalesYearData, String>(
-                                              dataSource: _chartYearData,
-                                              xValueMapper: (SalesYearData sales, _) => sales.monthName,
-                                              yValueMapper: (SalesYearData sales, _) => sales.amount,
-                                              color: Colors.white,
-                                              dataLabelSettings: DataLabelSettings(
-                                                color: Colors.white,
-                                                isVisible: true,
-                                                textStyle: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 8,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            SizedBox(width: 5),
-                                            Text(
-                                              'Months',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          // Patients Data--------------------------------------------------
-                          Container(
-                            margin: EdgeInsets.fromLTRB(
-                                5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Today's Patient Data",
-                                  style: SafeGoogleFont(
-                                    'Urbanist',
-                                    fontSize: 15 * size,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.2 * size / sizeAxis,
-                                    color: const Color(0xFF13A4FF),
-                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          // IPD and OPD----------------------------------------------------
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'IPD ',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Theme.of(context).colorScheme.tertiary,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10),
-                                            // Centered Text Content
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                '$totalIPD',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Theme.of(context).colorScheme.tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                            SizedBox(height: 10),
+                            // Sales BarChart Month-------------------------------------------
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(40),
+                                      topLeft: Radius.circular(40)
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'OPD ',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Theme.of(context).colorScheme.tertiary,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10),
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                '$totalOPD',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Theme.of(context).colorScheme.tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          // PHIC and HMO---------------------------------------------------
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'PHIC ',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Theme.of(context).colorScheme.tertiary,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10),
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                '$totalPHIC',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Theme.of(context).colorScheme.tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'HMO ',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Theme.of(context).colorScheme.tertiary,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-
-                                            SizedBox(height: 10),
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                '$totalHMO',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Theme.of(context).colorScheme.tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          // Company and Senior---------------------------------------------
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'Company',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Theme.of(context).colorScheme.tertiary,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10),
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                '$totalCOMPANY',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Theme.of(context).colorScheme.tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: Stack(
-                                    children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 175,
-                                      //   height: 95,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'Senior PWD',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Theme.of(context).colorScheme.tertiary,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10),
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                '$totalSENIOR',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Theme.of(context).colorScheme.tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          // Insurance of the Day and Month---------------------------------
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(40),
-                                    topLeft: Radius.circular(40)
-                                ),
-                              ),
-                              elevation: 0,
-                              color: Theme.of(context).colorScheme.secondary,
-                              child: Stack(
-                                children: [
-                                  // Image.asset(
-                                  //   'assets/images/bgg16.jpg',
-                                  //   fit: BoxFit.cover,
-                                  //   width: 500,
-                                  //   height: 600,
-                                  // ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Insurance of The Day',
-                                          style: SafeGoogleFont(
-                                            'Urbanist',
-                                            fontSize: 15 * size,
-                                            height: 1.2 * size / sizeAxis,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(height: 10),
-                                        Container(
-                                          height: 320, // Adjust the height as needed
-                                          child: ListView.separated(
-                                            shrinkWrap: true,
-                                            itemCount: insuranceTODAY.length,
-                                            itemBuilder: (context, index) {
-                                              Insurance todayInsurance =
-                                              insuranceTODAY[index];
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  // Navigate to the next page when a list item is tapped
-                                                  // Navigator.of(context).push(
-                                                  //   MaterialPageRoute(
-                                                  //     builder: (context) => Details(),
-                                                  //   ),
-                                                  // );
-                                                },
-                                                child: Card(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(15),
-                                                  ),
-                                                  elevation: 3,
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                  child: ListTile(
-                                                    title: Text(
-                                                      todayInsurance.name,
-                                                      style: SafeGoogleFont(
-                                                        'Urbanist',
-                                                        fontSize: 15 * size,
-                                                        height: 1.2 * size / sizeAxis,
-                                                        color: Theme.of(context).colorScheme.tertiary,
-                                                      ),
-                                                    ),
-                                                    subtitle: Column(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children: [
-                                                        SizedBox(height: 5),
-                                                        Text(
-                                                          '\₱ ${double.parse(todayInsurance.amount).toStringAsFixed(2)}',
-                                                          style: SafeGoogleFont(
-                                                            'Inter',
-                                                            fontSize: 17 * size,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Theme.of(context).colorScheme.tertiary,
-                                                            height: 1.2 * size / sizeAxis,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            separatorBuilder: (context, index) {
-                                              return SizedBox(height: 10); // Adjust the height as needed
-                                            },
-                                          ),
-                                        ),
-                                        // New Content
-                                        SizedBox(height: 10),
-                                        // Insurance of the Month
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Card(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.only(
-                                                      bottomRight: Radius.circular(40),
-                                                      topLeft: Radius.circular(40)
-                                                  ),
-                                                ),
-                                                color: Theme.of(context).colorScheme.primary,
-                                                child: Stack(
-                                                    children: [
-                                                      // Image.asset(
-                                                      //   'assets/images/bgg15.jpg',
-                                                      //   fit: BoxFit.cover,
-                                                      //   width: 360,
-                                                      //   height: 125,
-                                                      // ),
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(15.0),
-                                                        child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Text(
-                                                              'Insurance of $formattedCurrentMonth',
-                                                              style: SafeGoogleFont(
-                                                                'Urbanist',
-                                                                fontSize: 15 * size,
-                                                                height: 1.2 * size / sizeAxis,
-                                                                color: Theme.of(context).colorScheme.tertiary,
-                                                              ),
-                                                            ),
-                                                            SizedBox(height: 15),
-                                                            Align(
-                                                              alignment: Alignment.centerRight,
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                children: [
-                                                                  Text(
-                                                                    '₱ ${NumberFormat('#,##0.00').format(totalInsuranceMONTH)}',
-                                                                    style: SafeGoogleFont(
-                                                                      'Inter',
-                                                                      fontSize: 17 * size,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      height: 1.2 * size / sizeAxis,
-                                                                      color: Theme.of(context).colorScheme.tertiary,
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(height: 10),
-                                                                  // Text(
-                                                                  //   '$percentInsurance% than before',
-                                                                  //   style: SafeGoogleFont(
-                                                                  //     'Inter',
-                                                                  //     fontSize: 11 * size,
-                                                                  //     height: 1.2 * size / sizeAxis,
-                                                                  //     color: Colors.white,
-                                                                  //   ),
-                                                                  // ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ]),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          // Transmittal of the day-----------------------------------------
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        bottomRight: Radius.circular(40),
-                                        topLeft: Radius.circular(40)
-                                    ),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  child: Stack(children: [
+                                elevation: 5,
+                                color: Color(0xFF1497E8),
+                                child: Stack(
+                                  children: [
                                     // Image.asset(
-                                    //   'assets/images/bgg15.jpg',
+                                    //   'assets/images/bgg16.jpg',
                                     //   fit: BoxFit.cover,
-                                    //   width: 360,
-                                    //   height: 117,
+                                    //   width: 500,
+                                    //   height: 410,
                                     // ),
                                     Padding(
                                       padding: const EdgeInsets.all(20.0),
@@ -2303,168 +1407,54 @@ class _MainDashState extends State<MainDash> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Today's PHIC Transmittal",
+                                            "Sales of $formattedCurrentMonth",
                                             style: SafeGoogleFont(
                                               'Urbanist',
                                               fontSize: 15 * size,
                                               height: 1.2 * size / sizeAxis,
+                                              fontWeight: FontWeight.bold,
                                               color: Colors.white,
                                             ),
                                           ),
-                                          SizedBox(height: 12),
-                                          Divider(color: Colors.white),
-                                          SizedBox(height: 12),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.square,
-                                                color: Color(0xFF64B5F6),
-                                                size: 15 * size,
-                                              ),
-                                              Text(
-                                                ' Claim Amount',
-                                                style: SafeGoogleFont(
-                                                  'Urbanist',
-                                                  fontSize: 15 * size,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.square,
-                                                color: Color(0xFF1976D2),
-                                                size: 15 * size,
-                                              ),
-                                              Text(
-                                                ' PF',
-                                                style: SafeGoogleFont(
-                                                  'Urbanist',
-                                                  fontSize: 15 * size,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Center(
-                                            child: Container(
-                                              width: 250,
-                                              height: 250,
-                                              child: SfCircularChart(
-                                                palette: <Color>[Color(0xFF64B5F6), Color(0xFF1976D2),
-                                                ],
-                                                series: <CircularSeries>[
-                                                  PieSeries<ChartData, String>(
-                                                    strokeWidth: 5,
-                                                    strokeColor: Colors.white,
-                                                    dataSource: <ChartData>[
-                                                      ChartData('Total Claim Amount', totalClaimAmount),
-                                                      ChartData('PF', totalPF),
-                                                    ],
-                                                    xValueMapper: (ChartData data, _) => data.name,
-                                                    yValueMapper: (ChartData data, _) => data.value,
-                                                    // Dynamically set the radius based on the highest data value
-                                                    pointRadiusMapper: (ChartData data, _) {
-                                                      double maxValue = calculateMaxValue([
-                                                        ChartData('Total Claim Amount', totalClaimAmount),
-                                                        ChartData('PF', totalPF),
-                                                      ]);
-                                                      double radiusPercentage = 40 + ((data.value / maxValue) * 40);
-                                                      return radiusPercentage.toString() + '%';
-                                                    },
-                                                    // Customize the appearance of the labels
-                                                    dataLabelSettings: DataLabelSettings(
-                                                      isVisible: true,
-                                                      textStyle: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 12 * size,
-                                                        height: 1.2 * size / sizeAxis,
-                                                        fontFamily: 'Urbanist',
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    dataLabelMapper: (ChartData data, _) {
-                                                      // Format the value as currency
-                                                      final NumberFormat currencyFormat = NumberFormat.currency(locale: 'en_PH', symbol: '₱');
-                                                      return '${currencyFormat.format(data.value)}';
-                                                    },
-                                                    enableTooltip: true,
-                                                  ),
-                                                ],
+                                          SizedBox(height: 20),
+                                          // BarChart
+                                          SfCartesianChart(
+                                            primaryXAxis: CategoryAxis(
+                                              labelStyle: TextStyle(
+                                                color: Colors.white,
                                               ),
                                             ),
-                                          ),
-                                          SizedBox(height: 13),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Total Claim Counts: ',
-                                                style: SafeGoogleFont(
-                                                  'Urbanist',
-                                                  fontSize: 15 * size,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Colors.white,
-                                                ),
+                                            primaryYAxis: NumericAxis(
+                                              isVisible: false,
+                                              labelStyle: TextStyle(
+                                                color: Colors.white,
                                               ),
-                                              Text(
-                                                '$totalClaimCount',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
+                                            ),
+                                            series: <CartesianSeries>[
+                                              ColumnSeries<SalesMonthData, String>(
+                                                dataSource: _chartMonthData,
+                                                xValueMapper: (SalesMonthData sales, _) => sales.dayName,
+                                                yValueMapper: (SalesMonthData sales, _) => sales.amount,
+                                                color: Colors.white,
+                                                dataLabelSettings: DataLabelSettings(
                                                   color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Total Claim Amount: ',
-                                                style: SafeGoogleFont(
-                                                  'Urbanist',
-                                                  fontSize: 15 * size,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              Text(
-                                                '₱ ${NumberFormat('#,##0.00').format(totalClaimAmount)}',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Colors.white,
+                                                  isVisible: true,
+                                                  textStyle: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 8,
+                                                  ),
                                                 ),
                                               ),
                                             ],
                                           ),
-                                          SizedBox(height: 10),
                                           Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
+                                              SizedBox(width: 5),
                                               Text(
-                                                'PF: ',
-                                                style: SafeGoogleFont(
-                                                  'Urbanist',
-                                                  fontSize: 15 * size,
-                                                  height: 1.2 * size / sizeAxis,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              Text(
-                                                '₱ ${NumberFormat('#,##0.00').format(totalPF)}',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 17 * size,
-                                                  fontWeight: FontWeight.bold,
-                                                  height: 1.2 * size / sizeAxis,
+                                                'Days',
+                                                style: TextStyle(
+                                                  fontSize: 11,
                                                   color: Colors.white,
                                                 ),
                                               ),
@@ -2473,251 +1463,1259 @@ class _MainDashState extends State<MainDash> {
                                         ],
                                       ),
                                     ),
-                                  ]),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          // Transmittal Month----------------------------------------------
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(40),
-                                    topLeft: Radius.circular(40)
-                                ),
-                              ),
-                              elevation: 5,
-                              color: Theme.of(context).colorScheme.secondary,
-                              child: Stack(
+                            ),
+                            SizedBox(height: 10),
+                            // Expense and Disbursement of the day----------------------------
+                            Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Image.asset(
-                                  //   'assets/images/bgg16.jpg',
-                                  //   fit: BoxFit.cover,
-                                  //   width: 500,
-                                  //   height: 410,
-                                  // ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                  Text(
+                                    "Today's Expense and Disbursement",
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: const Color(0xFF13A4FF),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                // Expense
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFF1497E8),
+                                    child: Stack(
                                       children: [
-                                        Text(
-                                          "PHIC Transmittal of $formattedCurrentMonth",
-                                          style: SafeGoogleFont(
-                                            'Urbanist',
-                                            fontSize: 15 * size,
-                                            height: 1.2 * size / sizeAxis,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(height: 20),
-                                        // BarChart
-                                        SfCartesianChart(
-                                          primaryXAxis: CategoryAxis(
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          primaryYAxis: NumericAxis(
-                                            isVisible: false,
-                                            labelStyle: TextStyle(
-                                              color: Colors.white, // Set the color of the labels to white
-                                            ),
-                                          ),
-                                          series: <CartesianSeries>[ // Corrected type here
-                                            ColumnSeries<TransMonthData, String>(
-                                              dataSource: _chartMonthTransData,
-                                              xValueMapper: (TransMonthData sales, _) => sales.dayName,
-                                              yValueMapper: (TransMonthData sales, _) => sales.amount,
-                                              color: Colors.white,
-                                              dataLabelSettings: DataLabelSettings(
-                                                color: Colors.white,
-                                                isVisible: true,
-                                                textStyle: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 8,
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Expense',
+                                                style: SafeGoogleFont(
+                                                  'Urbanist',
+                                                  fontSize: 15 * size,
+                                                  height: 1.2 * size / sizeAxis,
+                                                  color: Colors.white,
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                              SizedBox(height: 10),
+                                              SingleChildScrollView(
+                                                scrollDirection: Axis.horizontal,
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '₱ ${NumberFormat('#,##0.00').format(totalExpense)}',
+                                                      style: SafeGoogleFont(
+                                                        'Inter',
+                                                        fontSize: 17 * size,
+                                                        fontWeight: FontWeight.w600,
+                                                        height: 1.2 * size / sizeAxis,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            SizedBox(width: 5),
-                                            Text(
-                                              'Days',
-                                              style: TextStyle(
-                                                fontSize: 11,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Disbursement
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFF1497E8),
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Disbursement',
+                                                style: SafeGoogleFont(
+                                                  'Urbanist',
+                                                  fontSize: 15 * size,
+                                                  height: 1.2 * size / sizeAxis,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.centerRight,
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    SingleChildScrollView(
+                                                      scrollDirection: Axis.horizontal,
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text(
+                                                            '₱ ${NumberFormat('#,##0.00').format(totalDisbursement)}',
+                                                            style: SafeGoogleFont(
+                                                              'Inter',
+                                                              fontSize: 17 * size,
+                                                              fontWeight: FontWeight.w600,
+                                                              height: 1.2 * size / sizeAxis,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            // Sales of the year----------------------------------------------
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(40),
+                                      topLeft: Radius.circular(40)
+                                  ),
+                                ),
+                                elevation: 5,
+                                color: Color(0xFF1497E8),
+                                child: Stack(
+                                  children: [
+                                    // Image.asset(
+                                    //   'assets/images/bgg16.jpg',
+                                    //   fit: BoxFit.cover,
+                                    //   width: 500,
+                                    //   height: 390,
+                                    // ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Sales of $formattedCurrentYear",
+                                            style: SafeGoogleFont(
+                                              'Urbanist',
+                                              fontSize: 15 * size,
+                                              height: 1.2 * size / sizeAxis,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          SizedBox(height: 20),
+                                          // LineChart with curved line and data labels
+                                          SfCartesianChart(
+                                            primaryXAxis: CategoryAxis(
+                                              labelStyle: TextStyle(
                                                 color: Colors.white,
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ],
+                                            primaryYAxis: NumericAxis(
+                                              isVisible: false, // This line hides the YAxis label
+                                              labelStyle: TextStyle(
+                                                color: Colors.white, // Set the color of the labels to white
+                                              ),
+                                              numberFormat: NumberFormat.currency(locale: 'en_PH', symbol: '₱ '), // Set currency format
+                                            ),
+                                            series: <CartesianSeries>[
+                                              ColumnSeries<SalesYearData, String>(
+                                                dataSource: _chartYearData,
+                                                xValueMapper: (SalesYearData sales, _) => sales.monthName,
+                                                yValueMapper: (SalesYearData sales, _) => sales.amount,
+                                                color: Colors.white,
+                                                dataLabelSettings: DataLabelSettings(
+                                                  color: Colors.white,
+                                                  isVisible: true,
+                                                  textStyle: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 8,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(width: 5),
+                                              Text(
+                                                'Months',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            // Patients Data--------------------------------------------------
+                            Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Today's Patient Data",
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: const Color(0xFF13A4FF),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          // KPI -----------------------------------------------------------
-                          Container(
-                            margin: EdgeInsets.fromLTRB(
-                                5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            SizedBox(height: 10),
+                            // IPD and OPD----------------------------------------------------
+                            Row(
                               children: [
-                                Text(
-                                  "Key Performance Indicator",
-                                  style: SafeGoogleFont(
-                                    'Urbanist',
-                                    fontSize: 15 * size,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.2 * size / sizeAxis,
-                                    color: const Color(0xFF13A4FF),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                              ],
-                            ),
-                          ),
-                          ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: kpiData.length,
-                            physics: NeverScrollableScrollPhysics(), // Disable scrolling
-
-                            itemBuilder: (context, index) {
-                              KPI kpi = kpiData[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  // Navigate to the next page when a list item is tapped
-                                  // Navigator.of(context).push(
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => Details(),
-                                  //   ),
-                                  // );
-                                },
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        bottomRight: Radius.circular(40),
-                                        topLeft: Radius.circular(40)
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                  ),
-                                  elevation: 5,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: ListTile(
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    elevation: 5,
+                                    color: Color(0xFFFFFFFF),
+                                    child: Stack(
                                       children: [
-                                        SizedBox(height: 10),
-                                        Text(
-                                          kpi.statusType,
-                                          style: SafeGoogleFont(
-                                            'Urbanist',
-                                            fontSize: 15 * size,
-                                            height: 1.2 * size / sizeAxis,
-                                            color: Theme.of(context).colorScheme.tertiary,
-                                          ),
-                                        ),
-                                        Center(
-                                          child: Container(
-                                            width: 260,
-                                            height: 260,
-                                            child: SfRadialGauge(
-                                              axes: <RadialAxis>[
-                                                RadialAxis(
-                                                  minimum: 0,
-                                                  maximum: 500, // Adjust the maximum value as needed
-                                                  showLabels: true,
-                                                  showTicks: true,
-                                                  ticksPosition: ElementsPosition.outside,
-                                                  labelsPosition: ElementsPosition.outside, // Move labels outside the axis line
-                                                  axisLineStyle: AxisLineStyle(
-                                                    thickness: 0.0,
-                                                    color: Theme.of(context).colorScheme.tertiary,
-                                                    thicknessUnit: GaugeSizeUnit.factor,
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'IPD ',
+                                                    style: SafeGoogleFont(
+                                                      'Urbanist',
+                                                      fontSize: 15 * size,
+                                                      height: 1.2 * size / sizeAxis,
+                                                      color: Colors.black,
+                                                    ),
                                                   ),
-                                                  ranges: <GaugeRange>[
-                                                    GaugeRange(
-                                                      startValue: 0,
-                                                      endValue: 150,
-                                                      color: Color(0xFF64B5F6), // 60% - Light Blue
-                                                      startWidth: 5,
-                                                      endWidth: 30,
-                                                    ),
-                                                    GaugeRange(
-                                                      startValue: 150,
-                                                      endValue: 350,
-                                                      color: Color(0xFF1976D2), // 30% - Dark Blue
-                                                      startWidth: 5,
-                                                      endWidth: 30,
-                                                    ),
-                                                    GaugeRange(
-                                                      startValue: 350,
-                                                      endValue: 500,
-                                                      color: Color(0xFF0D47A1), // 10% - Deep Blue
-                                                      startWidth: 5,
-                                                      endWidth: 30,
-                                                    ),
-                                                  ],
-                                                  pointers: <GaugePointer>[
-                                                    NeedlePointer(
-                                                      value: kpi.value.toDouble(), // Assuming kpi.value is accessible here
-                                                      needleColor: Theme.of(context).colorScheme.tertiary, // Use the defined color
-                                                      lengthUnit: GaugeSizeUnit.factor,
-                                                      needleStartWidth: 0.1,
-                                                      needleEndWidth: 7,
-                                                      needleLength: 0.7,
-                                                    ),
-                                                  ],
-                                                  annotations: <GaugeAnnotation>[
-                                                    GaugeAnnotation(
-                                                      positionFactor: 0.5,
-                                                      angle: 90,
-                                                      widget: Text(
-                                                        '${kpi.value} ${kpi.units}',
-                                                        style: TextStyle(
-                                                          fontSize: 13,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Theme.of(context).colorScheme.tertiary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
+                                                ],
+                                              ),
+                                              SizedBox(height: 10),
+                                              // Centered Text Content
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  '$totalIPD',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.black,
+                                                  ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              return SizedBox(height: 10); // Adjust the height as needed
-                            },
-                          ),
-                          SizedBox(height: 20),
-                        ],
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFFFFFFFF),
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'OPD ',
+                                                    style: SafeGoogleFont(
+                                                      'Urbanist',
+                                                      fontSize: 15 * size,
+                                                      height: 1.2 * size / sizeAxis,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  '$totalOPD',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            // PHIC and HMO---------------------------------------------------
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFFFFFFFF),
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'PHIC ',
+                                                    style: SafeGoogleFont(
+                                                      'Urbanist',
+                                                      fontSize: 15 * size,
+                                                      height: 1.2 * size / sizeAxis,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  '$totalPHIC',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFFFFFFFF),
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'HMO ',
+                                                    style: SafeGoogleFont(
+                                                      'Urbanist',
+                                                      fontSize: 15 * size,
+                                                      height: 1.2 * size / sizeAxis,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  '$totalHMO',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            // Company and Senior---------------------------------------------
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFFFFFFFF),
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Company',
+                                                    style: SafeGoogleFont(
+                                                      'Urbanist',
+                                                      fontSize: 15 * size,
+                                                      height: 1.2 * size / sizeAxis,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  '$totalCOMPANY',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFFFFFFFF),
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Senior PWD',
+                                                    style: SafeGoogleFont(
+                                                      'Urbanist',
+                                                      fontSize: 15 * size,
+                                                      height: 1.2 * size / sizeAxis,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  '$totalSENIOR',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            // Insurance of the Day and Month---------------------------------
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(40),
+                                      topLeft: Radius.circular(40)
+                                  ),
+                                ),
+                                elevation: 0,
+                                color: Color(0xFF1497E8),
+                                child: Stack(
+                                  children: [
+                                    // Image.asset(
+                                    //   'assets/images/bgg16.jpg',
+                                    //   fit: BoxFit.cover,
+                                    //   width: 500,
+                                    //   height: 600,
+                                    // ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Insurance of The Day',
+                                            style: SafeGoogleFont(
+                                              'Urbanist',
+                                              fontSize: 15 * size,
+                                              height: 1.2 * size / sizeAxis,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Container(
+                                            height: 320, // Adjust the height as needed
+                                            child: ListView.separated(
+                                              shrinkWrap: true,
+                                              itemCount: insuranceTODAY.length,
+                                              itemBuilder: (context, index) {
+                                                Insurance todayInsurance =
+                                                insuranceTODAY[index];
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    // Navigate to the next page when a list item is tapped
+                                                    // Navigator.of(context).push(
+                                                    //   MaterialPageRoute(
+                                                    //     builder: (context) => Details(),
+                                                    //   ),
+                                                    // );
+                                                  },
+                                                  child: Card(
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(15),
+                                                    ),
+                                                    elevation: 3,
+                                                    color: Color(0xFFFFFFFF),
+                                                    child: ListTile(
+                                                      title: Text(
+                                                        todayInsurance.name,
+                                                        style: SafeGoogleFont(
+                                                          'Urbanist',
+                                                          fontSize: 15 * size,
+                                                          height: 1.2 * size / sizeAxis,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      subtitle: Column(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                        children: [
+                                                          SizedBox(height: 5),
+                                                          Text(
+                                                            '\₱ ${double.parse(todayInsurance.amount).toStringAsFixed(2)}',
+                                                            style: SafeGoogleFont(
+                                                              'Inter',
+                                                              fontSize: 17 * size,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.black,
+                                                              height: 1.2 * size / sizeAxis,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              separatorBuilder: (context, index) {
+                                                return SizedBox(height: 10); // Adjust the height as needed
+                                              },
+                                            ),
+                                          ),
+                                          // New Content
+                                          SizedBox(height: 10),
+                                          // Insurance of the Month
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Card(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.only(
+                                                        bottomRight: Radius.circular(40),
+                                                        topLeft: Radius.circular(40)
+                                                    ),
+                                                  ),
+                                                  color: Color(0xFFFFFFFF),
+                                                  child: Stack(
+                                                      children: [
+                                                        // Image.asset(
+                                                        //   'assets/images/bgg15.jpg',
+                                                        //   fit: BoxFit.cover,
+                                                        //   width: 360,
+                                                        //   height: 125,
+                                                        // ),
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(15.0),
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Text(
+                                                                'Insurance of $formattedCurrentMonth',
+                                                                style: SafeGoogleFont(
+                                                                  'Urbanist',
+                                                                  fontSize: 15 * size,
+                                                                  height: 1.2 * size / sizeAxis,
+                                                                  color: Color(0xFF000000),
+                                                                ),
+                                                              ),
+                                                              SizedBox(height: 15),
+                                                              Align(
+                                                                alignment: Alignment.centerRight,
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  children: [
+                                                                    Text(
+                                                                      '₱ ${NumberFormat('#,##0.00').format(totalInsuranceMONTH)}',
+                                                                      style: SafeGoogleFont(
+                                                                        'Inter',
+                                                                        fontSize: 17 * size,
+                                                                        fontWeight: FontWeight.bold,
+                                                                        height: 1.2 * size / sizeAxis,
+                                                                        color: Colors.black,
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(height: 10),
+                                                                    // Text(
+                                                                    //   '$percentInsurance% than before',
+                                                                    //   style: SafeGoogleFont(
+                                                                    //     'Inter',
+                                                                    //     fontSize: 11 * size,
+                                                                    //     height: 1.2 * size / sizeAxis,
+                                                                    //     color: Colors.white,
+                                                                    //   ),
+                                                                    // ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ]),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            // Transmittal of the day-----------------------------------------
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                          bottomRight: Radius.circular(40),
+                                          topLeft: Radius.circular(40)
+                                      ),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFF1497E8),
+                                    child: Stack(children: [
+                                      // Image.asset(
+                                      //   'assets/images/bgg15.jpg',
+                                      //   fit: BoxFit.cover,
+                                      //   width: 360,
+                                      //   height: 117,
+                                      // ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Today's PHIC Transmittal",
+                                              style: SafeGoogleFont(
+                                                'Urbanist',
+                                                fontSize: 15 * size,
+                                                height: 1.2 * size / sizeAxis,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            SizedBox(height: 12),
+                                            Divider(color: Colors.white),
+                                            SizedBox(height: 12),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.square,
+                                                  color: Color(0xFF64B5F6),
+                                                  size: 15 * size,
+                                                ),
+                                                Text(
+                                                  ' Claim Amount',
+                                                  style: SafeGoogleFont(
+                                                    'Urbanist',
+                                                    fontSize: 15 * size,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.square,
+                                                  color: Color(0xFF1976D2),
+                                                  size: 15 * size,
+                                                ),
+                                                Text(
+                                                  ' PF',
+                                                  style: SafeGoogleFont(
+                                                    'Urbanist',
+                                                    fontSize: 15 * size,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Center(
+                                              child: Container(
+                                                width: 250,
+                                                height: 250,
+                                                child: SfCircularChart(
+                                                  palette: <Color>[Color(0xFF64B5F6), Color(0xFF1976D2),
+                                                  ],
+                                                  series: <CircularSeries>[
+                                                    PieSeries<ChartData, String>(
+                                                      strokeWidth: 5,
+                                                      strokeColor: Colors.white,
+                                                      dataSource: <ChartData>[
+                                                        ChartData('Total Claim Amount', totalClaimAmount),
+                                                        ChartData('PF', totalPF),
+                                                      ],
+                                                      xValueMapper: (ChartData data, _) => data.name,
+                                                      yValueMapper: (ChartData data, _) => data.value,
+                                                      // Dynamically set the radius based on the highest data value
+                                                      pointRadiusMapper: (ChartData data, _) {
+                                                        double maxValue = calculateMaxValue([
+                                                          ChartData('Total Claim Amount', totalClaimAmount),
+                                                          ChartData('PF', totalPF),
+                                                        ]);
+                                                        double radiusPercentage = 40 + ((data.value / maxValue) * 40);
+                                                        return radiusPercentage.toString() + '%';
+                                                      },
+                                                      // Customize the appearance of the labels
+                                                      dataLabelSettings: DataLabelSettings(
+                                                        isVisible: true,
+                                                        textStyle: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 12 * size,
+                                                          height: 1.2 * size / sizeAxis,
+                                                          fontFamily: 'Urbanist',
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      dataLabelMapper: (ChartData data, _) {
+                                                        // Format the value as currency
+                                                        final NumberFormat currencyFormat = NumberFormat.currency(locale: 'en_PH', symbol: '₱');
+                                                        return '${currencyFormat.format(data.value)}';
+                                                      },
+                                                      enableTooltip: true,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 13),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Total Claim Counts: ',
+                                                  style: SafeGoogleFont(
+                                                    'Urbanist',
+                                                    fontSize: 15 * size,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '$totalClaimCount',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 5),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Total Claim Amount: ',
+                                                  style: SafeGoogleFont(
+                                                    'Urbanist',
+                                                    fontSize: 15 * size,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '₱ ${NumberFormat('#,##0.00').format(totalClaimAmount)}',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 10),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'PF: ',
+                                                  style: SafeGoogleFont(
+                                                    'Urbanist',
+                                                    fontSize: 15 * size,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '₱ ${NumberFormat('#,##0.00').format(totalPF)}',
+                                                  style: SafeGoogleFont(
+                                                    'Inter',
+                                                    fontSize: 17 * size,
+                                                    fontWeight: FontWeight.bold,
+                                                    height: 1.2 * size / sizeAxis,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            // Transmittal Month----------------------------------------------
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(40),
+                                      topLeft: Radius.circular(40)
+                                  ),
+                                ),
+                                elevation: 5,
+                                color: Color(0xFF1497E8),
+                                child: Stack(
+                                  children: [
+                                    // Image.asset(
+                                    //   'assets/images/bgg16.jpg',
+                                    //   fit: BoxFit.cover,
+                                    //   width: 500,
+                                    //   height: 410,
+                                    // ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "PHIC Transmittal of $formattedCurrentMonth",
+                                            style: SafeGoogleFont(
+                                              'Urbanist',
+                                              fontSize: 15 * size,
+                                              height: 1.2 * size / sizeAxis,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          SizedBox(height: 20),
+                                          // BarChart
+                                          SfCartesianChart(
+                                            primaryXAxis: CategoryAxis(
+                                              labelStyle: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            primaryYAxis: NumericAxis(
+                                              isVisible: false,
+                                              labelStyle: TextStyle(
+                                                color: Colors.white, // Set the color of the labels to white
+                                              ),
+                                            ),
+                                            series: <CartesianSeries>[ // Corrected type here
+                                              ColumnSeries<TransMonthData, String>(
+                                                dataSource: _chartMonthTransData,
+                                                xValueMapper: (TransMonthData sales, _) => sales.dayName,
+                                                yValueMapper: (TransMonthData sales, _) => sales.amount,
+                                                color: Colors.white,
+                                                dataLabelSettings: DataLabelSettings(
+                                                  color: Colors.white,
+                                                  isVisible: true,
+                                                  textStyle: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 8,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(width: 5),
+                                              Text(
+                                                'Days',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            // KPI -----------------------------------------------------------
+                            Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Key Performance Indicator",
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: const Color(0xFF13A4FF),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: kpiData.length,
+                              physics: NeverScrollableScrollPhysics(), // Disable scrolling
+
+                              itemBuilder: (context, index) {
+                                KPI kpi = kpiData[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    // Navigate to the next page when a list item is tapped
+                                    // Navigator.of(context).push(
+                                    //   MaterialPageRoute(
+                                    //     builder: (context) => Details(),
+                                    //   ),
+                                    // );
+                                  },
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                          bottomRight: Radius.circular(40),
+                                          topLeft: Radius.circular(40)
+                                      ),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFFFFFFFF),
+                                    child: ListTile(
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(height: 10),
+                                          Text(
+                                            kpi.statusType,
+                                            style: SafeGoogleFont(
+                                              'Urbanist',
+                                              fontSize: 15 * size,
+                                              height: 1.2 * size / sizeAxis,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Center(
+                                            child: Container(
+                                              width: 260,
+                                              height: 260,
+                                              child: SfRadialGauge(
+                                                axes: <RadialAxis>[
+                                                  RadialAxis(
+                                                    minimum: 0,
+                                                    maximum: 500, // Adjust the maximum value as needed
+                                                    showLabels: true,
+                                                    showTicks: true,
+                                                    ticksPosition: ElementsPosition.outside,
+                                                    labelsPosition: ElementsPosition.outside, // Move labels outside the axis line
+                                                    axisLineStyle: AxisLineStyle(
+                                                      thickness: 0.0,
+                                                      color: Colors.black,
+                                                      thicknessUnit: GaugeSizeUnit.factor,
+                                                    ),
+                                                    ranges: <GaugeRange>[
+                                                      GaugeRange(
+                                                        startValue: 0,
+                                                        endValue: 150,
+                                                        color: Color(0xFF64B5F6), // 60% - Light Blue
+                                                        startWidth: 5,
+                                                        endWidth: 30,
+                                                      ),
+                                                      GaugeRange(
+                                                        startValue: 150,
+                                                        endValue: 350,
+                                                        color: Color(0xFF1976D2), // 30% - Dark Blue
+                                                        startWidth: 5,
+                                                        endWidth: 30,
+                                                      ),
+                                                      GaugeRange(
+                                                        startValue: 350,
+                                                        endValue: 500,
+                                                        color: Color(0xFF0D47A1), // 10% - Deep Blue
+                                                        startWidth: 5,
+                                                        endWidth: 30,
+                                                      ),
+                                                    ],
+                                                    pointers: <GaugePointer>[
+                                                      NeedlePointer(
+                                                        value: kpi.value.toDouble(), // Assuming kpi.value is accessible here
+                                                        needleColor: Colors.black, // Use the defined color
+                                                        lengthUnit: GaugeSizeUnit.factor,
+                                                        needleStartWidth: 0.1,
+                                                        needleEndWidth: 7,
+                                                        needleLength: 0.7,
+                                                      ),
+                                                    ],
+                                                    annotations: <GaugeAnnotation>[
+                                                      GaugeAnnotation(
+                                                        positionFactor: 0.5,
+                                                        angle: 90,
+                                                        widget: Text(
+                                                          '${kpi.value} ${kpi.units}',
+                                                          style: TextStyle(
+                                                            fontSize: 13,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              separatorBuilder: (context, index) {
+                                return SizedBox(height: 10); // Adjust the height as needed
+                              },
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _handleRefresh() async {
+    await _getUserData();
+    await _getHospitalNameData();
+    await _getAvatarData();
+    //-----------------------------------------------------------------------
+    await fetchTotalSalesToday();
+    await fetchCashCollection();
+    await fetchChequeCollection();
+    await fetchTotalExpense();
+    await fetchTotalDisbursement();
+    await fetchSalesMonthChart();
+    await fetchSalesYearChart();
+    await fetchTotalIPD();
+    await fetchTotalOPD();
+    await fetchTotalPHIC();
+    await fetchTotalHMO();
+    await fetchTotalCOMPANY();
+    await fetchTotalSENIOR();
+    await fetchInsuranceTODAY();
+    await fetchInsuranceMONTH();
+    await fetchPFtoday();
+    await fetchPHICTransmittalTODAY();
+    await fetchPHICTransmittalMONTH();
+    await fetchKPI();
+    //-----------------------------------------------------------------------
+    setState(() {});
+    return await Future.delayed(Duration(seconds: 2));
   }
 }
 
