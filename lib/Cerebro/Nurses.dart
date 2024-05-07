@@ -375,7 +375,7 @@ class _NursesPageState extends State<NursesPage> {
       body: LiquidPullToRefresh(
         onRefresh: _handleRefresh,
         color: Color(0xFF1497E8),
-        height: 200,
+        height: 150,
         backgroundColor: Colors.redAccent,
         animSpeedFactor: 2,
         showChildOpacityTransition: false,

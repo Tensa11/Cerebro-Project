@@ -265,7 +265,7 @@ class _ChangePassState extends State<ChangePass> {
       body: LiquidPullToRefresh(
         onRefresh: _handleRefresh,
         color: Color(0xFF1497E8),
-        height: 100,
+        height: 150,
         backgroundColor: Colors.redAccent,
         animSpeedFactor: 2,
         showChildOpacityTransition: false,

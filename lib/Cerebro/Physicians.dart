@@ -23,7 +23,6 @@ class PhysiciansPage extends StatefulWidget {
 
 class _PhysiciansPageState extends State<PhysiciansPage> {
   late List<Physician> physicians = [];
-  late List<Physician> filteredPhysicians;
   TextEditingController searchController = TextEditingController();
   List<String> specialties = [];
 
@@ -37,9 +36,9 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
     _getAvatarData();
     _getHospitalNameData();
     _getUserData();
-    fetchSpecialtiesForDropdown();
+    physicianSpecialtyList();
 
-    filteredPhysicians = List.from(physicians);
+
     _pagingController.addPageRequestListener((pageKey) {
       if (searchController.text.isEmpty) {
         fetchPhysicians(page: pageKey, specialty: '');
@@ -90,7 +89,6 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
   }
 
   int page = 1; // Initialize page number
-
   Future<void> fetchPhysicians({int page = 1, String? query, String? specialty}) async {
     try {
       final apiUrl = dotenv.env['API_URL'];
@@ -98,10 +96,6 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
         throw Exception('API_URL environment variable is not defined');
       }
       var url = Uri.parse('$apiUrl/med/physicians?page=$page');
-
-      if (specialty != null && specialty.isNotEmpty) {
-        url = Uri.parse('$apiUrl/med/physicians/specialty?page=$page&specialty=$specialty');
-      }
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
@@ -123,16 +117,11 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
         var decryptedData = await decryptData(encryptedData);
 
         var data = json.decode(decryptedData);
-        print(data);
+        print('Physician List Result: $data');
 
         List<Physician> fetchedPhysicians = List.generate(data.length, (index) {
           return Physician.fromJson(data[index]);
         });
-
-        // Filter physicians based on the selected specialty
-        if (specialty != null && specialty.isNotEmpty) {
-          fetchedPhysicians = fetchedPhysicians.where((physician) => physician.specialty == specialty).toList();
-        }
 
         final isLastPage = fetchedPhysicians.isEmpty;
         if (isLastPage) {
@@ -177,7 +166,7 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
         var decryptedData = await decryptData(encryptedData);
 
         var data = json.decode(decryptedData);
-        print(data);
+        print('Search Result: $data');
 
         List<Physician> fetchedPhysicians = List.generate(data.length, (index) {
           return Physician.fromJson(data[index]);
@@ -202,7 +191,8 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
     _pagingController.refresh();
   }
 
-  Future<void> fetchSpecialtiesForDropdown() async {
+  String? selectedSpecialty;
+  Future<void> physicianSpecialtyList() async {
     final apiUrl = dotenv.env['API_URL'];
     if (apiUrl == null) {
       throw Exception('API_URL environment variable is not defined');
@@ -234,11 +224,66 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
     }
   }
 
-  String selectedSpecialty = '';
+  Future<void> filterBySpecialty({int page = 1, required String specialty}) async {
+    try {
+      final apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+      var url = Uri.parse('$apiUrl/med/physicians/specialty?page=$page&specialty=$specialty');
 
-  void fetchPhysiciansBySpecialty({required String specialty}) {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken');
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var encryptedData = jsonDecode(response.body)['data'];
+        var decryptedData = await decryptData(encryptedData);
+
+        var data = json.decode(decryptedData);
+        print('Filter Result: $data');
+
+        List<Physician> filteredPhysicians = List.generate(data.length, (index) {
+          return Physician.fromJson(data[index]);
+        });
+
+        final isLastPage = filteredPhysicians.isEmpty;
+        if (isLastPage) {
+          _pagingController.appendLastPage(filteredPhysicians);
+        } else {
+          final nextPageKey = page + 1;
+          _pagingController.appendPage(filteredPhysicians, nextPageKey);
+        }
+
+        // Reset the paging controller and append the filtered physicians
+        _pagingController.value = PagingState(
+          itemList: filteredPhysicians,
+          nextPageKey: null, // Reset next page key as there's no more pages
+        );
+      } else {
+        _pagingController.error = Exception('Failed to load physicians');
+      }
+    } catch (e) {
+      _pagingController.error = e;
+    }
+  }
+
+  Future<void> filterPhysicianResults(String specialty) async {
+    List<Physician> filteredPhysicians = physicians.where((physician) => physician.specialty == specialty).toList();
+    _pagingController.itemList = filteredPhysicians;
     _pagingController.refresh();
-    fetchPhysicians(specialty: specialty);
+
   }
 
   String avatarUrl = '';
@@ -334,10 +379,6 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
 
     physicians.sort((a, b) => a.doctorName.compareTo(b.doctorName));
 
-    if (physicians.isNotEmpty && filteredPhysicians.isEmpty) {
-      filteredPhysicians = List.from(physicians); // Initialize with all physicians
-    }
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       key: _scaffoldKey,
@@ -432,7 +473,7 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
       body: LiquidPullToRefresh(
         onRefresh: _handleRefresh,
         color: Color(0xFF1497E8),
-        height: 200,
+        height: 150,
         backgroundColor: Colors.redAccent,
         animSpeedFactor: 2,
         showChildOpacityTransition: false,
@@ -515,6 +556,7 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       DropdownButton<String>(
+                        value: selectedSpecialty, // Add this line to specify the selected value
                         items: specialties.map((String specialty) {
                           return DropdownMenuItem<String>(
                             value: specialty,
@@ -522,10 +564,12 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
-                          setState(() {
-                            selectedSpecialty = newValue ?? '';
-                          });
-                          fetchPhysiciansBySpecialty(specialty: selectedSpecialty);
+                          if (newValue != null) {
+                            setState(() {
+                              selectedSpecialty = newValue; // Update the selected specialty
+                            });
+                            filterBySpecialty(specialty: newValue); // Pass the selected specialty
+                          }
                         },
                       )
 
