@@ -7,25 +7,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../util/utils.dart';
 import 'Drawer.dart';
 import 'package:http/http.dart' as http;
-import 'package:quickalert/models/quickalert_type.dart';
-import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-class MainDash extends StatefulWidget {
-  const MainDash({Key? key}) : super(key: key);
+class MainDashBeta extends StatefulWidget {
+  const MainDashBeta({Key? key}) : super(key: key);
 
   @override
-  _MainDashState createState() => _MainDashState();
+  _MainDashBetaState createState() => _MainDashBetaState();
 }
 
-class _MainDashState extends State<MainDash> {
+class _MainDashBetaState extends State<MainDashBeta> {
+
   final StreamController<bool> _streamController = StreamController<bool>();
-  bool isLoading = false;
   bool _isQuickAlertShown = false;
 
   @override
@@ -34,24 +34,24 @@ class _MainDashState extends State<MainDash> {
     _getUserData();
     _getHospitalNameData();
     _getAvatarData();
-    fetchTodaySales();
-    fetchTodayCash();
-    fetchTodayCheque();
-    fetchMonthSalesChart();
-    fetchTodayExpense();
-    fetchExpenseMONTH();
-    fetchTodayDisbursement();
-    fetchYearSalesChart();
-    fetchToday_IPD();
-    fetchToday_OPD();
-    fetchToday_PHIC();
-    fetchToday_HMO();
-    fetchToday_COMPANY();
-    fetchToday_SENIOR();
+    //-----------------------------------------------------------------------
+    fetchTotalSalesToday();
+    fetchCashCollection();
+    fetchChequeCollection();
+    fetchTotalExpense();
+    fetchTotalDisbursement();
+    fetchSalesMonthChart();
+    fetchSalesYearChart();
+    fetchTotalIPD();
+    fetchTotalOPD();
+    fetchTotalPHIC();
+    fetchTotalHMO();
+    fetchTotalCOMPANY();
+    fetchTotalSENIOR();
     fetchInsuranceTODAY();
     fetchInsuranceMONTH();
-    fetchClaimAmountToday();
-    fetchTodayPF();
+    fetchPFtoday();
+    fetchPHICTransmittalTODAY();
     fetchPHICTransmittalMONTH();
     fetchKPI();
     // -----------------------------------------------------------------------
@@ -64,7 +64,7 @@ class _MainDashState extends State<MainDash> {
           context: context,
           type: QuickAlertType.success,
           title: "Welcome back $username",
-          text: "This are the Data for today. If nothing is loading-in try to Refresh the screen by holding the screen downwards or re-login.",
+          text: "This are the Data for today. If Data's are not appearing try to re-login",
           confirmBtnColor: Color(0xFF13A4FF),
           headerBackgroundColor: Color(0xFF13A4FF),
         );
@@ -82,14 +82,15 @@ class _MainDashState extends State<MainDash> {
     super.dispose();
   }
 
-  late double todaySales = 0;
-  Future<void> fetchTodaySales() async {
+  late double totalSales = 0;
+  Future<void> fetchTotalSalesToday() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/fin/sales?date=$_selectedDate&period=today');
+
+      var url = Uri.parse('$apiUrl/fin/sales/total/today');
 
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
@@ -109,11 +110,12 @@ class _MainDashState extends State<MainDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        var saleTotal = data['data'][0]['amount'];
-        if (saleTotal is int || saleTotal is double) {
-          todaySales = saleTotal.toDouble();
+        var cashTotal = data['data'][0]['total'];
+        if (cashTotal is int) {
+          totalSales = cashTotal.toDouble();
+        } else if (cashTotal is double) {
+          totalSales = cashTotal;
         } else {
-          todaySales = 0.00; // Set to 0.00 if cashTotal is null or not a number
           throw Exception('totalSales value is neither int nor double');
         }
         setState(() {});
@@ -127,15 +129,15 @@ class _MainDashState extends State<MainDash> {
     }
   }
 
-  late double todayCash = 0;
-  Future<void> fetchTodayCash() async {
+  late double totalCash = 0;
+  Future<void> fetchCashCollection() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
 
-      var url = Uri.parse('$apiUrl/fin/cashier?date=$_selectedDate&period=today');
+      var url = Uri.parse('$apiUrl/fin/cashier/collection/today');
 
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
@@ -156,37 +158,39 @@ class _MainDashState extends State<MainDash> {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         var cashTotal = data['data'][0]['cash'];
-        if (cashTotal is int || cashTotal is double) {
-          todayCash = cashTotal.toDouble();
+        if (cashTotal is int) {
+          totalCash = cashTotal.toDouble();
+        } else if (cashTotal is double) {
+          totalCash = cashTotal;
         } else {
-          todayCash = 0.00; // Set to 0.00 if cashTotal is null or not a number
-          throw Exception('totalSales value is neither int nor double');
+          throw Exception('totalCash value is neither int nor double');
         }
         setState(() {});
       } else {
-        print('Failed to load fetchHistoryCash. Status code: ${response.statusCode}, Response body: ${response.body}');
-        throw Exception('Failed to load fetchHistoryCash');
+        print('Failed to load fetchCashCollection. Status code: ${response.statusCode}, Response body: ${response.body}');
+        throw Exception('Failed to load fetchCashCollection');
       }
     } catch (e) {
-      print('Error fetching fetchHistoryCash: $e');
+      print('Error fetching fetchCashCollection: $e');
       setState(() {});
     }
   }
 
-  late double todayCheque = 0;
-  Future<void> fetchTodayCheque() async {
+  late double totalCheque = 0;
+  Future<void> fetchChequeCollection() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
 
-      var url = Uri.parse('$apiUrl/fin/cashier?date=$_selectedDate&period=today');
+      var url = Uri.parse('$apiUrl/fin/cashier/collection/today');
 
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -201,33 +205,34 @@ class _MainDashState extends State<MainDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        var chequeTotal = data['data'][0]['cheque']; // Fetch cheque total
-        if (chequeTotal is int || chequeTotal is double) {
-          todayCheque = chequeTotal.toDouble();
+        var chequeTotal = data['data'][0]['cheque'];
+        if (chequeTotal is int) {
+          totalCheque = chequeTotal.toDouble();
+        } else if (chequeTotal is double) {
+          totalCheque = chequeTotal;
         } else {
-          todayCheque = 0.00; // Set to 0.00 if cashTotal is null or not a number
-          throw Exception('totalSales value is neither int nor double');
+          throw Exception('totalCheque value is neither int nor double');
         }
         setState(() {});
       } else {
-        print('Failed to load fetchHistoryCheque. Status code: ${response.statusCode}, Response body: ${response.body}');
-        throw Exception('Failed to load fetchHistoryCheque');
+        throw Exception('Failed to load fetchChequeCollection');
       }
     } catch (e) {
-      print('Error fetching fetchHistoryCheque: $e');
+      print('Error fetching fetchChequeCollection: $e');
       setState(() {});
     }
   }
 
   List<SalesMonthData> _chartMonthData = [];
   final List<String> dayNames = List.generate(31, (index) => (index + 1).toString());
-  Future<void> fetchMonthSalesChart() async {
+  Future<void> fetchSalesMonthChart() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/fin/sales?date=$_selectedDate&period=month');
+      var url = Uri.parse('$apiUrl/fin/sales/total/month');
+
 
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
@@ -271,14 +276,14 @@ class _MainDashState extends State<MainDash> {
     }
   }
 
-  late double todayExpense = 0;
-  Future<void> fetchTodayExpense() async {
+  late double totalExpense = 0;
+  Future<void> fetchTotalExpense() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/inv/items/expense?date=$_selectedDate&period=today');
+      var url = Uri.parse('$apiUrl/inv/items/expense/today');
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
@@ -299,12 +304,15 @@ class _MainDashState extends State<MainDash> {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         var expenseTotal = data['data'][0]['expense'];
-        if (expenseTotal is int || expenseTotal is double) {
-          todayExpense = expenseTotal.toDouble();
+        if (expenseTotal is int) {
+          totalExpense = expenseTotal.toDouble();
+        } else if (expenseTotal is double) {
+          totalExpense = expenseTotal;
         } else {
-          todayExpense = 0.00; // Set to 0.00 if cashTotal is null or not a number
-          throw Exception('totalSales value is neither int nor double');
+          throw Exception('Total value is neither int nor double');
         }
+
+        // totalExpense = double.parse(data['data'][0]['expense']);
         setState(() {});
       } else {
         throw Exception('Failed to load fetchTotalExpense');
@@ -315,59 +323,14 @@ class _MainDashState extends State<MainDash> {
     }
   }
 
-  List<ExpenMonthData> _chartMonthExpenseData = [];
-  Future<void> fetchExpenseMONTH() async {
-    try {
-      final apiUrl = dotenv.env['API_URL'];
-      if (apiUrl == null) {
-        throw Exception('API_URL environment variable is not defined');
-      }
-      var url = Uri.parse('$apiUrl/fin/sales?date=$_selectedDate&period=month');
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
-
-      if (token == null) {
-        throw Exception('Token not found.');
-      }
-      var response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Cookie': 'refreshToken=$refreshToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body)['data'];
-        List<ExpenMonthData> expensMonthData = [];
-        for (var dayData in data) {
-          String dayName = dayNames[dayData['day'] - 1];
-          expensMonthData.add(ExpenMonthData(
-            dayName,
-            double.parse(dayData['amount'].toString()),
-          ));
-        }
-        setState(() {
-          _chartMonthExpenseData = expensMonthData;
-        });
-      } else {
-        throw Exception('Failed to load fetchPHICTransmittalMONTH');
-      }
-    } catch (e) {
-      print('Error fetching fetchPHICTransmittalMONTH: $e');
-      setState(() {});
-    }
-  }
-
-  late double todayDisbursement = 0;
-  Future<void> fetchTodayDisbursement() async {
+  late double totalDisbursement = 0;
+  Future<void> fetchTotalDisbursement() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/inv/items/disbursement/history?date=$_selectedDate&period=today');
+      var url = Uri.parse('$apiUrl/fin/disbursement/total');
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
@@ -387,19 +350,21 @@ class _MainDashState extends State<MainDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        var expenseTotal = data['data'][0]['disbursement'];
-        if (expenseTotal is int || expenseTotal is double) {
-          todayDisbursement = expenseTotal.toDouble();
+        var disbursTotal = data['data'][0]['total'];
+        if (disbursTotal is int) {
+          totalDisbursement = disbursTotal.toDouble();
+        } else if (disbursTotal is double) {
+          totalDisbursement = disbursTotal;
         } else {
-          todayDisbursement = 0.00; // Set to 0.00 if cashTotal is null or not a number
-          throw Exception('totalSales value is neither int nor double');
+          throw Exception('Total value is neither int nor double');
         }
+
         setState(() {});
       } else {
-        throw Exception('Failed to load fetchTodayDisbursement');
+        throw Exception('Failed to load fetchTotalDisbursement');
       }
     } catch (e) {
-      print('Error fetching fetchTodayDisbursement: $e');
+      print('Error fetching fetchTotalDisbursement: $e');
       setState(() {});
     }
   }
@@ -419,13 +384,13 @@ class _MainDashState extends State<MainDash> {
     'Nov',
     'Dec'
   ];
-  Future<void> fetchYearSalesChart() async {
+  Future<void> fetchSalesYearChart() async {
     try {
       final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/fin/sales?date=$_selectedDate&period=year');
+      var url = Uri.parse('$apiUrl/fin/sales/total/year');
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
@@ -468,13 +433,13 @@ class _MainDashState extends State<MainDash> {
   }
 
   late int totalIPD = 0;
-  Future<void> fetchToday_IPD() async {
+  Future<void> fetchTotalIPD() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/patients/ipd?date=$_selectedDate&period=day');
+      var url = Uri.parse('$apiUrl/med/patients/ipd');
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
@@ -497,22 +462,22 @@ class _MainDashState extends State<MainDash> {
         totalIPD = int.parse(data['data'][0]['count']);
         setState(() {});
       } else {
-        throw Exception('Failed to load fetchToday_IPD');
+        throw Exception('Failed to load fetchTotalIPD');
       }
     } catch (e) {
-      print('Error fetching fetchToday_IPD: $e');
+      print('Error fetching fetchTotalIPD: $e');
       setState(() {});
     }
   }
 
   late int totalOPD = 0;
-  Future<void> fetchToday_OPD() async {
+  Future<void> fetchTotalOPD() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/patients/opd?date=$_selectedDate&period=day');
+      var url = Uri.parse('$apiUrl/med/patients/opd');
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
@@ -544,13 +509,13 @@ class _MainDashState extends State<MainDash> {
   }
 
   late int totalPHIC = 0;
-  Future<void> fetchToday_PHIC() async {
+  Future<void> fetchTotalPHIC() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/patients/phic?date=$_selectedDate&period=day');
+      var url = Uri.parse('$apiUrl/med/patients/phic');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
@@ -581,13 +546,13 @@ class _MainDashState extends State<MainDash> {
   }
 
   late int totalHMO = 0;
-  Future<void> fetchToday_HMO() async {
+  Future<void> fetchTotalHMO() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/patients/hmo?date=$_selectedDate&period=day');
+      var url = Uri.parse('$apiUrl/med/patients/hmo');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
@@ -618,13 +583,13 @@ class _MainDashState extends State<MainDash> {
   }
 
   late int totalCOMPANY = 0;
-  Future<void> fetchToday_COMPANY() async {
+  Future<void> fetchTotalCOMPANY() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/patients/company?date=$_selectedDate&period=day');
+      var url = Uri.parse('$apiUrl/med/patients/company');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
@@ -654,13 +619,13 @@ class _MainDashState extends State<MainDash> {
   }
 
   late int totalSENIOR = 0;
-  Future<void> fetchToday_SENIOR() async {
+  Future<void> fetchTotalSENIOR() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/med/patients/srpwd?date=$_selectedDate&period=day');
+      var url = Uri.parse('$apiUrl/med/patients/srpwd');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
@@ -696,7 +661,7 @@ class _MainDashState extends State<MainDash> {
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/fin/insurance?date=$_selectedDate&period=day');
+      var url = Uri.parse('$apiUrl/fin/insurance/today');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
@@ -738,7 +703,7 @@ class _MainDashState extends State<MainDash> {
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/fin/insurance?date=$_selectedDate&period=month');
+      var url = Uri.parse('$apiUrl/fin/insurance/month');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
@@ -758,11 +723,12 @@ class _MainDashState extends State<MainDash> {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         var insuranceMonthTotal = data['data'][0]['amount'];
-        if (insuranceMonthTotal is int || insuranceMonthTotal is double) {
+        if (insuranceMonthTotal is int) {
           totalInsuranceMONTH = insuranceMonthTotal.toDouble();
+        } else if (insuranceMonthTotal is double) {
+          totalInsuranceMONTH = insuranceMonthTotal;
         } else {
-          totalInsuranceMONTH = 0.00; // Set to 0.00 if cashTotal is null or not a number
-          throw Exception('totalInsuranceMONTH value is neither int nor double');
+          throw Exception('Total value is neither int nor double');
         }
         setState(() {});
       } else {
@@ -774,21 +740,19 @@ class _MainDashState extends State<MainDash> {
     }
   }
 
-  late int todayClaimCount = 0;
-  late double todayClaimAmount = 0;
-  Future<void> fetchClaimAmountToday() async {
+  late int totalClaimCount = 0;
+  late double totalClaimAmount = 0;
+  Future<void> fetchPHICTransmittalTODAY() async {
     try {
       final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-
-      var url = Uri.parse('$apiUrl/fin/phic_transmittal?date=$_selectedDate&period=today&type=claim_amount');
-
-      // Retrieve the token from SharedPreferences
+      var url = Uri.parse('$apiUrl/fin/phic_transmittal/today?type=claim_amount');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token'); // Assuming you saved the token with this key
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
 
       if (token == null) {
         throw Exception('Token not found.');
@@ -797,29 +761,29 @@ class _MainDashState extends State<MainDash> {
         url,
         headers: {
           'Authorization': 'Bearer $token',
-          'Cookie': 'refreshToken=$refreshToken',
+          'Cookie': 'refreshToken=$refreshToken', // Include the token in the Authorization header
         },
       );
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        todayClaimCount = (data['data'][0]['count'] == null || data['data'][0]['count'] == 0) ? 0 : data['data'][0]['count'] as int;
+        totalClaimCount = data['data'][0]['count'] as int;
 
-        var claimTotal = data['data'][0]['amount'];
-        if (claimTotal is int || claimTotal is double) {
-          todayClaimAmount = claimTotal.toDouble();
+        var claimAmountTotal = data['data'][0]['amount'];
+        if (claimAmountTotal is int) {
+          totalClaimAmount = claimAmountTotal.toDouble();
+        } else if (claimAmountTotal is double) {
+          totalClaimAmount = claimAmountTotal;
         } else {
-          todayClaimAmount = 0.00; // Set to 0.00 if cashTotal is null or not a number
-          throw Exception('totalSales value is neither int nor double');
+          throw Exception('Total value is neither int nor double');
         }
-        setState(() {});
+        setState(() {
+        });
       } else {
-        print('Failed to load fetchTotalSalesToday. Status code: ${response.statusCode}, Response body: ${response.body}');
-        throw Exception('Failed to load fetchTotalSalesToday');
+        throw Exception('Failed to load fetchPHICTransmittalTODAY');
       }
     } catch (e) {
-      print('Error fetching fetchTotalSalesToday: $e');
-      setState(() {});
+      print('Error fetching fetchPHICTransmittalTODAY: $e');
     }
   }
 
@@ -827,24 +791,23 @@ class _MainDashState extends State<MainDash> {
     return dataSource.map((data) => data.value).reduce(max);
   }
 
-  late double todayPF = 0;
-  Future<void> fetchTodayPF() async {
+  late double totalPF = 0;
+  Future<void> fetchPFtoday() async {
     try {
-      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
+      var url = Uri.parse('$apiUrl/fin/phic_transmittal/today?type=pf_amount');
 
-      var url = Uri.parse('$apiUrl/fin/phic_transmittal?date=$_selectedDate&type=pf_amount');
-
-      // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); // Assuming you saved the token with this key
-      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+      final token = prefs.getString('token');
+      final refreshToken = prefs.getString('refreshToken');
 
       if (token == null) {
         throw Exception('Token not found.');
       }
+
       var response = await http.get(
         url,
         headers: {
@@ -855,32 +818,31 @@ class _MainDashState extends State<MainDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        var pfTotal = data['data'][0]['amount'];
-        if (pfTotal is int || pfTotal is double) {
-          todayPF = pfTotal.toDouble();
+        var claimPFTotal = data['data'][0]['amount'];
+        if (claimPFTotal is int || claimPFTotal is double) {
+          totalPF = claimPFTotal.toDouble();
+          print('Total PF: $totalPF'); // Debugging print statement
         } else {
-          todayPF = 0.00; // Set to 0.00 if cashTotal is null or not a number
-          throw Exception('totalSales value is neither int nor double');
+          throw Exception('Total value is neither int nor double');
         }
-        setState(() {});
+        setState(() {}); // Update the UI if necessary
       } else {
-        print('Failed to load fetchTotalSalesToday. Status code: ${response.statusCode}, Response body: ${response.body}');
-        throw Exception('Failed to load fetchTotalSalesToday');
+        throw Exception('Failed to load fetchPFtoday');
       }
     } catch (e) {
-      print('Error fetching fetchTotalSalesToday: $e');
-      setState(() {});
+      print('Error fetching fetchPFtoday: $e');
     }
   }
 
   List<TransMonthData> _chartMonthTransData = [];
+  final List<String> dayTransNames = List.generate(31, (index) => (index + 1).toString());
   Future<void> fetchPHICTransmittalMONTH() async {
     try {
       final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
         throw Exception('API_URL environment variable is not defined');
       }
-      var url = Uri.parse('$apiUrl/fin/phic_transmittal?date=$_selectedDate&period=month&type=claim_amount');
+      var url = Uri.parse('$apiUrl/fin/phic_transmittal/month');
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
       final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
@@ -897,15 +859,17 @@ class _MainDashState extends State<MainDash> {
       );
 
       if (response.statusCode == 200) {
-        var data = json.decode(response.body)['data'];
+        var data = json.decode(response.body);
         List<TransMonthData> transMonthData = [];
-        for (var dayData in data) {
+        for (var dayData in data['data'][0]) {
           String dayName = dayNames[dayData['day'] - 1];
           transMonthData.add(TransMonthData(
             dayName,
             double.parse(dayData['amount'].toString()),
           ));
         }
+        transMonthData.sort((a, b) => int.parse(a.dayName).compareTo(int.parse(b.dayName)));
+
         setState(() {
           _chartMonthTransData = transMonthData;
         });
@@ -914,7 +878,8 @@ class _MainDashState extends State<MainDash> {
       }
     } catch (e) {
       print('Error fetching fetchPHICTransmittalMONTH: $e');
-      setState(() {});
+      setState(() {
+      });
     }
   }
 
@@ -1046,62 +1011,6 @@ class _MainDashState extends State<MainDash> {
     }
   }
 
-  TextEditingController _dateController = TextEditingController();
-  late String _selectedDate = DateFormat('yyyy-MM-dd').format(DateTime.now()); // Set initial value to current date
-
-  Future<void> _selectDate() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Color(0xFF1497E8), // Header and selected day background color
-              onPrimary: Color(0xFF000000), // Titles and selected day text color
-              onSurface: Color(0xFF000000), // Month days and years text color
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.redAccent, // OK and Cancel buttons text color
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (pickedDate != null) {
-      setState(() {
-        _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-        _selectedDate = DateFormat('yyyy-MM-dd').format(pickedDate); // Update selected date
-      });
-      fetchTodaySales();
-      fetchTodayCash();
-      fetchTodayCheque();
-      fetchMonthSalesChart();
-      fetchTodayExpense();
-      fetchExpenseMONTH();
-      fetchTodayDisbursement();
-      fetchYearSalesChart();
-      fetchToday_IPD();
-      fetchToday_OPD();
-      fetchToday_PHIC();
-      fetchToday_HMO();
-      fetchToday_COMPANY();
-      fetchToday_SENIOR();
-      fetchInsuranceTODAY();
-      fetchInsuranceMONTH();
-      fetchClaimAmountToday();
-      fetchTodayPF();
-      fetchPHICTransmittalMONTH();
-      fetchKPI();
-    }
-  }
-
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -1121,7 +1030,7 @@ class _MainDashState extends State<MainDash> {
         backgroundColor: Colors.transparent,
         elevation: 15,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white),
+          icon: Icon(Icons.menu, color: Color(0xFFFFFFFF)),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
@@ -1184,7 +1093,7 @@ class _MainDashState extends State<MainDash> {
                       width: 40,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40),
-                    ): Icon(Icons.local_hospital, size: 40),
+                ) : Icon(Icons.local_hospital, size: 40, color: Colors.white),
               ),
             ),
           ),
@@ -1213,7 +1122,7 @@ class _MainDashState extends State<MainDash> {
                   SizedBox(height: 10,),
                   // WELCOME! ----------------------------------------------------
                   Padding(
-                    padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                    padding: EdgeInsets.only(left: 40.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1221,17 +1130,17 @@ class _MainDashState extends State<MainDash> {
                           '$hospitalName: $username',
                           style: SafeGoogleFont(
                             'Urbanist',
-                            fontSize: 20 * size,
+                            fontSize: 18 * size,
                             fontWeight: FontWeight.bold,
                             height: 1.2 * size / sizeAxis,
                             color: const Color(0xFFFFFFFF),
                           ),
                         ),
-                        // SizedBox(height: 5),
+                        SizedBox(height: 10),
                         Row(
                           children: [
                             Text(
-                              'latest update of',
+                              'latest update of ',
                               style: SafeGoogleFont(
                                 'Urbanist',
                                 fontSize: 14 * size,
@@ -1239,76 +1148,34 @@ class _MainDashState extends State<MainDash> {
                                 color: Colors.white,
                               ),
                             ),
-                            TextButton(
-                              onPressed: () {
-                                _selectDate();
-                              },
-                              // style: TextButton.styleFrom(
-                              //   backgroundColor: Colors.redAccent, // Set the text color to pink
-                              // ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min, // Ensure the row takes only the minimum required space
-                                children: [
-                                  Text(
-                                    '$formattedCurrentDate ',
-                                    style: SafeGoogleFont(
-                                      'Urbanist',
-                                      fontSize: 11 * size,
-                                      height: 1.2 * size / sizeAxis,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.redAccent,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.calendar_month_outlined,
-                                    color: Colors.redAccent,
-                                      size: 14,
-                                  ),
-                                ],
+                            Text(
+                              '$formattedCurrentDate ',
+                              style: SafeGoogleFont(
+                                'Urbanist',
+                                fontSize: 14 * size,
+                                height: 1.2 * size / sizeAxis,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                           ],
                         ),
                         Text(
-                          'If nothing is loading in try to Refresh the screen by holding the screen downwards.',
+                          'If nothing is loading in try to Login again.',
                           style: SafeGoogleFont(
                             'Urbanist',
-                            fontSize: 12 * size,
+                            fontSize: 14 * size,
                             height: 1.2 * size / sizeAxis,
                             color: const Color(0xFFFFFFFF),
                           ),
                         ),
-                        SizedBox(height: 10),
-                        // Container(
-                        //   margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                        //       0 * sizeAxis, 15 * sizeAxis),
-                        //   width: 331 * sizeAxis,
-                        //   decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(30),
-                        //     color: Colors.white,
-                        //   ),
-                        //   child: TextField(
-                        //     controller: _dateController,
-                        //     decoration: InputDecoration(
-                        //       labelText: "Select a Date",
-                        //       labelStyle: TextStyle(color: Colors.black),
-                        //       hintStyle: TextStyle(color: Colors.black),
-                        //       prefixIcon: Icon(Icons.calendar_month, color: Colors.black,),
-                        //       border: InputBorder.none,
-                        //     ),
-                        //     readOnly: true,
-                        //     onTap: (){
-                        //       _selectDate();
-                        //     },
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 5.0),
+                  SizedBox(height: 30.0),
                   Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
+                      color: Color(0xFFFFFFFF),
                       borderRadius: BorderRadius.only(topLeft: Radius.circular(75.0)),
                     ),
                     child: Padding(
@@ -1343,7 +1210,7 @@ class _MainDashState extends State<MainDash> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              "Sales",
+                                              "Today's Total Sales",
                                               style: SafeGoogleFont(
                                                 'Urbanist',
                                                 fontSize: 15 * size,
@@ -1358,7 +1225,7 @@ class _MainDashState extends State<MainDash> {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    '₱ ${NumberFormat('#,##0.00').format(todaySales)}',
+                                                    '₱ ${NumberFormat('#,##0.00').format(totalSales)}',
                                                     style: SafeGoogleFont(
                                                       'Inter',
                                                       fontSize: 17 * size,
@@ -1389,6 +1256,7 @@ class _MainDashState extends State<MainDash> {
                               ],
                             ),
                             SizedBox(height: 10),
+                            // Cash and Cheque------------------------------------------------
                             Container(
                               margin: EdgeInsets.fromLTRB(
                                   5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
@@ -1397,7 +1265,7 @@ class _MainDashState extends State<MainDash> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Cashier Collection",
+                                    "Today's Collection",
                                     style: SafeGoogleFont(
                                       'Urbanist',
                                       fontSize: 15 * size,
@@ -1410,7 +1278,6 @@ class _MainDashState extends State<MainDash> {
                                 ],
                               ),
                             ),
-                            // Cash and Cheque------------------------------------------------
                             Row(
                               children: [
                                 Expanded(
@@ -1443,7 +1310,7 @@ class _MainDashState extends State<MainDash> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      '₱ ${NumberFormat('#,##0.00').format(todayCash)}',
+                                                      '₱ ${NumberFormat('#,##0.00').format(totalCash)}',
                                                       style: SafeGoogleFont(
                                                         'Inter',
                                                         fontSize: 17 * size,
@@ -1492,7 +1359,7 @@ class _MainDashState extends State<MainDash> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      '₱ ${NumberFormat('#,##0.00').format(todayCheque)}',
+                                                      '₱ ${NumberFormat('#,##0.00').format(totalCheque)}',
                                                       style: SafeGoogleFont(
                                                         'Inter',
                                                         fontSize: 17 * size,
@@ -1601,231 +1468,148 @@ class _MainDashState extends State<MainDash> {
                               ),
                             ),
                             SizedBox(height: 10),
-                            // Expenses
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Card(
-                                    elevation: 5,
-                                    color: Color(0xFF1497E8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                          bottomRight: Radius.circular(40),
-                                          topLeft: Radius.circular(40)
-                                      ),
+                            // Expense and Disbursement of the day----------------------------
+                            Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  5 * sizeAxis, 10 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Today's Expense and Disbursement",
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: const Color(0xFF13A4FF),
                                     ),
-                                    child: Stack(children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 360,
-                                      //   height: 123,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Expense",
-                                              style: SafeGoogleFont(
-                                                'Urbanist',
-                                                fontSize: 15 * size,
-                                                height: 1.2 * size / sizeAxis,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SizedBox(height: 15),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '₱ ${NumberFormat('#,##0.00').format(todayExpense)}',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize: 17 * size,
-                                                      fontWeight: FontWeight.w600,
-                                                      height: 1.2 * size / sizeAxis,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  // SizedBox(height: 10),
-                                                  // Text(
-                                                  //   '$percentSales% Increase than before',
-                                                  //   style: SafeGoogleFont(
-                                                  //     'Urbanist',
-                                                  //     fontSize: 11 * size,
-                                                  //     height: 1.2 * size / sizeAxis,
-                                                  //     color: Colors.white,
-                                                  //   ),
-                                                  // ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ]),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            // Expenses Month----------------------------------------------
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                      bottomRight: Radius.circular(40),
-                                      topLeft: Radius.circular(40)
-                                  ),
-                                ),
-                                elevation: 5,
-                                color: Color(0xFF1497E8),
-                                child: Stack(
-                                  children: [
-                                    // Image.asset(
-                                    //   'assets/images/bgg16.jpg',
-                                    //   fit: BoxFit.cover,
-                                    //   width: 500,
-                                    //   height: 410,
-                                    // ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Expenses of $formattedCurrentMonth",
-                                            style: SafeGoogleFont(
-                                              'Urbanist',
-                                              fontSize: 15 * size,
-                                              height: 1.2 * size / sizeAxis,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(height: 20),
-                                          // BarChart
-                                          SfCartesianChart(
-                                            primaryXAxis: CategoryAxis(
-                                              labelStyle: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            primaryYAxis: NumericAxis(
-                                              isVisible: false,
-                                              labelStyle: TextStyle(
-                                                color: Colors.white, // Set the color of the labels to white
-                                              ),
-                                            ),
-                                            series: <CartesianSeries>[ // Corrected type here
-                                              ColumnSeries<ExpenMonthData, String>(
-                                                dataSource: _chartMonthExpenseData,
-                                                xValueMapper: (ExpenMonthData exp, _) => exp.dayName,
-                                                yValueMapper: (ExpenMonthData exp, _) => exp.amount,
-                                                color: Colors.white,
-                                                dataLabelSettings: DataLabelSettings(
-                                                  color: Colors.white,
-                                                  isVisible: true,
-                                                  textStyle: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 8,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              SizedBox(width: 5),
-                                              Text(
-                                                'Days',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  SizedBox(height: 10),
+                                ],
                               ),
                             ),
-                            SizedBox(height: 10),
-                            // Disbursement
                             Row(
                               children: [
+                                // Expense
                                 Expanded(
                                   child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
                                     elevation: 5,
                                     color: Color(0xFF1497E8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                          bottomRight: Radius.circular(40),
-                                          topLeft: Radius.circular(40)
-                                      ),
-                                    ),
-                                    child: Stack(children: [
-                                      // Image.asset(
-                                      //   'assets/images/bgg15.jpg',
-                                      //   fit: BoxFit.cover,
-                                      //   width: 360,
-                                      //   height: 123,
-                                      // ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(20.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Disbursement",
-                                              style: SafeGoogleFont(
-                                                'Urbanist',
-                                                fontSize: 15 * size,
-                                                height: 1.2 * size / sizeAxis,
-                                                color: Colors.white,
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Expense',
+                                                style: SafeGoogleFont(
+                                                  'Urbanist',
+                                                  fontSize: 15 * size,
+                                                  height: 1.2 * size / sizeAxis,
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(height: 15),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '₱ ${NumberFormat('#,##0.00').format(todayDisbursement)}',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize: 17 * size,
-                                                      fontWeight: FontWeight.w600,
-                                                      height: 1.2 * size / sizeAxis,
-                                                      color: Colors.white,
+                                              SizedBox(height: 10),
+                                              SingleChildScrollView(
+                                                scrollDirection: Axis.horizontal,
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '₱ ${NumberFormat('#,##0.00').format(totalExpense)}',
+                                                      style: SafeGoogleFont(
+                                                        'Inter',
+                                                        fontSize: 17 * size,
+                                                        fontWeight: FontWeight.w600,
+                                                        height: 1.2 * size / sizeAxis,
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  // SizedBox(height: 10),
-                                                  // Text(
-                                                  //   '$percentSales% Increase than before',
-                                                  //   style: SafeGoogleFont(
-                                                  //     'Urbanist',
-                                                  //     fontSize: 11 * size,
-                                                  //     height: 1.2 * size / sizeAxis,
-                                                  //     color: Colors.white,
-                                                  //   ),
-                                                  // ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ]),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Disbursement
+                                Expanded(
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                    color: Color(0xFF1497E8),
+                                    child: Stack(
+                                      children: [
+                                        // Image.asset(
+                                        //   'assets/images/bgg15.jpg',
+                                        //   fit: BoxFit.cover,
+                                        //   width: 175,
+                                        //   height: 95,
+                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Disbursement',
+                                                style: SafeGoogleFont(
+                                                  'Urbanist',
+                                                  fontSize: 15 * size,
+                                                  height: 1.2 * size / sizeAxis,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.centerRight,
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    SingleChildScrollView(
+                                                      scrollDirection: Axis.horizontal,
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text(
+                                                            '₱ ${NumberFormat('#,##0.00').format(totalDisbursement)}',
+                                                            style: SafeGoogleFont(
+                                                              'Inter',
+                                                              fontSize: 17 * size,
+                                                              fontWeight: FontWeight.w600,
+                                                              height: 1.2 * size / sizeAxis,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -2461,7 +2245,7 @@ class _MainDashState extends State<MainDash> {
                               ),
                             ),
                             SizedBox(height: 20),
-                            // PHIC Trans
+                            // Transmittal of the day-----------------------------------------
                             Row(
                               children: [
                                 Expanded(
@@ -2539,25 +2323,28 @@ class _MainDashState extends State<MainDash> {
                                                 width: 250,
                                                 height: 250,
                                                 child: SfCircularChart(
-                                                  palette: <Color>[Color(0xFF64B5F6), Color(0xFF1976D2)],
+                                                  palette: <Color>[Color(0xFF64B5F6), Color(0xFF1976D2),
+                                                  ],
                                                   series: <CircularSeries>[
                                                     PieSeries<PHIC_ChartData, String>(
                                                       strokeWidth: 5,
                                                       strokeColor: Colors.white,
                                                       dataSource: <PHIC_ChartData>[
-                                                        PHIC_ChartData('Total Claim Amount', todayClaimAmount),
-                                                        PHIC_ChartData('PF', todayPF),
+                                                        PHIC_ChartData('Total Claim Amount', totalClaimAmount),
+                                                        PHIC_ChartData('PF', totalPF),
                                                       ],
                                                       xValueMapper: (PHIC_ChartData data, _) => data.name,
                                                       yValueMapper: (PHIC_ChartData data, _) => data.value,
+                                                      // Dynamically set the radius based on the highest data value
                                                       pointRadiusMapper: (PHIC_ChartData data, _) {
                                                         double maxValue = calculateMaxValue([
-                                                          PHIC_ChartData('Total Claim Amount', todayClaimAmount),
-                                                          PHIC_ChartData('PF', todayPF),
+                                                          PHIC_ChartData('Total Claim Amount', totalClaimAmount),
+                                                          PHIC_ChartData('PF', totalPF),
                                                         ]);
                                                         double radiusPercentage = 40 + ((data.value / maxValue) * 40);
                                                         return radiusPercentage.toString() + '%';
                                                       },
+                                                      // Customize the appearance of the labels
                                                       dataLabelSettings: DataLabelSettings(
                                                         isVisible: true,
                                                         textStyle: TextStyle(
@@ -2577,15 +2364,13 @@ class _MainDashState extends State<MainDash> {
                                                     ),
                                                   ],
                                                 ),
-
                                               ),
                                             ),
                                             SizedBox(height: 13),
-                                            SizedBox(height: 5),
                                             Row(
                                               children: [
                                                 Text(
-                                                  'Total Claim Count: ',
+                                                  'Total Claim Counts: ',
                                                   style: SafeGoogleFont(
                                                     'Urbanist',
                                                     fontSize: 15 * size,
@@ -2594,7 +2379,7 @@ class _MainDashState extends State<MainDash> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  '$todayClaimCount',
+                                                  '$totalClaimCount',
                                                   style: SafeGoogleFont(
                                                     'Inter',
                                                     fontSize: 17 * size,
@@ -2605,6 +2390,7 @@ class _MainDashState extends State<MainDash> {
                                                 ),
                                               ],
                                             ),
+                                            SizedBox(height: 5),
                                             Row(
                                               children: [
                                                 Text(
@@ -2617,7 +2403,7 @@ class _MainDashState extends State<MainDash> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  '₱ ${NumberFormat('#,##0.00').format(todayClaimAmount)}',
+                                                  '₱ ${NumberFormat('#,##0.00').format(totalClaimAmount)}',
                                                   style: SafeGoogleFont(
                                                     'Inter',
                                                     fontSize: 17 * size,
@@ -2641,7 +2427,7 @@ class _MainDashState extends State<MainDash> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  '₱ ${NumberFormat('#,##0.00').format(todayPF)}',
+                                                  '₱ ${NumberFormat('#,##0.00').format(totalPF)}',
                                                   style: SafeGoogleFont(
                                                     'Inter',
                                                     fontSize: 17 * size,
@@ -2712,8 +2498,8 @@ class _MainDashState extends State<MainDash> {
                                             series: <CartesianSeries>[ // Corrected type here
                                               ColumnSeries<TransMonthData, String>(
                                                 dataSource: _chartMonthTransData,
-                                                xValueMapper: (TransMonthData trans, _) => trans.dayName,
-                                                yValueMapper: (TransMonthData trans, _) => trans.amount,
+                                                xValueMapper: (TransMonthData sales, _) => sales.dayName,
+                                                yValueMapper: (TransMonthData sales, _) => sales.amount,
                                                 color: Colors.white,
                                                 dataLabelSettings: DataLabelSettings(
                                                   color: Colors.white,
@@ -2907,35 +2693,30 @@ class _MainDashState extends State<MainDash> {
     await _getUserData();
     await _getHospitalNameData();
     await _getAvatarData();
-    await fetchTodaySales();
-    await fetchTodayCash();
-    await fetchTodayCheque();
-    await fetchMonthSalesChart();
-    await fetchTodayExpense();
-    await fetchTodayDisbursement();
-    await fetchYearSalesChart();
-    await fetchToday_IPD();
-    await fetchToday_OPD();
-    await fetchToday_PHIC();
-    await fetchToday_HMO();
-    await fetchToday_COMPANY();
-    await fetchToday_SENIOR();
+    //-----------------------------------------------------------------------
+    await fetchTotalSalesToday();
+    await fetchCashCollection();
+    await fetchChequeCollection();
+    await fetchTotalExpense();
+    await fetchTotalDisbursement();
+    await fetchSalesMonthChart();
+    await fetchSalesYearChart();
+    await fetchTotalIPD();
+    await fetchTotalOPD();
+    await fetchTotalPHIC();
+    await fetchTotalHMO();
+    await fetchTotalCOMPANY();
+    await fetchTotalSENIOR();
     await fetchInsuranceTODAY();
     await fetchInsuranceMONTH();
-    await fetchClaimAmountToday();
-    await fetchTodayPF();
+    await fetchPFtoday();
+    await fetchPHICTransmittalTODAY();
     await fetchPHICTransmittalMONTH();
     await fetchKPI();
+    //-----------------------------------------------------------------------
     setState(() {});
     return await Future.delayed(Duration(seconds: 2));
   }
-}
-
-class PHIC_ChartData {
-  PHIC_ChartData(this.name, this.value);
-
-  final String name;
-  final double value;
 }
 
 class SalesYearData {
@@ -2959,12 +2740,6 @@ class TransMonthData {
   final double amount;
 }
 
-class ExpenMonthData {
-  ExpenMonthData(this.dayName, this.amount);
-
-  final String dayName;
-  final double amount;
-}
 class Insurance {
   final String name;
   final String amount;
@@ -2980,6 +2755,13 @@ class Insurance {
       amount: json['amount'].toString(), // Parse the amount as a string
     );
   }
+}
+
+class PHIC_ChartData {
+  PHIC_ChartData(this.name, this.value);
+
+  final String name;
+  final double value;
 }
 
 class KPI {

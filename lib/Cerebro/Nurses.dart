@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,8 +24,8 @@ class NursesPage extends StatefulWidget {
 
 class _NursesPageState extends State<NursesPage> {
   late List<Nurse> nurses = [];
-  late List<Nurse> filteredNurses;
   TextEditingController searchController = TextEditingController();
+  Timer? _debounce;
 
   final _pagingController = PagingController<int, Nurse>(
     firstPageKey: 1,
@@ -36,12 +37,11 @@ class _NursesPageState extends State<NursesPage> {
     _getAvatarData();
     _getHospitalNameData();
     _getUserData();
-    filteredNurses = List.from(nurses);
     _pagingController.addPageRequestListener((pageKey) {
       if (searchController.text.isEmpty) {
         fetchNurses(page: pageKey);
       } else {
-        fetchNursesWithQuery(page: pageKey, query: searchController.text);
+        searchNursesWithQuery(page: pageKey, query: searchController.text);
       }
     });
   }
@@ -49,6 +49,7 @@ class _NursesPageState extends State<NursesPage> {
   @override
   void dispose() {
     _pagingController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -199,7 +200,7 @@ class _NursesPageState extends State<NursesPage> {
         var decryptedData = await decryptData(encryptedData);
 
         var data = json.decode(decryptedData);
-        print(data);
+        print('Nurses List Result: $data');
 
         List<Nurse> fetchedNurses = List.generate(data.length, (index) {
           return Nurse.fromJson(data[index]);
@@ -220,7 +221,7 @@ class _NursesPageState extends State<NursesPage> {
     }
   }
 
-  Future<void> fetchNursesWithQuery({int page = 1, required String query}) async {
+  Future<void> searchNursesWithQuery({int page = 1, required String query}) async {
     try {
       final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
@@ -248,7 +249,7 @@ class _NursesPageState extends State<NursesPage> {
         var decryptedData = await decryptData(encryptedData);
 
         var data = json.decode(decryptedData);
-        print(data);
+        print('Nurses Search Result: $data');
 
         List<Nurse> fetchedNurses = List.generate(data.length, (index) {
           return Nurse.fromJson(data[index]);
@@ -269,9 +270,14 @@ class _NursesPageState extends State<NursesPage> {
     }
   }
 
-  Future<void> filterSearchResults(String query) async {
-    _pagingController.refresh();
+  Future<void> searchNurseResult(String query) async {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 2000), () {
+      // Call the actual search function after a delay of 500 milliseconds
+      _pagingController.refresh();
+    });
   }
+
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -282,16 +288,15 @@ class _NursesPageState extends State<NursesPage> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      backgroundColor: Color(0xFFFFFFFF),
+      backgroundColor: Color(0xFF1497E8),
       key: _scaffoldKey,
+      drawer: CereDrawer(),
       appBar: AppBar(
-        // Set a custom height for the app bar
         toolbarHeight: 80,
-        // Transparent background with gradient in flexible space
         backgroundColor: Colors.transparent,
         elevation: 15,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
+          icon: Icon(Icons.menu, color: Colors.white),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
@@ -349,11 +354,11 @@ class _NursesPageState extends State<NursesPage> {
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
                     ? CachedNetworkImage(
-                  imageUrl: avatarUrl,
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
+                      imageUrl: avatarUrl,
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
                 ) : Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl is empty
               ),
             ),
@@ -362,16 +367,11 @@ class _NursesPageState extends State<NursesPage> {
         ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            color: Color(0xFFFFFFFF),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
+            color: Color(0xFF1497E8),
           ),
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
-      drawer: CereDrawer(),
       body: LiquidPullToRefresh(
         onRefresh: _handleRefresh,
         color: Color(0xFF1497E8),
@@ -379,168 +379,226 @@ class _NursesPageState extends State<NursesPage> {
         backgroundColor: Colors.redAccent,
         animSpeedFactor: 2,
         showChildOpacityTransition: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Column(
-            children: [
-              SizedBox(height: 30,),
-              Container(
-                margin: EdgeInsets.fromLTRB(
-                    0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Nurses',
-                      style: SafeGoogleFont(
-                        'Urbanist',
-                        fontSize: 18 * size,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2 * size / sizeAxis,
-                        color: const Color(0xFF13A4FF),
-                      ),
+        child: Column(
+          children: [
+            SizedBox(height: 10,),
+            // WELCOME! ----------------------------------------------------
+            Padding(
+              padding: EdgeInsets.only(right: 20.0, left: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nurses',
+                    style: SafeGoogleFont(
+                      'Urbanist',
+                      fontSize: 20 * size,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2 * size / sizeAxis,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      'These are the list of Nurses in the $hospitalName',
-                      style: SafeGoogleFont(
-                        'Urbanist',
-                        fontSize: 12 * size,
-                        height: 1.2 * size / sizeAxis,
-                        color: Colors.black,
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'These are the list of Nurses in the $hospitalName',
+                    style: SafeGoogleFont(
+                      'Urbanist',
+                      fontSize: 13 * size,
+                      height: 1.2 * size / sizeAxis,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 30.0),
+            Container(
+              margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                  0 * sizeAxis, 15 * sizeAxis),
+              width: 325 * sizeAxis,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: Colors.white,
+              ),
+              child: TextField(
+                controller: searchController,
+                onChanged: (value) => searchNurseResult(value),
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+                decoration: InputDecoration(
+                  labelText: "Search",
+                  labelStyle: SafeGoogleFont(
+                    'Urbanist',
+                    fontSize: 16 * size,
+                    height: 1.2 * size / sizeAxis,
+                    color: Colors.black,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  hintText: "Search for Nurses",
+                  hintStyle: SafeGoogleFont(
+                    'Urbanist',
+                    fontSize: 16 * size,
+                    height: 1.2 * size / sizeAxis,
+                    color: Colors.black,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  prefixIcon: Icon(Icons.search, color: Colors.black,),
+                  border: InputBorder.none,
+                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide.none),
+                ),
+
+              ),
+            ),
+            SizedBox(height: 10.0),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 30.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(75.0),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(height: 25),
+                    Expanded(
+                      child: PagedListView<int, Nurse>(
+                        pagingController: _pagingController,
+                        builderDelegate: PagedChildBuilderDelegate<Nurse>(
+                          itemBuilder: (context, nurse, index) => Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 3,
+                            color: nurse.isActive == 1 ? Color(0xFF1497E8) : Color(0xFF858585),
+                            child: ListTile(
+                              // leading: Container(
+                              //   decoration: BoxDecoration(
+                              //     shape: BoxShape.circle,
+                              //     border: Border.all(
+                              //       color: Colors.white, // Border color
+                              //       width: 2, // Border width
+                              //     ),
+                              //   ),
+                              //   child: ClipOval(
+                              //     child: RandomAvatar(
+                              //       physician.doctorName,
+                              //       height: 50,
+                              //       width: 50,
+                              //     ),
+                              //   ),
+                              // ),
+                              leading: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white, // Border color
+                                    width: 3, // Border width
+                                  ),
+                                ),
+                                child: ClipOval(
+                                  child: CircleAvatar(
+                                    backgroundColor: Color(0xFF1497E8),
+                                    radius: 23,
+                                    child: Text(
+                                      _getInitials(nurse.nurseName),
+                                      style: SafeGoogleFont(
+                                        'Urbanist',
+                                        fontSize: 16 * size,
+                                        height: 1.2 * size / sizeAxis,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                nurse.nurseName,
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 13 * size,
+                                  height: 1.2 * size / sizeAxis,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 5),
+                                  Text(
+                                    nurse.license_number,
+                                    style: SafeGoogleFont(
+                                      'Inter',
+                                      fontSize: 11 * size,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          noItemsFoundIndicatorBuilder: (context) => Center(
+                            child: Text('No nurses found.'),
+                          ),
+                          firstPageErrorIndicatorBuilder: (context) => Center(
+                            child: Text('Error loading nurses.'),
+                          ),
+                          newPageErrorIndicatorBuilder: (context) => Center(
+                            child: Text('Error loading more nurses.'),
+                          ),
+                          firstPageProgressIndicatorBuilder: (context) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: CircularProgressIndicator(color: Colors.black),
+                            ),
+                          ),
+                          newPageProgressIndicatorBuilder: (context) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: CircularProgressIndicator(color: Colors.black),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 15),
-              Container(
-                margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                    0 * sizeAxis, 15 * sizeAxis),
-                width: 331 * sizeAxis,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                child: TextField(
-                  controller: searchController,
-                  onChanged: (value) => filterSearchResults(value),
-                  decoration: InputDecoration(
-                    labelText: "Search",
-                    hintText: "Search for Nurses",
-                    labelStyle: TextStyle(color: Colors.white),
-                    hintStyle: TextStyle(color: Colors.white),
-                    prefixIcon: Icon(Icons.search, color: Colors.white,),
-                    border: InputBorder.none, // Remove the underline
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-              Expanded(
-                child: PagedListView<int, Nurse>(
-                  pagingController: _pagingController,
-                  builderDelegate: PagedChildBuilderDelegate<Nurse>(
-                    itemBuilder: (context, nurse, index) => Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 3,
-                      // color: Color(0xFF1497E8),
-                      color: nurse.isActive == 1 ? Colors.green : Colors.red,
-                      child: ListTile(
-                        leading: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white, // Border color
-                              width: 2, // Border width
-                            ),
-                          ),
-                          child: ClipOval(
-                            child: RandomAvatar(
-                              nurse.nurseName,
-                              height: 50,
-                              width: 50,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          nurse.nurseName,
-                          style: SafeGoogleFont(
-                            'Urbanist',
-                            fontSize: 13 * size,
-                            height: 1.2 * size / sizeAxis,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 5),
-                            Text(
-                              nurse.license_number,
-                              style: SafeGoogleFont(
-                                'Inter',
-                                fontSize: 11 * size,
-                                height: 1.2 * size / sizeAxis,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        trailing: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white, // Set the border color to white
-                              width: 2, // Set the border width
-                            ),
-                          ),
-                          child: Icon(
-                            nurse.isActive == 1 ? Icons.check_circle : Icons.cancel,
-                            color: nurse.isActive == 1 ? Colors.white : Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    noItemsFoundIndicatorBuilder: (context) => Center(
-                      child: Text('No nurses found.'),
-                    ),
-                    firstPageErrorIndicatorBuilder: (context) => Center(
-                      child: Text('Error loading nurses.'),
-                    ),
-                    newPageErrorIndicatorBuilder: (context) => Center(
-                      child: Text('Error loading more nurses.'),
-                    ),
-                    firstPageProgressIndicatorBuilder: (context) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: CircularProgressIndicator(color: Colors.black,), // Show CircularProgressIndicator while loading
-                      ),
-                    ),
-                    newPageProgressIndicatorBuilder: (context) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: CircularProgressIndicator(color: Colors.black,), // Show CircularProgressIndicator while loading
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-            ],
-          ),
+              )
+
+
+            ),
+          ],
         ),
       ),
     );
   }
 
   Future<void> _handleRefresh() async {
+    await _getAvatarData();
+    await _getHospitalNameData();
+    await _getUserData();
     _pagingController.refresh();
     return await Future.delayed(Duration(seconds: 2));
+  }
+
+  String _getInitials(String name) {
+    List<String> nameSplit = name.split(" ");
+    String initials = "";
+    for (var part in nameSplit) {
+      if (part.isNotEmpty) {
+        initials += part.substring(0, 1).toUpperCase();
+      }
+      if (initials.length == 2) {
+        break;
+      }
+    }
+    return initials;
   }
 }
 
@@ -562,7 +620,7 @@ class Nurse {
   factory Nurse.fromJson(Map<String, dynamic> json) {
     return Nurse(
       id: json['id'] ?? '',
-      token: json['pin'] ?? 0,
+      token: json['token'] ?? 0,
       nurseName: json['nurse_name'],
       license_number: json['license_number'] ?? 'N/A',
       isActive: json['is_active'], // Update the type here

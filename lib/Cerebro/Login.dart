@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,7 +6,7 @@ import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'package:http/http.dart' as http;
-import 'Dec.dart';
+import 'MainDash.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);

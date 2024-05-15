@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -116,8 +117,9 @@ class _AdvisoryState extends State<Advisory> {
     double size = sizeAxis * 0.97;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Color(0xFF1497E8),
       key: _scaffoldKey,
+      drawer: CereDrawer(),
       appBar: AppBar(
         // Set a custom height for the app bar
         toolbarHeight: 80,
@@ -125,7 +127,7 @@ class _AdvisoryState extends State<Advisory> {
         backgroundColor: Colors.transparent,
         elevation: 15,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.tertiary),
+          icon: Icon(Icons.menu, color: Color(0xFFFFFFFF)),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
@@ -182,13 +184,13 @@ class _AdvisoryState extends State<Advisory> {
               ),
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
-                    ? Image.network(
-                  avatarUrl,
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                )
-                    : Container(), // Removed the fallback to RandomAvatar
+                    ? CachedNetworkImage(
+                      imageUrl: avatarUrl,
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40),
+                ) : Icon(Icons.local_hospital, size: 40, color: Colors.white),
               ),
             ),
           ),
@@ -196,16 +198,11 @@ class _AdvisoryState extends State<Advisory> {
         ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
+            color: Color(0xFF1497E8),
           ),
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
-      drawer: CereDrawer(),
       body: LiquidPullToRefresh(
         onRefresh: _handleRefresh,
         color: Color(0xFF1497E8),
@@ -213,61 +210,75 @@ class _AdvisoryState extends State<Advisory> {
         backgroundColor: Colors.redAccent,
         animSpeedFactor: 2,
         showChildOpacityTransition: false,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-            child: Column(
-              children: [
-                SizedBox(height: 20),
-                // CustomAppBar(),
-                // WELCOME Text
-                Container(
-                  margin: EdgeInsets.fromLTRB(
-                      0 * sizeAxis, 20 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'News Advisory!',
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 18 * size,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2 * size / sizeAxis,
-                          color: const Color(0xFF13A4FF),
+        child: ListView(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 15.0),
+              child: Column(
+                children: [
+                  SizedBox(height: 10,),
+                  // WELCOME! ----------------------------------------------------
+                  Padding(
+                    padding: EdgeInsets.only(left: 40.0, right: 40.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'News Advisory!',
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 20 * size,
+                            fontWeight: FontWeight.bold,
+                            height: 1.2 * size / sizeAxis,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Get informed! This Advisory page offers essential updates and guidance to optimize your experience within Cerebro',
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 12 * size,
-                          height: 1.2 * size / sizeAxis,
-                          color: Theme.of(context).colorScheme.tertiary,
+                        SizedBox(height: 10),
+                        Text(
+                          'Get informed! This Advisory page offers essential updates and guidance to optimize your experience within Cerebro',
+                          style: SafeGoogleFont(
+                            'Urbanist',
+                            fontSize: 13 * size,
+                            height: 1.2 * size / sizeAxis,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 30),
-                // List of advisories
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: advisories.length,
-                  itemBuilder: (context, index) {
-                    return buildAdvisoryCard(advisories[index], size, sizeAxis);
-                  },
-                  separatorBuilder: (context, index) {
-                    return SizedBox(height: 10); // Adjust the height as needed
-                  },
-                ),
-                SizedBox(height: 30),
-              ],
+                  SizedBox(height: 30.0),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFFFFF),
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(75.0)),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                      child: SingleChildScrollView( // Wrap the Column in a SingleChildScrollView
+                        child: Column(
+                          children: [
+                            SizedBox(height: 30),
+                            // List of advisories
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: advisories.length,
+                              itemBuilder: (context, index) {
+                                return buildAdvisoryCard(advisories[index], size, sizeAxis);
+                              },
+                              separatorBuilder: (context, index) {
+                                return SizedBox(height: 10); // Adjust the height as needed
+                              },
+                            ),
+                            SizedBox(height: 30),
+                          ],
+                        ),                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -436,3 +447,5 @@ class _AdvisoryState extends State<Advisory> {
     }
   }
 }
+
+

@@ -80,7 +80,7 @@ dependencies:
   hashlib: ^1.14.0
   riverpod_infinite_scroll_pagination: ^1.0.3
   liquid_pull_to_refresh: ^3.0.1
-
+  flutter_initicon: ^3.0.0+1
 
 #  flutter_html: ^2.1.1
 

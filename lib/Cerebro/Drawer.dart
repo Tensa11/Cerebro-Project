@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:Cerebro/Cerebro/ChangePass.dart';
 import 'package:Cerebro/Cerebro/Physicians.dart';
-import 'package:Cerebro/Cerebro/MainDash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,7 +9,7 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Advisory.dart';
-import 'History.dart';
+import 'MainDash.dart';
 import 'Login.dart';
 import '../util/utils.dart';
 import 'Nurses.dart';
@@ -142,7 +140,7 @@ class _CereDrawerState extends State<CereDrawer> {
                 color: const Color(0xffe33924), // Changed icon color
               ),
               title: Text(
-                'Home',
+                'Dashboard',
                 style: SafeGoogleFont(
                   'Urbanist',
                   fontSize: 13 * size,
@@ -154,28 +152,6 @@ class _CereDrawerState extends State<CereDrawer> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => MainDash(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.history_edu,
-                color: const Color(0xffe33924), // Changed icon color
-              ),
-              title: Text(
-                'History',
-                style: SafeGoogleFont(
-                  'Urbanist',
-                  fontSize: 13 * size,
-                  height: 1.2 * size / sizeAxis,
-                  color: const Color(0xFF13A4FF),
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => HistoryPage(),
                   ),
                 );
               },
@@ -226,7 +202,7 @@ class _CereDrawerState extends State<CereDrawer> {
             ),
             ListTile(
               leading: const Icon(
-                Icons.person_add_alt_1,
+                Icons.supervised_user_circle,
                 color: const Color(0xffe33924), // Changed icon color
               ),
               title: Text(
