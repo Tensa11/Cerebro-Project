@@ -189,8 +189,8 @@ class _AdvisoryState extends State<Advisory> {
                       height: 40,
                       width: 40,
                       fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40),
-                ) : Icon(Icons.local_hospital, size: 40, color: Colors.white),
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital_rounded, size: 40, color: Colors.grey[300]),
+                    ): Icon(Icons.broken_image, size: 40, color: Colors.grey[300]),
               ),
             ),
           ),
@@ -249,7 +249,7 @@ class _AdvisoryState extends State<Advisory> {
                   SizedBox(height: 30.0),
                   Container(
                     decoration: BoxDecoration(
-                      color: Color(0xFFFFFFFF),
+                      color: Colors.white,
                       borderRadius: BorderRadius.only(topLeft: Radius.circular(75.0)),
                     ),
                     child: Padding(
@@ -272,7 +272,8 @@ class _AdvisoryState extends State<Advisory> {
                             ),
                             SizedBox(height: 30),
                           ],
-                        ),                      ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -299,7 +300,7 @@ class _AdvisoryState extends State<Advisory> {
         borderRadius: BorderRadius.circular(24),
       ),
       elevation: 5,
-      color: Theme.of(context).colorScheme.secondary,
+      color: Color(0xFF1497E8),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -308,16 +309,32 @@ class _AdvisoryState extends State<Advisory> {
             Stack(
               alignment: Alignment.center,
               children: [
-                Ink.image(
-                  image: NetworkImage(advisory['imageSrc'] ?? ''),
-                  // child: InkWell(
-                  //   onTap: () {},
-                  // ),
-                  height: 240,
-                  fit: BoxFit.contain,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Container(
+                    height: 240,
+                    width: double.infinity,
+                    color: Colors.white,
+                  ),
+                ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Image.network(
+                    advisory['imageSrc'] ?? '',
+                    height: 240,
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 240,
+                      width: double.infinity,
+                      color: Colors.white,
+                      child: Icon(Icons.broken_image, size: 50),
+                    ),
+                  ),
                 ),
               ],
             ),
+
             SizedBox(height: 15),
             Text(
               advisory['title'] ?? '',

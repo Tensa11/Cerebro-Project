@@ -453,12 +453,12 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
                     ? CachedNetworkImage(
-                  imageUrl: avatarUrl,
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
-                ) : Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl is empty
+                      imageUrl: avatarUrl,
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital_rounded, size: 40, color: Colors.grey[300]),
+                    ): Icon(Icons.broken_image, size: 40, color: Colors.grey[300]),
               ),
             ),
           ),
@@ -637,13 +637,13 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: Colors.white, // Border color
-                                      width: 2, // Border width
+                                      color: physician.isActive == 1 ? Colors.white : Color(0xFF1497E8),
+                                      width: 3, // Border width
                                     ),
                                   ),
                                   child: ClipOval(
                                     child: CircleAvatar(
-                                      backgroundColor: Colors.white,
+                                      backgroundColor: physician.isActive == 1 ? Color(0xFF1497E8) : Colors.white,
                                       radius: 23,
                                       child: Text(
                                         _getInitials(physician.doctorName),
@@ -652,7 +652,7 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
                                           fontSize: 16 * size,
                                           height: 1.2 * size / sizeAxis,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.redAccent,
+                                          color: physician.isActive == 1 ? Colors.white : Color(0xFF1497E8),
                                         ),
                                       ),
                                     ),

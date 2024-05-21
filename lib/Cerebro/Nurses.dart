@@ -358,8 +358,8 @@ class _NursesPageState extends State<NursesPage> {
                       height: 40,
                       width: 40,
                       fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
-                ) : Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl is empty
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital_rounded, size: 40, color: Colors.grey[300]),
+                    ): Icon(Icons.broken_image, size: 40, color: Colors.grey[300]),
               ),
             ),
           ),
@@ -447,7 +447,6 @@ class _NursesPageState extends State<NursesPage> {
                   border: InputBorder.none,
                   focusedBorder: UnderlineInputBorder(borderSide: BorderSide.none),
                 ),
-
               ),
             ),
             SizedBox(height: 10.0),
@@ -494,13 +493,13 @@ class _NursesPageState extends State<NursesPage> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white, // Border color
+                                    color: nurse.isActive == 1 ? Colors.white : Color(0xFF1497E8),
                                     width: 3, // Border width
                                   ),
                                 ),
                                 child: ClipOval(
                                   child: CircleAvatar(
-                                    backgroundColor: Color(0xFF1497E8),
+                                    backgroundColor: nurse.isActive == 1 ? Color(0xFF1497E8) : Colors.white,
                                     radius: 23,
                                     child: Text(
                                       _getInitials(nurse.nurseName),
@@ -509,7 +508,7 @@ class _NursesPageState extends State<NursesPage> {
                                         fontSize: 16 * size,
                                         height: 1.2 * size / sizeAxis,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                        color: nurse.isActive == 1 ? Colors.white : Color(0xFF1497E8),
                                       ),
                                     ),
                                   ),

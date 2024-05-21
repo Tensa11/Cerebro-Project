@@ -102,7 +102,7 @@ class LandingPage extends StatelessWidget {
                         maxWidth: 206 * size,
                       ),
                       child: Text(
-                        'We are here to help you!',
+                        'We are here to assist you!',
                         style: SafeGoogleFont(
                           'Poppins',
                           fontSize: 13 * sizes,

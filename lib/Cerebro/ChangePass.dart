@@ -239,12 +239,12 @@ class _ChangePassState extends State<ChangePass> {
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
                     ? CachedNetworkImage(
-                  imageUrl: avatarUrl,
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl fails to load
-                ) : Icon(Icons.local_hospital, size: 40), // Fallback icon when avatarUrl is empty
+                      imageUrl: avatarUrl,
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital_rounded, size: 40, color: Colors.grey[300]),
+                    ): Icon(Icons.broken_image, size: 40, color: Colors.grey[300]),
               ),
             ),
           ),
@@ -341,7 +341,7 @@ class _ChangePassState extends State<ChangePass> {
                                       _hideCurrentPass
                                           ? Icons.visibility
                                           : Icons.visibility_off,
-                                      color: Theme.of(context).colorScheme.tertiary,
+                                      color: Colors.redAccent,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -389,7 +389,7 @@ class _ChangePassState extends State<ChangePass> {
                                         _hideNewPass
                                             ? Icons.visibility
                                             : Icons.visibility_off,
-                                        color: Theme.of(context).colorScheme.tertiary,
+                                        color: Colors.redAccent,
                                       ),
                                       onPressed: () {
                                         setState(() {
@@ -438,7 +438,7 @@ class _ChangePassState extends State<ChangePass> {
                                       _hideConfirmPass
                                           ? Icons.visibility
                                           : Icons.visibility_off,
-                                      color: Theme.of(context).colorScheme.tertiary,
+                                      color: Colors.redAccent,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -492,7 +492,7 @@ class _ChangePassState extends State<ChangePass> {
                                   width: 331 * sizeAxis,
                                   height: 56 * sizeAxis,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xffe33924),
+                                    color: const Color(0xFF1497E8),
                                     borderRadius: BorderRadius.circular(8 * sizeAxis),
                                   ),
                                   child: Center(

@@ -52,7 +52,7 @@ class _MainDashState extends State<MainDash> {
     fetchInsuranceMONTH();
     fetchClaimAmountToday();
     fetchTodayPF();
-    fetchPHICTransmittalMONTH();
+    fetchPHICTransmittalMONTH_Chart();
     fetchKPI();
     // -----------------------------------------------------------------------
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -874,7 +874,7 @@ class _MainDashState extends State<MainDash> {
   }
 
   List<TransMonthData> _chartMonthTransData = [];
-  Future<void> fetchPHICTransmittalMONTH() async {
+  Future<void> fetchPHICTransmittalMONTH_Chart() async {
     try {
       final apiUrl = dotenv.env['API_URL'];
       if (apiUrl == null) {
@@ -1096,7 +1096,7 @@ class _MainDashState extends State<MainDash> {
       fetchInsuranceMONTH();
       fetchClaimAmountToday();
       fetchTodayPF();
-      fetchPHICTransmittalMONTH();
+      fetchPHICTransmittalMONTH_Chart();
       fetchKPI();
     }
   }
@@ -1170,6 +1170,7 @@ class _MainDashState extends State<MainDash> {
             },
             child: Container(
               decoration: BoxDecoration(
+                color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Colors.white, // Border color
@@ -1183,8 +1184,8 @@ class _MainDashState extends State<MainDash> {
                       height: 40,
                       width: 40,
                       fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => Icon(Icons.local_hospital, size: 40),
-                    ): Icon(Icons.local_hospital, size: 40),
+                      errorWidget: (context, url, error) => Icon(Icons.local_hospital_rounded, size: 40, color: Colors.grey[300]),
+                    ): Icon(Icons.broken_image, size: 40, color: Colors.grey[300]),
               ),
             ),
           ),
@@ -1308,12 +1309,12 @@ class _MainDashState extends State<MainDash> {
                   SizedBox(height: 5.0),
                   Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
+                      color: Colors.white,
                       borderRadius: BorderRadius.only(topLeft: Radius.circular(75.0)),
                     ),
                     child: Padding(
                       padding: EdgeInsets.only(left: 30.0, right: 30.0),
-                      child: SingleChildScrollView( // Wrap the Column in a SingleChildScrollView
+                      child: SingleChildScrollView(
                         child: Column(
                           children: [
                             SizedBox(height: 30),
@@ -1545,7 +1546,6 @@ class _MainDashState extends State<MainDash> {
                                               'Urbanist',
                                               fontSize: 15 * size,
                                               height: 1.2 * size / sizeAxis,
-                                              fontWeight: FontWeight.bold,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -1862,7 +1862,6 @@ class _MainDashState extends State<MainDash> {
                                               'Urbanist',
                                               fontSize: 15 * size,
                                               height: 1.2 * size / sizeAxis,
-                                              fontWeight: FontWeight.bold,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -2316,7 +2315,6 @@ class _MainDashState extends State<MainDash> {
                                               'Urbanist',
                                               fontSize: 15 * size,
                                               height: 1.2 * size / sizeAxis,
-                                              fontWeight: FontWeight.bold,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -2910,10 +2908,11 @@ class _MainDashState extends State<MainDash> {
     await fetchTodaySales();
     await fetchTodayCash();
     await fetchTodayCheque();
-    await fetchMonthSalesChart();
+    // await fetchMonthSalesChart();
     await fetchTodayExpense();
+    // await fetchExpenseMONTH();
     await fetchTodayDisbursement();
-    await fetchYearSalesChart();
+    // await fetchYearSalesChart();
     await fetchToday_IPD();
     await fetchToday_OPD();
     await fetchToday_PHIC();
@@ -2924,7 +2923,7 @@ class _MainDashState extends State<MainDash> {
     await fetchInsuranceMONTH();
     await fetchClaimAmountToday();
     await fetchTodayPF();
-    await fetchPHICTransmittalMONTH();
+    // await fetchPHICTransmittalMONTH_Chart();
     await fetchKPI();
     setState(() {});
     return await Future.delayed(Duration(seconds: 2));

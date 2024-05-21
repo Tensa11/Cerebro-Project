@@ -536,6 +536,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.14.8"
+  glossy:
+    dependency: "direct main"
+    description:
+      name: glossy
+      sha256: e57a20a9883eecbb134a2495d602c75ed99f0bdf010ab09b6d56d680a6af8616
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   google_fonts:
     dependency: "direct main"
     description:
@@ -808,6 +816,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.0"
+  measure_size:
+    dependency: transitive
+    description:
+      name: measure_size
+      sha256: "5faef74474db7bbcd8c6f301d8a09abc69b8e999b85167825e532f1a55c38ae6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   meta:
     dependency: transitive
     description:
@@ -1032,6 +1048,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.8"
+  redacted:
+    dependency: "direct main"
+    description:
+      name: redacted
+      sha256: "5c3290c9d5443d73ac06178dfc401c4652bb3f6aaa790cbef590d4d7b6a3ed47"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.11"
   riverpod:
     dependency: transitive
     description:

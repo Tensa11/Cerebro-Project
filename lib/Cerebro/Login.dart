@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../util/utils.dart';
 import 'package:http/http.dart' as http;
 import 'MainDash.dart';
+import 'package:glossy/glossy.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -141,237 +142,232 @@ class _LoginState extends State<Login> {
             child: SizedBox(
               width: double.infinity,
               child: Container(
-                padding: EdgeInsets.fromLTRB(
-                    22 * sizeAxis, 110 * sizeAxis, 22 * sizeAxis, 90 * sizeAxis),
+                padding: EdgeInsets.only(top: 100, bottom: 75,),
                 width: double.infinity,
                 // Background Image
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: AssetImage(
-                      'assets/images/bgg9.jpg',
-                    ),
+                    image: AssetImage('assets/images/bgg1.jpg',),
+                    // colorFilter: ColorFilter.mode(
+                    //   Colors.black.withOpacity(0.5), // Adjust opacity as needed
+                    //   BlendMode.darken,
+                    // ),
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(2 * sizeAxis, 0 * sizeAxis,
-                          0 * sizeAxis, 30 * sizeAxis),
-                      child: Image.asset(
-                        'assets/logo/applogoNoBG.png', // Replace with your AssetImage
-                        width: 100 * sizeAxis, // Adjust the width as needed
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 350,
+                    height: 720,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.75),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(60.0),
+                        bottomRight: Radius.circular(60.0),
                       ),
+                      // Add other decoration properties here if needed, such as color, boxShadow, etc.
                     ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0 * sizeAxis, 0 * sizeAxis,
-                          23 * sizeAxis, 32 * sizeAxis),
-                      constraints: BoxConstraints(
-                        maxWidth: 307 * sizeAxis,
-                      ),
-                      child: Text(
-                        'Welcome back!\nGlad to see you again!',
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 30 * size,
-                          fontWeight: FontWeight.w700,
-                          height: 1.3 * size / sizeAxis,
-                          letterSpacing: -0.3 * sizeAxis,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                          0 * sizeAxis, 15 * sizeAxis),
-                      width: 331 * sizeAxis,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8 * sizeAxis),
-                        border: Border.all(color: const Color(0xffe8ecf4)),
-                        color: const Color(0xfff7f8f9),
-                      ),
-                      child: TextFormField(
-                        controller: _usernameTextController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
-                              18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
-                          hintText: 'Enter Username',
-                          hintStyle: const TextStyle(color: Color(0xff8390a1)),
-                        ),
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 15 * size,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25 * size / sizeAxis,
-                          color: const Color(0xff0272bc),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
-                          0 * sizeAxis, 15 * sizeAxis),
-                      width: 331 * sizeAxis,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8 * sizeAxis),
-                        border: Border.all(color: const Color(0xffe8ecf4)),
-                        color: const Color(0xfff7f8f9),
-                      ),
-                      child: TextField(
-                        controller: _passwordTextController,
-                        // Assign the text controller
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
-                              18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
-                          hintText: 'Enter your Password',
-                          hintStyle: const TextStyle(color: Color(0xff8390a1)),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isHide
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isHide = !_isHide;
-                              });
-                            },
-                          ),
-                        ),
-                        style: SafeGoogleFont(
-                          'Urbanist',
-                          fontSize: 15 * size,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25 * size / sizeAxis,
-                          color: const Color(0xff0272bc),
-                        ),
-                        keyboardType: TextInputType.text,
-                        obscureText: _isHide, // Toggle password visibility
-                      ),
-                    ),
-                    if (_errorMessage.isNotEmpty)
-                      Container(
-                        margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis,
-                            0 * sizeAxis, 0 * sizeAxis),
-                        child: Text(
-                          _errorMessage,
-                          style: SafeGoogleFont(
-                            'Urbanist',
-                            fontSize: 15 * size,
-                            fontWeight: FontWeight.w500,
-                            height: 1.4 * size / sizeAxis,
-                            letterSpacing: 0.15 * sizeAxis,
-                            color: const Color(0xffe74c3c),
-                          ),
-                        ),
-                      ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
-                          0 * sizeAxis, 100 * sizeAxis),
-                      child: TextButton(
-                        onPressed: () {
-                          // Call fetchData() function when the button is pressed
-                          signIn();
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: Container(
-                          width: 331 * sizeAxis,
-                          height: 56 * sizeAxis,
-                          decoration: BoxDecoration(
-                            color: const Color(0xffe33924),
-                            borderRadius: BorderRadius.circular(8 * sizeAxis),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Login',
-                              textAlign: TextAlign.center,
-                              style: SafeGoogleFont(
-                                'Urbanist',
-                                fontSize: 15 * size,
-                                fontWeight: FontWeight.w600,
-                                height: 1.2 * size / sizeAxis,
-                                color: const Color(0xffffffff),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 30),
+                          // Logo
+                          Center(
+                            child: Container(
+                              child: Image.asset(
+                                'assets/logo/applogoNoBG.png', // Replace with your AssetImage
+                                width: 100 * sizeAxis, // Adjust the width as needed
                               ),
                             ),
                           ),
-                        ),
+                          SizedBox(height: 30),
+                          // Welcome Text
+                          Container(
+                            padding: EdgeInsets.only(right: 15,),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+                              children: [
+                                Text(
+                                  "Let's Sign you in.",
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 28 * size,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.3 * size / sizeAxis,
+                                    letterSpacing: -0.3 * sizeAxis,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  "Welcome back",
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 28 * size,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.3 * size / sizeAxis,
+                                    letterSpacing: -0.3 * sizeAxis,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  "You've been missed!",
+                                  style: SafeGoogleFont(
+                                    'Urbanist',
+                                    fontSize: 28 * size,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.3 * size / sizeAxis,
+                                    letterSpacing: -0.3 * sizeAxis,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          // Username
+                          Container(
+                            margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                                0 * sizeAxis, 15 * sizeAxis),
+                            width: 331 * sizeAxis,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10 * sizeAxis),
+                                color: const Color(0xfff7f8f9)
+                            ),
+                            child: TextFormField(
+                              controller: _usernameTextController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                                    18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                                hintText: 'Enter Username',
+                                hintStyle: const TextStyle(color: Color(0xff8390a1)),
+                              ),
+                              style: SafeGoogleFont(
+                                'Urbanist',
+                                fontSize: 15 * size,
+                                fontWeight: FontWeight.w500,
+                                height: 1.25 * size / sizeAxis,
+                                color: const Color(0xFF1497E8),
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Please enter your email';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          // Password
+                          Container(
+                            margin: EdgeInsets.fromLTRB(1 * sizeAxis, 0 * sizeAxis,
+                                0 * sizeAxis, 15 * sizeAxis),
+                            width: 331 * sizeAxis,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10 * sizeAxis),
+                              color: const Color(0xfff7f8f9),
+                            ),
+                            child: TextField(
+                              controller: _passwordTextController,
+                              // Assign the text controller
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                contentPadding: EdgeInsets.fromLTRB(18 * sizeAxis,
+                                    18 * sizeAxis, 18 * sizeAxis, 19 * sizeAxis),
+                                hintText: 'Enter Password',
+                                hintStyle: const TextStyle(color: Color(0xff8390a1)),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _isHide
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isHide =!_isHide;
+                                    });
+                                  },
+                                ),
+                              ),
+                              style: SafeGoogleFont(
+                                'Urbanist',
+                                fontSize: 15 * size,
+                                fontWeight: FontWeight.w500,
+                                height: 1.25 * size / sizeAxis,
+                                color: const Color(0xFF1497E8),
+                              ),
+                              keyboardType: TextInputType.text,
+                              obscureText: _isHide, // Toggle password visibility
+                            ),
+                          ),
+                          // Error Text
+                          if (_errorMessage.isNotEmpty)
+                            Container(
+                              margin: EdgeInsets.fromLTRB(1 * sizeAxis, 10 * sizeAxis,
+                                  0 * sizeAxis, 0 * sizeAxis),
+                              child: Text(
+                                _errorMessage,
+                                style: SafeGoogleFont(
+                                  'Urbanist',
+                                  fontSize: 15 * size,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.4 * size / sizeAxis,
+                                  letterSpacing: 0.15 * sizeAxis,
+                                  color: const Color(0xffe74c3c),
+                                ),
+                              ),
+                            ),
+                          // Login Button
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0 * sizeAxis, 50 * sizeAxis,
+                                0 * sizeAxis, 100 * sizeAxis),
+                            child: TextButton(
+                              onPressed: () {
+                                // Call fetchData() function when the button is pressed
+                                signIn();
+                              },
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: Container(
+                                width: 331 * sizeAxis,
+                                height: 56 * sizeAxis,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1497E8),
+                                  borderRadius: BorderRadius.circular(10 * sizeAxis),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Login',
+                                    textAlign: TextAlign.center,
+                                    style: SafeGoogleFont(
+                                      'Urbanist',
+                                      fontSize: 15 * size,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2 * size / sizeAxis,
+                                      color: const Color(0xffffffff),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    // Container(
-                    //   margin: EdgeInsets.fromLTRB(
-                    //       1 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis, 0 * sizeAxis),
-                    //   child: TextButton(
-                    //     onPressed: () {
-                    //       Navigator.of(context).push(
-                    //         MaterialPageRoute(
-                    //           builder: (context) => const ForgotPass(),
-                    //         ),
-                    //       );
-                    //     },
-                    //     style: TextButton.styleFrom(
-                    //       padding: EdgeInsets.zero,
-                    //     ),
-                    //     child: RichText(
-                    //       textAlign: TextAlign.center,
-                    //       text: TextSpan(
-                    //         style: SafeGoogleFont(
-                    //           'Poppins',
-                    //           fontSize: 15 * size,
-                    //           fontWeight: FontWeight.w600,
-                    //           height: 1.4 * size / sizeAxis,
-                    //           letterSpacing: 0.15 * sizeAxis,
-                    //           color: const Color(0xff1e232c),
-                    //         ),
-                    //         children: [
-                    //           TextSpan(
-                    //             text: "Can't Remember? ",
-                    //             style: SafeGoogleFont(
-                    //               'Urbanist',
-                    //               fontSize: 15 * size,
-                    //               fontWeight: FontWeight.w500,
-                    //               height: 1.4 * size / sizeAxis,
-                    //               letterSpacing: 0.15 * sizeAxis,
-                    //               color: const Color(0xff1e232c),
-                    //             ),
-                    //           ),
-                    //           TextSpan(
-                    //             text: 'Rest Password',
-                    //             style: SafeGoogleFont(
-                    //               'Urbanist',
-                    //               fontSize: 15 * size,
-                    //               fontWeight: FontWeight.w700,
-                    //               height: 1.4 * size / sizeAxis,
-                    //               letterSpacing: 0.15 * sizeAxis,
-                    //               color: const Color(0xff0272bc),
-                    //             ),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
+                  ),
                 ),
               ),
             ),
