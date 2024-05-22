@@ -52,6 +52,7 @@ class _MainDashState extends State<MainDash> {
     fetchInsuranceMONTH();
     fetchClaimAmountToday();
     fetchTodayPF();
+    fetchTodayHospitalAmount();
     fetchPHICTransmittalMONTH_Chart();
     fetchKPI();
     // -----------------------------------------------------------------------
@@ -803,9 +804,9 @@ class _MainDashState extends State<MainDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        todayClaimCount = (data['data'][0]['count'] == null || data['data'][0]['count'] == 0) ? 0 : data['data'][0]['count'] as int;
+        todayClaimCount = (data['data'][0]['claim_count'] == null || data['data'][0]['claim_count'] == 0) ? 0 : data['data'][0]['count'] as int;
 
-        var claimTotal = data['data'][0]['amount'];
+        var claimTotal = data['data'][0]['claim_amount'];
         if (claimTotal is int || claimTotal is double) {
           todayClaimAmount = claimTotal.toDouble();
         } else {
@@ -855,7 +856,7 @@ class _MainDashState extends State<MainDash> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        var pfTotal = data['data'][0]['amount'];
+        var pfTotal = data['data'][0]['pf_amount'];
         if (pfTotal is int || pfTotal is double) {
           todayPF = pfTotal.toDouble();
         } else {
@@ -872,6 +873,58 @@ class _MainDashState extends State<MainDash> {
       setState(() {});
     }
   }
+
+  late double todayHAmount = 0;
+  Future<void> fetchTodayHospitalAmount() async {
+    try {
+      final apiUrl = dotenv.env['API_URL']; // Retrieve API URL from .env file
+      if (apiUrl == null) {
+        throw Exception('API_URL environment variable is not defined');
+      }
+
+      var url = Uri.parse('$apiUrl/fin/phic_transmittal?date=$_selectedDate&type=hospital_amount');
+
+      // Retrieve the token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Assuming you saved the token with this key
+      final refreshToken = prefs.getString('refreshToken'); // Assuming refresh token is stored separately
+
+      if (token == null) {
+        throw Exception('Token not found.');
+      }
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Cookie': 'refreshToken=$refreshToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        var hpTotal = data['data'][0]['hospital_amount'];
+        if (hpTotal is int || hpTotal is double) {
+          todayHAmount = hpTotal.toDouble();
+        } else {
+          todayHAmount = 0.00; // Set to 0.00 if cashTotal is null or not a number
+          throw Exception('todayHAmount value is neither int nor double');
+        }
+        setState(() {});
+
+      } else {
+        print('Failed to load fetchTodayHospitalAmount. Status code: ${response.statusCode}, Response body: ${response.body}');
+        throw Exception('Failed to load fetchTodayHospitalAmount');
+      }
+    } catch (e) {
+      print('Error fetching fetchTodayHospitalAmount: $e');
+      setState(() {});
+    }
+  }
+
+  bool isDataValid(double? hospitalAmount, double? pf) {
+    return (hospitalAmount != null && hospitalAmount > 0) || (pf != null && pf > 0);
+  }
+
 
   List<TransMonthData> _chartMonthTransData = [];
   Future<void> fetchPHICTransmittalMONTH_Chart() async {
@@ -959,9 +1012,9 @@ class _MainDashState extends State<MainDash> {
     }
   }
 
-  String formattedCurrentDate = DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
-  String formattedCurrentMonth = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
-  String formattedCurrentYear = DateFormat('yyyy').format(DateTime.now()).toUpperCase();
+  late String formattedCurrentDate = DateFormat('MMM d, yyyy').format(DateTime.now()).toUpperCase();
+  late String formattedCurrentMonth = DateFormat('MMM yyyy').format(DateTime.now()).toUpperCase();
+  late String formattedCurrentYear = DateFormat('yyyy').format(DateTime.now()).toUpperCase();
 
   late String avatarUrl = '';
   late String username = '';
@@ -1065,7 +1118,7 @@ class _MainDashState extends State<MainDash> {
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.redAccent, // OK and Cancel buttons text color
+                foregroundColor: Color(0xFF1497E8), // OK and Cancel buttons text color
               ),
             ),
           ),
@@ -1077,6 +1130,9 @@ class _MainDashState extends State<MainDash> {
       setState(() {
         _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
         _selectedDate = DateFormat('yyyy-MM-dd').format(pickedDate); // Update selected date
+        formattedCurrentDate = DateFormat('MMM d, yyyy').format(pickedDate); // Update selected date
+        formattedCurrentMonth = DateFormat('MMM yyyy').format(pickedDate); // Update selected date
+        formattedCurrentYear = DateFormat('yyyy').format(pickedDate); // Update selected date
       });
       fetchTodaySales();
       fetchTodayCash();
@@ -1096,6 +1152,7 @@ class _MainDashState extends State<MainDash> {
       fetchInsuranceMONTH();
       fetchClaimAmountToday();
       fetchTodayPF();
+      fetchTodayHospitalAmount();
       fetchPHICTransmittalMONTH_Chart();
       fetchKPI();
     }
@@ -1254,15 +1311,15 @@ class _MainDashState extends State<MainDash> {
                                     '$formattedCurrentDate ',
                                     style: SafeGoogleFont(
                                       'Urbanist',
-                                      fontSize: 11 * size,
+                                      fontSize: 13 * size,
                                       height: 1.2 * size / sizeAxis,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.redAccent,
+                                      color: Color(0xFF0D669E),
                                     ),
                                   ),
                                   Icon(
                                     Icons.calendar_month_outlined,
-                                    color: Colors.redAccent,
+                                    color: Color(0xFF0D669E),
                                       size: 14,
                                   ),
                                 ],
@@ -2325,8 +2382,7 @@ class _MainDashState extends State<MainDash> {
                                               shrinkWrap: true,
                                               itemCount: insuranceTODAY.length,
                                               itemBuilder: (context, index) {
-                                                Insurance todayInsurance =
-                                                insuranceTODAY[index];
+                                                Insurance todayInsurance = insuranceTODAY[index];
                                                 return GestureDetector(
                                                   onTap: () {
                                                     // Navigate to the next page when a list item is tapped
@@ -2358,7 +2414,7 @@ class _MainDashState extends State<MainDash> {
                                                         children: [
                                                           SizedBox(height: 5),
                                                           Text(
-                                                            '\₱ ${double.parse(todayInsurance.amount).toStringAsFixed(2)}',
+                                                            '\₱ ${NumberFormat('#,##0.00', 'en_US').format(double.parse(todayInsurance.amount))}',
                                                             style: SafeGoogleFont(
                                                               'Inter',
                                                               fontSize: 17 * size,
@@ -2504,7 +2560,7 @@ class _MainDashState extends State<MainDash> {
                                                   size: 15 * size,
                                                 ),
                                                 Text(
-                                                  ' Claim Amount',
+                                                  ' Hospital Amount',
                                                   style: SafeGoogleFont(
                                                     'Urbanist',
                                                     fontSize: 15 * size,
@@ -2536,46 +2592,57 @@ class _MainDashState extends State<MainDash> {
                                               child: Container(
                                                 width: 250,
                                                 height: 250,
-                                                child: SfCircularChart(
-                                                  palette: <Color>[Color(0xFF64B5F6), Color(0xFF1976D2)],
-                                                  series: <CircularSeries>[
-                                                    PieSeries<PHIC_ChartData, String>(
-                                                      strokeWidth: 5,
-                                                      strokeColor: Colors.white,
-                                                      dataSource: <PHIC_ChartData>[
-                                                        PHIC_ChartData('Total Claim Amount', todayClaimAmount),
-                                                        PHIC_ChartData('PF', todayPF),
-                                                      ],
-                                                      xValueMapper: (PHIC_ChartData data, _) => data.name,
-                                                      yValueMapper: (PHIC_ChartData data, _) => data.value,
-                                                      pointRadiusMapper: (PHIC_ChartData data, _) {
-                                                        double maxValue = calculateMaxValue([
-                                                          PHIC_ChartData('Total Claim Amount', todayClaimAmount),
-                                                          PHIC_ChartData('PF', todayPF),
-                                                        ]);
-                                                        double radiusPercentage = 40 + ((data.value / maxValue) * 40);
-                                                        return radiusPercentage.toString() + '%';
-                                                      },
-                                                      dataLabelSettings: DataLabelSettings(
-                                                        isVisible: true,
-                                                        textStyle: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 12 * size,
-                                                          height: 1.2 * size / sizeAxis,
-                                                          fontFamily: 'Urbanist',
-                                                          fontWeight: FontWeight.bold,
+                                                child: isDataValid(todayHAmount, todayPF)
+                                                    ? SfCircularChart(
+                                                      palette: <Color>[Color(0xFF64B5F6), Color(0xFF1976D2)],
+                                                      series: <CircularSeries>[
+                                                        PieSeries<PHIC_ChartData, String>(
+                                                          strokeWidth: 5,
+                                                          strokeColor: Colors.white,
+                                                          dataSource: <PHIC_ChartData>[
+                                                            PHIC_ChartData('Total Claim Amount', todayHAmount ?? 0),
+                                                            PHIC_ChartData('PF', todayPF ?? 0),
+                                                          ],
+                                                          xValueMapper: (PHIC_ChartData data, _) => data.name,
+                                                          yValueMapper: (PHIC_ChartData data, _) => data.value,
+                                                          pointRadiusMapper: (PHIC_ChartData data, _) {
+                                                            double maxValue = calculateMaxValue([
+                                                              PHIC_ChartData('Total Claim Amount', todayHAmount ?? 0),
+                                                              PHIC_ChartData('PF', todayPF ?? 0),
+                                                            ]);
+                                                            double radiusPercentage = 40 + ((data.value / maxValue) * 40);
+                                                            return radiusPercentage.toString() + '%';
+                                                          },
+                                                          dataLabelSettings: DataLabelSettings(
+                                                            isVisible: true,
+                                                            textStyle: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 12 * size,
+                                                              height: 1.2 * size / sizeAxis,
+                                                              fontFamily: 'Urbanist',
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                          dataLabelMapper: (PHIC_ChartData data, _) {
+                                                            // Format the value as currency
+                                                            final NumberFormat currencyFormat = NumberFormat.currency(locale: 'en_PH', symbol: '₱');
+                                                            return '${currencyFormat.format(data.value)}';
+                                                          },
+                                                          enableTooltip: true,
                                                         ),
-                                                      ),
-                                                      dataLabelMapper: (PHIC_ChartData data, _) {
-                                                        // Format the value as currency
-                                                        final NumberFormat currencyFormat = NumberFormat.currency(locale: 'en_PH', symbol: '₱');
-                                                        return '${currencyFormat.format(data.value)}';
-                                                      },
-                                                      enableTooltip: true,
+                                                      ],
+                                                    )
+                                                    : Center(
+                                                      child: Text(
+                                                      'No data available',
+                                                        style: SafeGoogleFont(
+                                                          'Urbanist',
+                                                          fontSize: 15 * size,
+                                                          height: 1.2 * size / sizeAxis,
+                                                          color: Colors.white,
+                                                        ),
                                                     ),
-                                                  ],
                                                 ),
-
                                               ),
                                             ),
                                             SizedBox(height: 13),
@@ -2616,30 +2683,6 @@ class _MainDashState extends State<MainDash> {
                                                 ),
                                                 Text(
                                                   '₱ ${NumberFormat('#,##0.00').format(todayClaimAmount)}',
-                                                  style: SafeGoogleFont(
-                                                    'Inter',
-                                                    fontSize: 17 * size,
-                                                    fontWeight: FontWeight.bold,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'PF: ',
-                                                  style: SafeGoogleFont(
-                                                    'Urbanist',
-                                                    fontSize: 15 * size,
-                                                    height: 1.2 * size / sizeAxis,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '₱ ${NumberFormat('#,##0.00').format(todayPF)}',
                                                   style: SafeGoogleFont(
                                                     'Inter',
                                                     fontSize: 17 * size,
@@ -2923,6 +2966,7 @@ class _MainDashState extends State<MainDash> {
     await fetchInsuranceMONTH();
     await fetchClaimAmountToday();
     await fetchTodayPF();
+    await fetchTodayHospitalAmount();
     // await fetchPHICTransmittalMONTH_Chart();
     await fetchKPI();
     setState(() {});

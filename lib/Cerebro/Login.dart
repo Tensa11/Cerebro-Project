@@ -161,7 +161,7 @@ class _LoginState extends State<Login> {
                     width: 350,
                     height: 720,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.75),
+                      color: Colors.white.withOpacity(0.75),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(60.0),
                         bottomRight: Radius.circular(60.0),
@@ -197,7 +197,7 @@ class _LoginState extends State<Login> {
                                     fontWeight: FontWeight.w700,
                                     height: 1.3 * size / sizeAxis,
                                     letterSpacing: -0.3 * sizeAxis,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 Text(
@@ -208,7 +208,7 @@ class _LoginState extends State<Login> {
                                     fontWeight: FontWeight.w700,
                                     height: 1.3 * size / sizeAxis,
                                     letterSpacing: -0.3 * sizeAxis,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 Text(
@@ -219,7 +219,7 @@ class _LoginState extends State<Login> {
                                     fontWeight: FontWeight.w700,
                                     height: 1.3 * size / sizeAxis,
                                     letterSpacing: -0.3 * sizeAxis,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ],

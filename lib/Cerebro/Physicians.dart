@@ -444,6 +444,7 @@ class _PhysiciansPageState extends State<PhysiciansPage> {
             },
             child: Container(
               decoration: BoxDecoration(
+                color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Colors.white, // Border color

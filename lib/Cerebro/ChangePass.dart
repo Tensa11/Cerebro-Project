@@ -112,7 +112,7 @@ class _ChangePassState extends State<ChangePass> {
       textColor: Theme.of(context).colorScheme.tertiary,
       confirmBtnText: 'Confirm',
       cancelBtnText: 'Cancel',
-      confirmBtnColor: Theme.of(context).colorScheme.primary, // Optional: Set button color
+      confirmBtnColor: Colors.black, // Optional: Set button color
       onConfirmBtnTap: confirmAndPasswordChange, // Call the separate function
     );
     return result ?? false;
@@ -230,6 +230,7 @@ class _ChangePassState extends State<ChangePass> {
             },
             child: Container(
               decoration: BoxDecoration(
+                color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Colors.white, // Border color
